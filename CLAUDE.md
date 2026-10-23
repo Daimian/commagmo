@@ -17,7 +17,9 @@ Conventions for working in this repository. The layout is described in `README.m
 
 - The generator lives in `tools/commagmo_build/`. Find repository paths through
   `commagmo_build.paths`; do not count `Path(__file__).parents[N]` elsewhere.
-- Dependencies are listed in `requirements.txt`; keep them minimal.
+- Run the build in the conda env `commagmo-bin` (`environment.yml`; it carries graphviz for the png
+  maps): `conda run -n commagmo-bin python build.py`. Keep `environment.yml` and
+  `requirements.txt` in step and minimal.
 
 ## Naming
 
