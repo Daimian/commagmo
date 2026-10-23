@@ -1,0 +1,2979 @@
+module:
+  iri: https://w3id.org/emmo/domain/commagmo/material
+  version: 1.2.0
+  title: ComMagMO material module (v1.2) —— 材料那一侧
+  imports:
+  - https://w3id.org/emmo
+  prefixes:
+    commagmo: https://w3id.org/emmo/domain/commagmo#
+    dcterms: http://purl.org/dc/terms/
+    emmo: https://w3id.org/emmo#
+    owl: http://www.w3.org/2002/07/owl#
+    rdfs: http://www.w3.org/2000/01/rdf-schema#
+    skos: http://www.w3.org/2004/02/skos/core#
+    xsd: http://www.w3.org/2001/XMLSchema#
+  notes:
+  - before: '@header'
+    text: |-
+      ################################################################
+          材料侧起版。术语命名空间仍然是 commagmo: —— 与 simulation.ttl 共用一个，
+          文件只是组织方式，不是命名空间边界（概念图的图例也是这么写的：
+          「我们自己的类永远不带前缀，不论是哪个文件声明的」）。
+
+          ⚠ 本体 IRI 取 …/commagmo/material，而 simulation.ttl 目前占着根 IRI
+            …/commagmo。等根模块文件出现时，simulation.ttl 那一个应当一并改成
+            …/commagmo/simulation，由根文件 owl:imports 两个子模块。
+            本文件不改已提交的东西，这笔记在这里。
+      ################################################################
+  - before: emmo:Material
+    text: |-
+      ################################################################
+          上游引用节点 —— 一律只写 rdfs:label，`a owl:Class` 不写
+          （类型声明属于声明它的那个文件）。
+
+          ⚠ 本版起有**一处例外**：emmo:Material 身上多了一条
+            ⊑ ∃emmo:hasChemicalComposition.emmo:ChemicalComposition。
+            这是本仓库第一次给上游类写公理，账在文件末尾那一节。
+      ################################################################
+  - before: emmo:MaterialByStructure
+    text: |-
+      ################################################################
+          晶体那一支。两个上游节点之间那条 ⊑ 是**逐字重述**（零新增蕴涵），
+          而 emmo:Crystal 身上另有一条 ∃emmo:hasProperty.CrystalStructure 是**本文件新加的**，
+          上游没有 —— 所以本节点在概念图上会落进紫色虚线那一档，不是灰色纯引用档。
+          账在本节末尾那一段。
+      ################################################################
+  - before: emmo:Language
+    text: |-
+      ################################################################
+          ⚰ **已删除（2026-08-22）：emmo:Crystal 整个节点，连同
+          commagmo:CrystallinePhase ⊑ emmo:Crystal 那条父类边。**
+          <https://w3id.org/emmo#EMMO_0bb3b434_73aa_428f_b4e8_2a2468648e19>
+          本文件现在**不再提到这个 IRI**。分两步走完的：先删它身上的两条公理
+          （同日，账在下面 hasProperty 那一节的墓碑里），再删节点本身与那条父类边。
+
+          **删掉的是 EMMO 里唯一带真定义的晶体类。** disciplines/materials.ttl，IUCr 原文，
+          衍射判据："A material is a crystal if it has essentially a sharp diffraction
+          pattern. … most of the intensity of the diffraction is concentrated in
+          relatively sharp Bragg peaks, besides the always present diffuse scattering."
+          （rdfs:isDefinedBy 指 https://dictionary.iucr.org/Crystal）
+          它的父类与叔父（emmo:CrystallineMaterial / emmo:AmorphousMaterial）**都没有定义**
+          ——「晶态」在 EMMO 里的锚点就在这一层，而本文件现在够不着它了。
+
+          **HermiT 实测，删除前 → 删除后（不可满足类两边都是 0）：**
+            commagmo:CrystallinePhase          祖先 **28 → 21**，个体 30 → 23
+            commagmo:CrystallineMagneticPhase  祖先 **29 → 22**，个体 31 → 24
+            commagmo:MagneticDomain            祖先 **30 → 23**，个体 32 → 25
+            commagmo:Phase 20 / Microstructure 28 / CrystalStructure 15 /
+            MagneticStructure 16 / CrystallineMagneticMaterial 24  —— **全部不变**
+          **丢掉的正好 7 个**（逐个核过）：
+            **Crystal、CrystallineMaterial、MaterialByStructure、
+              MaterialByClassicalMaterialsScience、Material、MatterByType、OrdinaryMatter**
+          ⚠ **只丢 7 个而不是整条物侧链，有两个原因，都值得记：**
+            · **Substance / Matter / PhysicalObject / CausalSystem 一路没丢** ——
+              commagmo:Phase ⊑ emmo:PhaseOfMatter ⊑ emmo:ContinuumSubstance ⊑ emmo:Substance
+              这条路还在，物侧的上半截由相那一支自己供着。丢的只是「材料」那一段分支。
+            · **Referent / SemioticEntity / Semiotics / Perspective 四个也没丢** ——
+              它们本来由 emmo:Material 上那条 ∃hasChemicalComposition 的闸门带进来，
+              本该跟着一起消失；**但本文件同日刚给 commagmo:Phase 写了
+              ∃emmo:hasProperty.emmo:VolumeFraction**，那条边的 rdfs:domain 同样是
+              emmo:Referent，闸门由它顶住了。**两条边的顺序纯属巧合，后果是实打实的**：
+              换个顺序（先删 Crystal 再写 VolumeFraction）中间会有一版少这四个祖先。
+
+          **三条义务跟着没了，逐条记：**
+            (1) **CrystallinePhase 不再是 emmo:Material**，因此不再继承
+                emmo:Material ⊑ ∃hasChemicalComposition —— **晶态相不再必有化学组成**。
+                闸门实测：`CrystallinePhase ⊓ (≤0 hasChemicalComposition.⊤)`
+                删除前 **⊥**，删除后**可满足**。
+                ⚠ 但**缺陷那条义务没丢**：`CrystallinePhase ⊓ (≤0 hasCrystallographicDefect.⊤)`
+                  删除前后**都是 ⊥** —— 那条 ∃ 写在 CrystallinePhase 自己身上，不经 Crystal。
+            (2) **CrystallinePhase 不再是 emmo:CrystallineMaterial**，因此不再落进
+                emmo:CrystallineMaterial ⊑ ∃hasPhase.CrystallinePhase 的作用域。
+                ⚠⚠ **这一步把上一节记的那个无穷回归断掉了** —— 那条链的成因正是
+                  CrystallinePhase ⊑ emmo:Crystal ⊑ emmo:CrystallineMaterial 让公理落回自己
+                  头上。闸门实测：`CrystallinePhase ⊓ (≤0 hasPhase.⊤)`
+                  删除前 ⊥（欠一条无穷链），删除后**可满足**。
+                  **这是本次删除唯一一处纯粹的改善**，其余都是损失或中性。
+            (3) **「Crystalline」这个词从此在 CrystallinePhase 里不承载任何东西。**
+                本类现在只剩 ⊑ commagmo:Phase ⊓ ∃hasCrystallographicDefect.CrystallographicDefect。
+                与本文件记过的 "Magnetic" 一样，名字里的限定词没有公理对应 ——
+                同一个毛病的第八例，而且这一例是**删出来的**，不是从来没写。
+
+          **仍然成立的：** CrystallineMagneticMaterial ⊑ emmo:CrystallineMaterial 没动，
+          所以 emmo:CrystallineMaterial 那个引用节点仍是活的，晶态材料那一侧照旧在物侧。
+          断掉的只有**相**那一侧与晶体的联系。
+
+          **要恢复，两条路：**
+            (甲) 把 emmo:Crystal 加回 CrystallinePhase 的父类 —— 回到删除前的状态，
+                 连那个无穷回归一起回来。
+            (乙) 铸 commagmo:Crystal ⊑ emmo:CrystallineMaterial（主语收在本地类），
+                 把 CrystallinePhase 挂上去 —— 拿回 Material 那一支与化学组成，
+                 而且**不会**触发 emmo:CrystallineMaterial 上那条 ∃hasPhase 的自环，
+                 因为本地那个类是 CrystallineMaterial 的子类……**会触发**。要真断链，
+                 那条 ∃hasPhase 的主语得同时挪成本地类。两件事得一起做。
+            ⚠ 2026-08-21 铸过一个 commagmo:Crystal 又当日删掉，形状与四条查实结论在
+              本文件末尾那块墓碑里，重铸前先读那一块。
+      ################################################################
+  - before: Microstructure
+    text: |-
+      ################################################################
+          ⚰ **已删除（2026-08-22）：emmo:Crystal ⊑ ∃emmo:hasProperty.commagmo:CrystalStructure，
+          连同同一节点上那条 ⊑ emmo:CrystallineMaterial 的重述。**
+          下面整段是它还活着时的记账，原样留着，因为删除的理由与代价要靠它才读得懂。
+          先把删除本身的账记在这里：
+
+          **删的是什么，不是什么。**
+            删：那两条写在上游节点 emmo:Crystal 身上的公理。
+            不删：commagmo:CrystallinePhase ⊑ emmo:Crystal ⊓ commagmo:Phase —— 父类边保留，
+                  emmo:Crystal 仍是本文件的活节点，只是降为纯引用节点。
+
+          **⊑ emmo:CrystallineMaterial 那条删了零损失。** 它是逐字重述上游，而上游那条
+            本来就在 reference/emmo/emmo-inferred-1.0.4.ttl 里。本文件一贯的口径是
+            「不重述上游」，这一条当初是例外，现在回到常规。
+            ⚠ **所以分类学一条都没丢**：emmo:Crystal ⊑ CrystallineMaterial ⊑ MaterialByStructure
+              ⊑ MaterialByClassicalMaterialsScience ⊑ emmo:Material 整条链由上游供给，
+              commagmo:CrystallinePhase 照旧是 Material、照旧继承 emmo:Material 上那条
+              ∃hasChemicalComposition。
+
+          **⊑ ∃hasProperty.CrystalStructure 那条删了有损失，一条，说清楚：**
+            **「每一块晶体都必有一份被声明出来的晶体结构」这句话没有了。**
+            HermiT 实测（删除前后各跑一次）：
+              · 类级：emmo:Crystal 祖先 **24 → 24**，commagmo:CrystallinePhase **28 → 28**，
+                CrystallineMagneticPhase **29 → 29**，MagneticDomain **30 → 30**，
+                commagmo:CrystalStructure **15 → 15** —— **祖先集一个都没变**。
+                理由：那条 ∃ 主语侧本来就零成本（Referent 闸门早被 emmo:Material 那条付掉），
+                宾语侧的 +9 只落在填进去的个体上，不改类的位置。
+              · 真正变的是**义务**，不是位置。探针
+                `commagmo:CrystallinePhase ⊓ (≤0 hasProperty.commagmo:CrystalStructure)`
+                删除前 **⊥**（被强制），删除后 **可满足**。
+                也就是说：**ABox 里现在可以写一份没有晶体结构的晶态相了。**
+            ⚠ 这正是那条公理当年最弱的一环，删除等于承认了它：v0.1.1 记的原话是
+              「emmo:hasProperty 的释义是『在一个**声明过程**中把符号对象连到一个属性』，
+               所以那条说的是『每一块晶体都必然已经有一份被声明出来的晶体结构』。
+               **一块没人测过、没人写下结构的晶体是反例。**」那笔账三版没被驳倒，这次结清。
+
+          **副作用：commagmo:CrystalStructure 从物侧那一头断了一条边，但没有孤立。**
+            它现在唯一的入边来自磁性支：commagmo:MagneticStructure ⊑ commagmo:CrystalStructure，
+            而 commagmo:CrystallineMagneticPhase ⊑ ∃emmo:hasProperty.commagmo:MagneticStructure。
+            ⚠ 后果是**只有磁性相还被强制拥有一份（磁）晶体结构，普通晶态相不再被强制**。
+              两者现在不对称，这不是设计出来的，是删除的连带。要恢复对称，
+              做法是文件自己记过的那条退路：铸 commagmo:Crystal ⊑ emmo:CrystallineMaterial
+              ⊓ ∃hasProperty.CrystalStructure，把 CrystallinePhase 改挂它 —— 蕴涵一条不差，
+              且主语收在本地类。留作待决。
+
+          **本文件写在上游类身上的公理还剩一条**：emmo:Material ⊑ ∃hasChemicalComposition.…。
+            删掉本条之后，「主语收在本地类」这条规矩在本文件里只剩那一处例外。
+
+          ─────────────── 以下为删除前的原记账，原样保留 ───────────────
+
+          ⚠ **主语是上游类，这是本文件第二条这样的公理**（第一条是
+            emmo:Material ⊑ ∃hasChemicalComposition.…）。后果同一档：它落到 emmo:Crystal
+            的全部后代身上（眼下 0 个），且任何 import 本文件的下游拿到的 emmo:Crystal
+            都比上游紧。要退回本地口径，铸一个 commagmo: 的晶体类把 ∃ 挂上去即可。
+
+          HermiT 实测（ontology/*.ttl ＋ emmo-inferred-1.0.4.ttl，不可满足类 **0**）：
+
+          主语侧 —— **零成本，而且这一条是本轮最值得记的发现。**
+            emmo:hasProperty 的 rdfs:domain 是 emmo:Referent，而 emmo:Crystal 上游**不是**
+            Referent —— v0.1.1 把这条边删掉时，「Referent 闸门在 emmo:Crystal 上被推开」
+            正是记下的三笔代价之一。
+            **但这笔钱本文件上一节已经付过了**：emmo:Material ⊑ ∃hasChemicalComposition.…
+            顺 subClassOf 落到 emmo:Crystal 身上，早把它推成了 Referent。
+            实测：加本条前后，emmo:Crystal 的类级祖先**都是 24 个，一个不变**
+            （Referent、SemioticEntity、Semiotics、Perspective 四个在加本条之前就已在内）；
+            ABox 探针一个 emmo:Crystal 个体加本条前后都是 26 个类。
+            **所以 v0.1.1 记的第二笔代价在当前状态下已经不存在了** —— 不是它错了，
+            是上一节那条公理把它提前付掉了。这笔账要连着上一节一起看，单看本节会低估。
+
+          宾语侧 —— **不免费，落在填进来的那个结构个体上，多 9 个类。**
+            一个 commagmo:CrystalStructure 个体单独摆着推出 14 个类；
+            填进本谓词的宾语位后推出 23 个，多出
+            **Property、Coded、CodedByStructure、Conventional、Sign、SignByReferent、
+              SemioticEntity、Semiotics、Information**。
+            也就是说：**一份语言构造一旦被声明为某块晶体的属性，就同时变成了一个 Property
+            与一个 Sign。** 与上一节 ChemicalComposition 那 +6 是同一个机制（range 在开放
+            世界下推断类型而不是检查类型），本条更贵是因为 range 收得更窄（Property 而非
+            Conventional）。
+            ⚠ 其中 Information ≡ Data ⊓ Sign，同上一节：结构个体本来就是 Data，
+              一进宾语位拿到 Sign，于是升格成 Information。读起来是对的，但是副作用不是设计。
+            ⚠ **类级不受影响**：commagmo:CrystalStructure 的 12 个类级祖先里**没有 Property**
+              —— range 只作用于填进去的个体，不改类本身的位置。所以本地这个类仍然干净地
+              待在 Language 那一支。
+
+          ⚠ **v0.1.1 那三笔旧账，现在的状态：**
+            (1) 主语是上游类 —— **仍然成立**，见上。
+            (2) Referent 闸门在 emmo:Crystal 上被推开 —— **已不成立**（上一节提前付掉了）。
+            (3) 它是一条「必然」 —— **仍然成立，而且是本条最弱的一环**。
+                emmo:hasProperty 的释义是「在一个**声明过程**中把符号对象连到一个属性」，
+                所以本条说的是「每一块晶体都必然已经有一份被声明出来的晶体结构」。
+                **一块没人测过、没人写下结构的晶体是反例。** v0.1.1 原话记的就是这一条，
+                本轮按指示写上，这句话原样搬过来，没有被驳倒。
+                要避开它得改成 ∀ 方向（cryst 那一版的 ∀isPropertyFor.Crystal：凡以某晶体
+                结构为属性者必为晶体，∀ 无存在性承诺），两者互补不互斥，可以并存。
+      ################################################################
+  - before: emmo:isPartOf
+    text: |-
+      ################################################################
+          两条 hasPhase 的边，账一起记：
+            emmo:CrystallineMaterial            ⊑ ∃commagmo:hasPhase.commagmo:CrystallinePhase
+            commagmo:CrystallineMagneticMaterial ⊑ ∃commagmo:hasPhase.commagmo:CrystallineMagneticPhase
+
+          ⚠⚠ **第一条的主语是上游类，这与本文件上一步刚做的事方向相反。**
+            2026-08-22 刚把 emmo:Crystal 身上那条 ∃hasProperty.CrystalStructure 删掉，
+            理由正是「主语收在本地类」；本条又给 emmo:CrystallineMaterial 挂了一条。
+            **写在上游类身上的公理因此从 1 条回到 2 条**（另一条是 emmo:Material ⊑
+            ∃hasChemicalComposition.…）。后果与那两次相同：
+              · 它落到 emmo:CrystallineMaterial 的**全部后代**身上 —— emmo:Crystal、
+                commagmo:CrystallinePhase、commagmo:CrystallineMagneticPhase、
+                commagmo:MagneticDomain、commagmo:CrystallineMagneticMaterial 全在内；
+              · 任何 import 本文件的下游拿到的 emmo:CrystallineMaterial 都比上游紧。
+            要退回本地口径，做法与 emmo:Crystal 那条的退路同一个：铸一个本地晶态材料类，
+            把 ∃ 挂到它身上。**按指示写在上游类上，记在案。**
+            ⚠ 第二条的主语 commagmo:CrystallineMagneticMaterial 是本地类，没有这个问题。
+
+          HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl；
+          不可满足类 **0**）：**两条边四处全零。**
+            · 主语侧：emmo:CrystallineMaterial 类级祖先 **23**、个体 25；
+              commagmo:CrystallineMagneticMaterial **24**、个体 26 —— 加两条边前后一个不变。
+              commagmo:hasPhase 继承来的 domain 是 CausalSystem 与 Item，两个主语经
+              … ⊑ emmo:Material 都已在其下。
+            · 宾语侧：commagmo:CrystallinePhase **28**、个体 30；
+              commagmo:CrystallineMagneticPhase **29**、个体 31 —— 同样一个不变。
+              部分论那一族正向链无 range、七条逆谓词无 domain，宾语位没有闸门。
+            · 旁观者：MagneticDomain 30、Phase 20、emmo:Crystal 24，全部不变。
+            「部分论谓词便宜」第八次实测。
+
+          ⚠⚠⚠ **但第一条造出了一个无穷回归，这是本节唯一真正的问题，必须写下来。**
+            commagmo:CrystallinePhase ⊑ emmo:Crystal ⊑ **emmo:CrystallineMaterial**，
+            所以本条落到它自己头上：
+                **CrystallinePhase ⊑ ∃hasPhase.CrystallinePhase**
+            而 commagmo:hasPhase ⊑ emmo:hasSpatialPart ⊑ … ⊑ **emmo:hasProperPart**，
+            后者是 owl:IrreflexiveProperty ⊓ owl:AsymmetricProperty ——
+            **那个部分不能是它自己**。于是每一份晶态相都需要另一份与之不同的晶态相作为
+            真部分，那一份又需要下一份，**无穷下去**。
+            · **不可满足类仍然是 0** —— OWL 允许无穷模型，HermiT 靠 blocking 终止，
+              所以推理器不报错。
+            · **但 ABox 永远填不满**：写一份晶态相，就欠一条无穷长的链。
+            ⚠ **这与 simulation.ttl 里 PhysicsEquation 那个环是同一个毛病**
+              （PE ⊑ PhysicsBasedModel ⊑ ∃hasSpatialPart.PE，本文件
+              emmo:Material ⊑ ∃hasChemicalComposition 那一节拿它当过反面对照，
+              原话「本条没有这个毛病：推理器造一个匿名后继就收工，有穷 ABox 填得满」）。
+              **本条有这个毛病。** 对照 commagmo:Microstructure ⊑ ≥1 hasPhase.Phase：
+              那一条**收敛**，因为 commagmo:Phase 不是 Microstructure，链走一步就停。
+            ⚠ 断链的做法有两条，都不在本轮：
+              (甲) 把主语从 emmo:CrystallineMaterial 换成一个**不在自己后代里**的本地类
+                   （即上面那条退路，顺带把越界公理也解决了）；
+              (乙) 把填充从 CrystallinePhase 收紧到一个不再是 CrystallineMaterial 的类。
+            **本轮按指示原样写上，链记在这里。**
+            ⚠ **第二条现在没有自环，但差一步。** commagmo:CrystallineMagneticPhase
+              **不是** commagmo:CrystallineMagneticMaterial 的子类（那条边是本文件记着的
+              待决，至今没补）。所以第二条自己不自环 —— 但它的宾语 CrystallineMagneticPhase
+              ⊑ … ⊑ emmo:CrystallineMaterial，照样被第一条抓住，链还是接上了。
+              ⚠⚠ **若日后补上那条待决（CrystallineMagneticPhase ⊑ CrystallineMagneticMaterial，
+                当时实测「零新增蕴涵」），磁性支就会多出一个自己的直接自环。**
+                那条待决的代价评估要连本节一起看，不能只看祖先数。
+
+          ⚠ **物理上还有一处别扭，与无穷回归无关，单独记：单相材料。**
+            一块纯的单相晶体，材料与相的空间范围是同一个。而 hasProperPart 的非自反
+            逼着 ABox 里把它们写成**两个不同的个体**。本文件 Microstructure ⊑ ≥1 hasPhase.Phase
+            那一处同样如此，但那里没问题（显微组织确实不等于它的任一个相）；
+            **本条落到单相材料上就别扭了**。两条边共用一个谓词，这个差别不在公理里。
+      ################################################################
+  - before: emmo:Contrast
+    text: |-
+      ################################################################
+          缺陷那一支。三个本地类：SpatialContrast → Defect → CrystallographicDefect。
+
+          ⚠⚠ **指示里的 emmo:SpatialContrast 不存在。** 全库 prefLabel 扫过
+            （reference/emmo/modules-1.0.4/**），三个名字命中都是 **0**：
+              Defect 0、SpatialContrast 0、CrystallographicDefect 0。
+            本文件前面 commagmo:Microstructure 那一节记过同一件事，这里逐个复核了一遍。
+            SpatialContrast 是 **domain-microstructure 自己铸的类**，不是上游的：
+              mstr:SpatialContrast
+              <https://w3id.org/emmo/domain/microstructure#EMMO_89c368d0-ca72-5e9f-bd52-988d9b6f8ace>
+              ⊑ **emmo:Contrast**（EMMO_1e877c70…），altLabel SpatialPattern / SpatialVariation，
+              elucidation "An entity with a spatial variation of its properties."
+            所以「Defect ⊑ emmo:SpatialContrast」这句话照字面执行不了。本节按本地铸造做：
+            commagmo:SpatialContrast 照 mstr 那一个重铸，Defect 挂在它下面 —— 位置与上游
+            domain-microstructure 一模一样，只是主语换成自家命名空间。
+
+          ⚠ **为什么不直接引用 mstr: 那一个。** 两条理由，与本文件铸 commagmo:Crystallography
+            时那一条同源：
+              · mstr 走的是 **EMMO 1.0.3**（microstructure-dependencies.ttl 里八条 owl:imports：
+                七条 …/emmo/1.0.3/… 加一条 characterisation-methodology/1.0.3/chameo），
+                本文件从头到尾按 1.0.4 记账，
+                引用它等于把另一个版本拖进来。
+              · mstr 的 IRI 是 UUID 带连字符那一套（EMMO_89c368d0-ca72-…），与上游
+                下划线那一套不是同一个铸造规则；v0.1.1 记过一笔「结构图按 IRI 数模块，
+                缺陷链四个类全是 mstr: 的 UUID，一票都不投给任何 EMMO 模块」。
+            代价如实记：**本地这三个与 mstr 那三个之间一条 skos 对齐都没写。** 位置逐字相同、
+            释义逐字取自 mstr，写 skos:exactMatch 是站得住的，但那是对齐不是结构，本轮不写。
+
+          ⚠ **本轮只铸这两个类（加它们的根），mstr 那一支下面的四个一个都没铸**：
+            PointDefect（"lattice defects of zero dimensionality"，例 vacancy / interstitial /
+            substitutional atom）、LineDefect（"a line along which whole rows of atoms in a
+            solid are arranged anomalously"，例 stacking fault, dislocation）、
+            PlanarDefect（"a discontinuity of the perfect crystal structure across a plane"）、
+            **Dislocation**。
+            ⚠ 抄这张单子之前先知道 mstr 这一层是**乱的**：Dislocation 在那边直接挂
+              CrystallographicDefect，与 LineDefect 是**兄弟不是子类**，而它自己的释义写着
+              "A linear crystallographic defect…"，上游还留了一条 skos:note 原文
+              **"NEED TO CLARIFY LINE OR PLANAR"**。也就是说上游自己知道这里没定下来。
+              本仓库 archive/ontology/v0.0.1/domain-defect.ttl 当年的做法是把 Dislocation 收到 LineDefect
+              之下（并用 closeMatch 而不是 exactMatch 标记这处分歧）。要接着铸就从这里接。
+
+          ⚠ **同名不同 IRI，本仓库记过的又一对。** cdco:CrystallographicDefect
+            <https://purls.helmholtz-metadaten.de/cdos/cdco/CrystallographicDefect>
+            与本节这个 IRI 局部名相同，定义却换了一个判据：
+              cdco —— 「Lattice irregularity having one or more of its dimensions on the
+                       order of an atomic diameter.」（**尺寸**判据，逐字核过 cdco.owl）
+              mstr —— 「Imperfection in the regular geometrical arrangement of the atoms…」
+                       （**几何**判据）
+            两者不是一句话，一个个体可以满足其一而不满足另一个。v0.1.1 把这一对记成
+            「本文件遇到的第四对同名不同源」，前三对是 Crystal（emmo / cryst）、
+            CrystallineMaterial（emmo / cdco）、Phase（emmo / mstr / nanoindentation）。
+            本文件一次都没写 skos 对齐，这一对同样没写。
+          ⚠ CDOS 那一支的 0D/1D/2D 三档见下面 commagmo:PointDefect 那一节 ——
+            **它比「三个都直接 ⊑ cdco:CrystallographicDefect」复杂**，三条里有两条
+            因为 http/https 错配根本接不上。整笔账记在那一节。
+      ################################################################
+  - before: Grain
+    text: |-
+      ################################################################
+          显微组织组件的四个子类：Grain / GrainBoundary / Pore / Precipitate。
+          全部 ⊑ commagmo:MicrostructureComponent，释义逐字取自 mstr 同名类。
+
+          ⚠ **上游 EMMO 1.0.4 一个都没有**（prefLabel 全库扫过）：
+            GrainBoundary 0、Pore 0、Precipitate 0。**Grain 命中 1，但那是个陷阱**——
+            ⚠⚠ 它在 disciplines/units/unclassifiedunits-abox.ttl 里，是一个 **ABox 个体
+              不是类**，内容是英制质量单位（QUDT GRAIN，7000 grain = 1 磅，
+              emmo:ucumCode "[gr]"），与冶金学的晶粒毫无关系。
+              本文件开头记过这个坑，这里核实了它的确切身份：**个体，不是类，
+              所以连「重名的类」都算不上**，写 skos 对齐都无处可挂。
+
+          ⚠⚠ **四个里有三个在 mstr 那边是双父类，本文件一律只取 MicrostructureComponent
+            那一条。** 逐个把没取的那一条与它的代价记下 —— 全部是「加一条」不是「改一条」：
+
+            · **Grain** mstr 的第二父类是 **emmo:CrystallineMaterial**
+              <…#EMMO_f1025834…>（本文件已有引用节点）。取它等于说晶粒是晶态材料，
+              顺带白捡 ⊑ … ⊑ emmo:Material ⊑ ∃hasChemicalComposition（本文件写的那条）。
+              ⚠ **没取的理由不是省钱，是 mstr 自己的 note 跟它打架**：
+                "Grains (and subgrains) are in general **not (single) crystals** since they
+                 may include small particles (e.g. precipitates) with another crystal
+                 structure."
+                上游一边写着晶粒一般不是单晶，一边把它挂在 CrystallineMaterial 之下。
+                两句话不是必然矛盾（CrystallineMaterial ≠ 单晶），但足以让这一步值得先想清楚。
+
+            · **GrainBoundary** mstr 的第二父类是 **mstr:SolidPhaseBoundary**，整条链是
+                SolidPhaseBoundary ⊑ PhaseBoundary ⊑ **Boundary** ⊑ **SpatialContrast**
+              —— 也就是说 **mstr 把晶界送进了 SpatialContrast 那一支，走的是 Boundary，
+              不是 Defect**（两者在 mstr 里是兄弟）。
+              ⚠⚠ **这与 CDOS 正面冲突**：pldo:GrainBoundary ⊑ pldo:**PlanarDefect**。
+                一家说晶界是「两个相之间的过渡带」，一家说它是「一种面缺陷」。
+                **本文件两边的落点现在都有了**（commagmo:SpatialContrast 与
+                commagmo:PlaneDefect 都已铸），所以这是一个真的三选一，不是缺零件：
+                  (a) 只挂 MicrostructureComponent —— 本轮采用，不表态；
+                  (b) 加 ⊑ commagmo:PlaneDefect（CDOS 口径，零件现成，一行即可）；
+                  (c) 补 Boundary → PhaseBoundary → SolidPhaseBoundary 三层再挂（mstr 口径，
+                      要先铸三个类，而 Boundary 本来就是 commagmo:SpatialContrast 缺的那一支）。
+                **本轮按指示走 (a)。** 三条路都不冲突，(b)(c) 可以同时要。
+
+            · **Precipitate** mstr 的第二父类是 **mstr:MicrostructureParticle**，
+              而后者 ⊑ **emmo:Solid** <…#EMMO_a2b006f2…> ⊓ MicrostructureComponent。
+              ⚠ 取那条链就要连 emmo:Solid 一起付账，而本文件末尾那块墓碑把这笔账算过：
+                **ContinuumSubstance ⊥ MesoscopicSubstance 是一条真互斥**，挂 Solid 等于
+                替上游把「介观还是连续体」那个二选一选掉，且不可逆；另有 Solid ⊥ Liquid/
+                Gas/Plasma 三条。实测代价是个体类型 +4。
+                本轮不取，理由与当年删掉本地 Crystal 时同一条。
+
+            · **Pore** 在 mstr 那边**只有一个父类**，与本文件取的完全相同，无差额。
+
+          ⚠ **上游那几层子类一个都没铸**：GrainBoundary 下有 HighAngleGrainBoundary /
+            LowAngleGrainBoundary，Pore 下有 GasPore。
+            ⚠ 若将来走 (b) 那条 CDOS 路线，还要对照 pldo:GrainBoundary 自己的四个子类
+              （LowAngle / Mixed / SymmetricalTilt / Twist）—— **两家的细分维度不一样**，
+              mstr 按错向角二分，PLDO 按倾转性质四分，别混着抄。
+
+          ⚠ **Pore 与空位是同一个哲学问题的两个尺度。** 「A small openings in a solid
+            substance.」（上游拼写如此）说的是那里**没有物质**，与
+            commagmo:PointDefect 那一档里空位的情形一样。本文件把 Pore 挂在
+            MicrostructureComponent 之下，而组件那一支经 emmo:Component ⊑ Role ⊓ Constituent
+            落在**视角侧不在物侧**（那 13 个祖先里没有 Material/Matter/Substance）——
+            **正好躲开了「一个『无』怎么会是一块物质」这个问题**。这不是刻意设计，
+            是只取 emmo:Component 那一条父类顺带带来的，记在这里以免将来有人
+            顺手补上 emmo:Material 而不知道自己动了什么。
+
+          HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl；
+          不可满足类 **0**）：四个类的类级祖先各 **14** 个
+          （MicrostructureComponent 那 13 个加它自己），ABox 各 16 个类型。
+          四条边都是纯 subClassOf，没有 owl:Restriction，**两侧零成本**。
+
+          ⚠ **四者之间没有 owl:disjointWith**，探针实测六对交集**全部可满足** ——
+            一个既是晶粒又是气孔的个体合法。与 PointDefect/LineDefect/PlaneDefect 那一处、
+            UnitCell/Spacegroup/Site 那一处**同一个洞、同一个补法**
+            （一条 owl:AllDisjointClasses 即可，零件全在本地）。本轮同样没补，留作待决。
+            ⚠ 但这一处与那两处有一点不同：**这四个未必真该互斥**。晶界是不是晶粒的一部分、
+              析出相能不能同时算颗粒，物理上有讨论余地；0D/1D/2D 那三档则是定义上就该互斥。
+              补之前先想清楚这一点，别照着上一处的做法机械照搬。
+
+          ⚠⚠ **Pore 本轮不接相：撤下的是 `≤0 isPartOfPhase.⊤`，不是漏掉的。**
+            原设计要给 Pore 写 Pore ⊑ ≤0 commagmo:isPartOfPhase.⊤（那里没有物质，
+            明写不对应），**撤下的理由是它的连带后果**：那条会把
+            mstr:GasPore ⊑ ∃isPartOfPhase.<气相> 那条路一起封死（mstr:GasPore
+            "A pore filled with gas." 存在，本仓库未铸）。要既封住固相又给气孔留门，
+            得先铸 commagmo:SolidPhase —— 那是另一件事，本轮不做。
+            **代价如实记**：判据后半句「孔隙必不对应相」本轮**没有公理拦着**，
+            一个既是 Pore 又挂 isPartOfPhase 的个体现在合法。这是撤下的，不是漏掉
+            的。见 spec §5.1；守洞测试 test_pore_may_still_belong_to_a_phase 把这个
+            敞着的洞钉成实测记录——哪天补上 ≤0，那条测试会红，那时应先确认
+            SolidPhase 已经铸好。
+
+          ⚠⚠ **GrainBoundary 本轮不接相。** mstr:GrainBoundary ⊑
+            mstr:SolidPhaseBoundary ⊑ mstr:PhaseBoundary（"Boundary between two
+            (or more) phases."）**与它自己的释义打架**："A boundary between at
+            least two grains." 本轮不接相，与上面「站 CDOS 还是站 mstr」那个三选一
+            一起留待决。见 spec §5.2；语法层测试
+            test_pore_and_grain_boundary_carry_no_phase_axiom 守着 Pore 与
+            GrainBoundary 本轮一条 restriction 都不该有。
+            ⚠ **2026-08-27 降级：原文接着断言「在本文件的 token 读法下更站不住——
+              同相的两个晶粒是同一个 commagmo:Phase 个体的两部分，它们之间的晶界
+              不在两个相之间」。那句话依赖一个从没声明过的读法，现降级为条件句：**
+              · **聚合读法**（一个 Phase 个体＝这块显微组织里那一摊某相物质，同相
+                可以不连通）：同相两晶粒确实同属一个 Phase 个体，晶界不在两相之间，
+                原句成立。
+              · **连通读法**（一个 Phase 个体＝一块连通的均匀区）：两个取向不同的
+                同相晶粒**不是**一个均匀区，各自是一个 Phase 个体，晶界就确实落在
+                两个 Phase 个体之间，原句不成立。
+              本地 commagmo:Phase 自己的 skos:definition 写的是 "A region of matter
+              throughout which all physical properties are essentially uniform."
+              （本文件 commagmo:Phase 那一节），**字面偏连通读法**；而
+              isPartOfPhase 那一节由 ∃hasProperty.VolumeFraction 推出的只是
+              **token 不是 type**，区分不了聚合与连通（体积分数在两种读法下都说得通）。
+              **两种读法下「本轮不接相」都安全**，所以本轮的公理不受影响；受影响的是
+              这段话作为下一轮三选一的**证据**的分量 —— 它现在只在聚合读法下是证据。
+              **`commagmo:Phase` 的读法（聚合 vs 连通）本身是一条待决**，见报告 51 §8。
+      ################################################################
+  - before: null
+    text: |-
+      ################################################################
+          ⚠⚠ **待决：父类收紧成 emmo:NonEncodedContrast。两个变体都跑了 HermiT，
+            数字摆在一起，随时可以翻。**
+
+          本文件采用的是 **变体 A：commagmo:SpatialContrast ⊑ emmo:Contrast**，
+          与 mstr 逐字相同（指示说「参考 emmo domain microstructure」，取的就是它）。
+          **变体 B** 是把父类换成 emmo:NonEncodedContrast
+          <https://w3id.org/emmo#EMMO_5a10e288_c6a5_409a_a16a_98a2fb8be4f3>，
+          "Contrast that occurs naturally without an encoding agent producing it."
+          —— 本仓库 archive/ontology/v0.0.1/domain-defect.ttl 当年就是这么做的。
+
+          两个变体各跑一次 HermiT，四个交类探针（probe ≡ Defect ⊓ X，看它是否落进
+          owl:Nothing），**结果如下，非探针类的不可满足数两边都是 0**：
+
+            Defect ⊓ …            变体 A（⊑ Contrast）   变体 B（⊑ NonEncodedContrast）
+            ────────────────────────────────────────────────────────────────────────
+            commagmo:CrystalStructure   可满足                **⊥**
+            emmo:Data                   可满足                **⊥**
+            emmo:Material               可满足                 可满足
+            commagmo:Phase              可满足                 可满足
+            祖先数（SpatialContrast /
+              Defect / CrystallographicDefect）  6 / 7 / 8      7 / 8 / 9
+
+          **也就是说变体 A 下「一个缺陷同时是一份晶体结构」推理器一声不吭地放过。**
+          机制：本文件的 commagmo:CrystalStructure ⊑ commagmo:Crystallography ⊑
+          emmo:Language ⊑ … ⊑ **emmo:Data**，而唯一那条硬互斥是 **Data ⊥ NonEncodedContrast**
+          （见上面 emmo:Contrast 那一节）。挂在 Contrast 上够不着这条互斥，挂在
+          NonEncodedContrast 上才够得着。多的那一个祖先就是 NonEncodedContrast 本身。
+
+          **变体 B 的代价，同样说清楚：它不是重述，是修正上游。**
+            mstr 明写着 ⊑ emmo:Contrast，改挂等于说 domain-microstructure 这一处放松了。
+            理由站得住（一个空位是自然发生的、没有编码者的变化，正好是 NonEncodedContrast
+            的释义），但代价是本地这个类**严格窄于** mstr:SpatialContrast，两者写不了
+            skos:exactMatch，只能写 broadMatch —— 与本文件 commagmo:CrystallinePhase
+            窄于 mstr:CrystallinePhase 是同一款账。
+            另外它会把「缺陷是非编码的」变成一条不可撤销的承诺：一份**模拟出来的**缺陷
+            （由算法生成、写进超胞的那一个）就落不进这个类了。本文件模拟侧已经有
+            MaterialSimulation 那一支，这个反例不是假想的。
+
+          **本轮按指示照 mstr 走 A，没有收紧。** 要翻成 B，改
+          commagmo:SpatialContrast 的 rdfs:subClassOf 一行即可，上面那张表就是它的全部后果。
+      ################################################################
+  - before: null
+    text: |-
+      ################################################################
+          ⚠ **丢掉的东西，如实记。** 本文件 2026-08-21 铸过一个本地 commagmo:Crystal，
+          同日按指示删除。它先后有过两个形状：
+            ⊑ emmo:Crystal ⊓ emmo:Solid ⊓ ∃emmo:hasSpatialSlice.emmo:MolecularEntity
+            ⊑ emmo:Solid                                    （删掉前两条之后）
+          都照着 cryst:Crystal <…crystallography#EMMO_69dab453…> 的形状铸，
+          那一版是 ⊑ emmo:Solid ⊓ ∃hasSpatialPart(beta 名).cryst:Constituent，
+          释义 "A crystal is a solid whos constituents are ordered."（原文拼写如此）。
+
+          删掉之后本文件对「晶体」的全部说法，就是上面那条重述。四条查实的结论留在这里，
+          将来要重铸不必再查一遍：
+
+          (1) **⊑ emmo:Solid 要付两笔，都不是错，但都得说出口。**
+              emmo:Solid <…#EMMO_a2b006f2…>，"A continuum characterized by structural
+              rigidity and resistance to changes of shape or volume."
+              ⊑ CondensedMatter ⊑ StateOfMatter ⊑ ContinuumSubstance ⊑ Substance。
+              · **ContinuumSubstance ⊥ MesoscopicSubstance 是一条真互斥**（实测在 845 条
+                互斥无序对里）。而 emmo:Material 的 note 原话是 "A material may be either
+                a mesoscopic or a continuum substance" —— 上游把这个二选一留着，
+                一挂 Solid 就替它选了连续体那一侧，且不可逆。
+              · **Solid ⊥ Liquid、Gas、Plasma** 三条同样是真互斥，所以挂 Solid 等于排除液晶。
+              实测代价：个体类型数比裸 emmo:Crystal 多 4 个
+              （Solid、CondensedMatter、StateOfMatter、ContinuumSubstance）。
+
+          (2) **那条 ∃ 的谓词按 IRI 取，不能按名字取。**
+              cryst 用的 <…#EMMO_f68030be…> 在它实际 import 的 EMMO 1.0.0-beta 里
+              prefLabel 是 **hasSpatialPart**，在 1.0.4 里改叫 **hasSpatialSlice**，
+              而 hasSpatialPart 这个**名字**被一个新 IRI（EMMO_dc57d998…）占走，
+              且 hasSpatialSlice ⊑ hasSpatialPart。同一个字符串两版都活着、指两个不同的
+              谓词，1.0.4 那个更弱，按名字重打会丢信息。
+              （报告 09 §2.1 记过同类第一例：EMMO_b2282816 从 hasSpatialDirectPart 改名
+                hasSpatialTile。这是第二例，方向更险，因为旧名有人接盘。）
+
+          (3) **cryst:Constituent 不能照搬，它跟自己的释义打架。**
+              <…crystallography#EMMO_203692d9…> 释义写 "The union of Atom and Molecule"，
+              注释写「晶体的真实世界构件（原子或分子）」，可它断言的父类是
+              emmo:PolyatomicEntity —— 在 beta 里 PolyatomicEntity 的子类只有
+              {Macromolecule, Molecule}，**Atom 不在其下**（beta 里 Atom ⊑ MolecularEntity
+              ⊓ State）。所以它断言出来的范围把原子排除在外。
+              1.0.4 里真正覆盖「原子或分子」的是 emmo:MolecularEntity <…#EMMO_21205421…>
+              （直接子类正好 Atom / Molecule / PolyatomicEntity）。
+
+          (4) **那条 ∃ 两侧都零成本。** hasSpatialSlice 整条祖链（hasSpatialPart、
+              hasWellFormedPart、hasNonTemporalPart、hasPortionPart、hasPiece、
+              hasProperPart、hasPart、overcrosses、overlaps、mereological 逐条查过）
+              **一条 rdfs:range 都没有**；主语侧继承来的 domain 是 CausalSystem 与 Item，
+              emmo:Crystal 两个都已在其下。删它省不下任何蕴涵，删的是那句话本身。
+
+          ⚠ 无论铸不铸，「ordered」都还只在英文释义里，从来没有变成公理 —— cryst 那一版
+            也一样（它的 ∃ 只说「有个构件作为空间切片」，任何一块非晶都满足）。
+            要把「有序」写成公理，需要周期性／点阵那一层的零件（UnitCell、Spacegroup 一类），
+            本文件眼下没有。留作待决。
+      ################################################################
+classes:
+  Crystallography:
+    label: Crystallography
+    definition: The language of the crystallographic domain.
+    parents:
+    - emmo:Language
+    rationale: |-
+      ################################################################
+          commagmo:Crystallography —— 晶体学这门语言。
+          照 cryst:Crystallographical 的位置铸，挂在 emmo:Language 之下，
+          与上游 Chemical / Mathematical / Metrological / ComputerScience 平级。
+          本地重铸而不是引用 cryst: 那一个，理由：那一支整个建在 emmo.info 旧命名空间上，
+          引用它等于把 1.0.0-beta 拖进来（本文件从 emmo:Crystal 那一节起一直在避这件事）。
+
+          ⚠ 眼下它有四个子类（CrystalStructure、UnitCell、Spacegroup、Site）。
+            cryst 那一支下面有 18 个，剩下的 14 个是
+            CIF、CellVolume、CrystalSystem、SymmetryOperationString、LatticeParameter
+            与它的六个分量（A/B/C/Alpha/Beta/Gamma）、FractionalPosition 三个分量 ——
+            要接着铸就照那张单子过一遍，别重推。
+      ################################################################
+  CrystalStructure:
+    label: CrystalStructure
+    definition: A crystallographic language construct that describes the ordered arrangement of constituents in a crystal.
+    parents:
+    - Crystallography
+    restrictions:
+    - emmo:hasSpatialTile exactly 1 UnitCell
+    - emmo:hasSpatialTile exactly 1 Spacegroup
+    - emmo:hasSpatialTile some Site
+    rationale: |-
+      ################################################################
+          commagmo:CrystalStructure —— 一份晶体结构的描述。
+
+          ⚠ **它在符号侧，不是晶体里那些原子的排列本身。** 12 个类级祖先
+            （Crystallography、Language、Symbolic、Data、DiscreteData、DataByDiscretness、
+              Contrast、Perspective、CausalStructure、Item、Fusion、EMMO）
+            没有一个是物。这与 emmo:ChemicalComposition 的读法完全一致：
+            一份晶体结构是写下来的那段东西（空间群 ＋ 晶胞 ＋ 位点），不是那些原子。
+            cryst:CrystalStructure 也是这个读法（⊑ Crystallographical ⊑ Language）；
+            MAMMOS 那一家不是（它写 ⊑ emmo:Property ⊓ emmo:Referent，落在记号侧的量那一支）。
+            两种读法都能自洽，本文件选前者。
+
+          三条内容公理照 cryst:CrystalStructure <…crystallography#EMMO_6a340d67…> 抄，
+          谓词换成 1.0.4 的正确 IRI（见下面 emmo:hasSpatialTile 那节），填充换成本地三个类：
+            =1 hasSpatialTile.UnitCell     =1 hasSpatialTile.Spacegroup     ∃ hasSpatialTile.Site
+          cryst 在本类身上还有第四条 ∀isPropertyFor.Crystal（具名逆谓词那一版），
+          本文件**不抄**：上一节已经从 emmo:Crystal 那一侧写了 ∃hasProperty 的正方向，
+          两条互补不互斥，要补是加一条不是改一条。留作待决。
+
+          ⚠ **「有序排列」仍然没有变成公理。** 这三条说的是「有一个晶胞、一个空间群、
+            至少一个位点」，不是「构件是有序的」。skos:definition 那句英文比公理说得多，
+            这一点从 cryst 那一版起就是如此，本文件照抄了这个状态。
+      ################################################################
+  UnitCell:
+    label: UnitCell
+    definition: A periodic unit in a crystal structure, spanned by three lattice vectors.
+    parents:
+    - Crystallography
+    rationale: |-
+      ################################################################
+          commagmo:UnitCell / commagmo:Spacegroup / commagmo:Site
+          —— 晶体结构的三片瓦片，全部照 cryst 同名类的位置铸，⊑ commagmo:Crystallography
+          （cryst 那边这三个也都是 Crystallographical 的直接子类，与 CrystalStructure 平级，
+            不是它的子类 —— 部分不是子类，这一点照抄）。
+
+          各自的 elucidation 取自 cryst 原文：
+            UnitCell   "A periodic unit in a crystal structure. It is spanned by three
+                        lattice vectors."
+            Spacegroup "The symmetry group that represents the symmetry of a crystal, in
+                        terms of the set of all its symmetry operations."
+            Site       "A site within a unit cell related to the position of a species."
+
+          ⚠ 三个眼下都是**空类**，cryst 那边它们各自还挂着一层零件，本轮一个都没铸。
+            要接着往下走就照这张单子（全部是 cryst 的直接后继）：
+              UnitCell   ⊑ =3 hasSpatialTile.LatticeVector
+                         ⊑ =6 hasProperty.LatticeParameter（a/b/c/α/β/γ 六个具体类）
+                         ⊑ ∃  hasProperty.CellVolume
+              Spacegroup ⊑ ∃  hasSpatialTile.SymmetryOperationString
+                         ⊑ ∃  hasProperty.{SpacegroupNumber, SpacegroupSettingNumber,
+                                           HallSymbol, HermannMauguinSymbol, CrystalSystem}
+              Site       ⊑ =1 hasSpatialTile.{Occupancy, SymmetryMultiplicity, Species,
+                                              SiteLabel, FractionalPosition, WyckoffSymbol}
+            ⚠ 注意 cryst 在这一层混用两条谓词：**结构性的零件走 hasSpatialTile，
+              数值走 hasProperty**（晶格参数、晶胞体积、空间群编号都是 hasProperty）。
+              这条分法值得沿用 —— 它与本文件已有的两条边形制一致：物→符号走 hasProperty
+              家族，符号内部的分解走 hasSpatialTile 家族。
+      ################################################################
+  Spacegroup:
+    label: Spacegroup
+    definition: The symmetry group that represents the symmetry of a crystal, in terms of the set of all its symmetry operations.
+    parents:
+    - Crystallography
+  Site:
+    label: Site
+    definition: A site within a unit cell related to the position of a species.
+    parents:
+    - Crystallography
+  LatticeParameter:
+    label: LatticeParameter
+    definition: The 6 parameters defining the unit cell; a, b, c, alpha, beta, gamma, where a, b, c are the lengths of the 3 lattice vectors spanning the unit cell and alpha, beta, gamma are the angles between them.
+    parents:
+    - Crystallography
+    exact_match:
+    - <http://emmo.info/domain-crystallography/crystallography#EMMO_e7aa6a92_c28d_457c_be2c_0ac16c8306c0>
+    rationale: |-
+      ################################################################
+          晶体学属性六件 —— 2026-08-28 起版。**只铸类，零新公理，零新谓词。**
+
+          来源：research/evidence/dft-branch/records/ 三篇论文的判读（报告 55 的缺口 Q，
+          df 85.9%，三把尺都排前五）。上面那节的「待铸」清单列了 cryst 的 16 个后继，
+          **本轮只铸三篇论文真要过的 6 个**：
+            LatticeParameter     三篇全要（晶格常数是每篇都写的那一行）
+            WyckoffSymbol        三篇全要（Nd(4f)/(4g)、Fe 4d/4e/8h、CoI 2c/CoII 3g）
+            FractionalPosition   首篇（内坐标 Table III）＋ 次篇
+            CellVolume           首篇（磁化换算 m/V×μB 的分母）
+            SymmetryMultiplicity 三篇（2 CoI ＋ 3 CoII / f.u.，Weiss 场的前因子）
+            CrystalSystem        次篇（体心四方 BCT）
+
+          不铸的 10 个：LatticeVector / Occupancy / Species / SiteLabel /
+          SpacegroupNumber / HallSymbol / HermannMauguinSymbol / SymmetryOperationString。
+          三篇一次都没要过 —— 沿用「指不出谁要它的词，不进表」。
+          ⚠ **Occupancy 要单独记一笔**：它是化学无序（位点占据率）的天然落点，而化学无序
+            正是报告 55 缺口 L 里**唯一还没测到的那一半**（三篇都没做成分无序）。
+            读到做 SQS ／ 成分 CPA 的那一篇时，它会第一个撞上来。
+
+          ⚠⚠ **明确偏离 cryst 的一处：父类。**
+            cryst 里这六个分属两支 ——
+              LatticeParameter / CellVolume / CrystalSystem  ⊑ Crystallographical（符号侧）
+              SymmetryMultiplicity ⊑ PureNumberQuantity      （量侧）
+              FractionalPosition   ⊑ RatioQuantity           （量侧）
+            本文件**六个全挂 commagmo:Crystallography**。理由：本地 CrystalStructure 已经
+            明确读成符号侧（见上面第 441 行那节：「它在符号侧，不是晶体里那些原子的排列本身」），
+            六个零件是那份**描述**的组成部分，跟着符号侧走内部一致；跨到量侧会让同一份描述的
+            零件分居两支。**这是偏离不是照抄，日后要改先读这一段。**
+
+          ⚠ **本轮不写任何公理，两条都不写：**
+            (a) 不写基数。cryst 写 `UnitCell ⊑ =6 hasProperty.LatticeParameter`、
+                `Site ⊑ =1 hasSpatialDirectPart.WyckoffSymbol` 等。不抄，两个理由：
+                ① 上面第 528–534 行记着一个**未修的洞** —— UnitCell/Spacegroup/Site 三档之间
+                   没有 owl:disjointWith，HermiT 实测「一个个体同属三类」一声不吭地通过。
+                   再加六条 =1/=6 会让这个洞更深（同一个个体可以同时是 WyckoffSymbol
+                   和 FractionalPosition）。
+                ② `=6 LatticeParameter` **对四方与六方晶系为假** —— 那些论文只报 a 与 c。
+            (b) 连 ∃ 也不写。抽 ABox 只需要类存在（好给个体定型），∃ 是**义务**不是可表达性的
+                前提 —— 口径同 simulation.ttl 那节「CorrectiveTerm 那条故意不写」。
+            ⚠⚠ **代价必须写明：六个类因此是裸的（填充位 0、∃ 0），按 scaffold-exempt.md 的
+              判别式会落进闸门④的豁免，不进分母。** 这正是报告 52 §6 记的那个结构性盲区：
+              「闸门④判不出『没人要、也没人用』的类……两侧都是零的类正好落进豁免」。
+              实查 cq.md 的 57 条：R-10（位点）与 R-12（空间群）在，**六个新类一条 CQ 都没有**。
+              **留作待决：要么补 CQ，要么写 ∃ 把它们放进分母受审。本轮两样都没做。**
+
+          ⚠ 谓词一栏本轮不动：cryst 用 emmo:hasSpatialDirectPart，而 **EMMO 1.0.4 里没有这条**
+            （实测），本地 CrystalStructure 那三条已换成 emmo:hasSpatialTile；cryst 对
+            UnitCell 的 LatticeParameter/CellVolume 用的是 emmo:hasProperty。两条分法都记在
+            上面第 562–565 行。本轮零新公理，所以一条边也没写。
+
+          对齐：六个都写 skos:exactMatch 指向 cryst 同名类。**这是 ontology/ 第一次引用
+          cryst 的 IRI**（此前实测 0 处），对应 gates.md 欠账 3「对齐注解完备性」。
+          ⚠ cryst 在旧命名空间 http://emmo.info/domain-crystallography/ 下，不是
+            https://w3id.org/emmo/domain/。exactMatch 零蕴涵，不引入解析依赖。
+
+          释义：五个逐字取自 cryst 的 elucidation。**CellVolume 在 cryst 里没有释义**，
+          那一条是本文件自写的，已标注。
+
+          祖先数预测：六个各 **13** —— 与 UnitCell/Spacegroup/Site 同形（Crystallography 12 ＋ 1）。
+      ################################################################
+  CellVolume:
+    label: CellVolume
+    definition: The volume of the unit cell of a crystal structure.
+    comment:
+      text: ⚠ 释义为本文件自写 —— cryst 的同名类没有 elucidation。
+      lang: zh
+    parents:
+    - Crystallography
+    exact_match:
+    - <http://emmo.info/domain-crystallography/crystallography#EMMO_971a2a1d_d923_47ac_9315_2187e7594542>
+  CrystalSystem:
+    label: CrystalSystem
+    definition: The name of the system of geometric crystal classes of space groups (crystal system) to which the space group belongs.
+    comment: There are 7 crystal systems.
+    parents:
+    - Crystallography
+    exact_match:
+    - <http://emmo.info/domain-crystallography/crystallography#EMMO_fd642120_d36d_4e3b_bdf2_2cd9acb4995c>
+  WyckoffSymbol:
+    label: WyckoffSymbol
+    definition: The Wyckoff symbol (letter) as listed in the space-group tables of International Tables for Crystallography Vol. A (2002).
+    parents:
+    - Crystallography
+    exact_match:
+    - <http://emmo.info/domain-crystallography/crystallography#EMMO_f12310ea_4957_49cb_8ff0_1d13849de166>
+  SymmetryMultiplicity:
+    label: SymmetryMultiplicity
+    definition: The number of different sites that are generated by the application of the space-group symmetry to the coordinates given for this site.
+    parents:
+    - Crystallography
+    exact_match:
+    - <http://emmo.info/domain-crystallography/crystallography#EMMO_5ab885af_eff7_4cc7_954c_cf107c54735b>
+  FractionalPosition:
+    label: FractionalPosition
+    definition: A position expressed in fractional coordinates with respect to an origin and three spatial vectors.
+    parents:
+    - Crystallography
+    exact_match:
+    - <http://emmo.info/domain-crystallography/crystallography#EMMO_cd9c28a0_9453_494c_b45e_27eaf3d785e7>
+  Supercell:
+    label: Supercell
+    definition: A unit cell obtained by repeating a smaller unit cell an integer number of times along each of its lattice vectors, used as the periodic unit of a calculation.
+    comment:
+      text: ⚠ 释义为本文件自写 —— 上游（cryst / EMMO / CMSO / ASMO）均无同名类。
+      lang: zh
+    parents:
+    - UnitCell
+    rationale: |-
+      ################################################################
+          晶胞的三档 —— 2026-08-28 起版。**只铸类，零新公理，零新谓词。**
+          全部 ⊑ commagmo:UnitCell（cryst 那边 PrimitiveUnitCell 与 ConventionalUnitCell
+          也都是 UnitCell 的直接子类，这一层照抄）。
+
+          ⚠ **为什么落在 UnitCell 而不是 SimulationSetting。**
+            第二篇的判读（research/evidence/dft-branch/records/10.1016_j.jmmm.2017.02.041.stage2.json
+            的 needs_subclass 第 1 条）提议把「超胞」放进 SimulationSetting，理由是
+            「UnitCell 装得下这个胞本身，装不下『它是母胞的 2×2×1 扩胞』这个**决定**」。
+            **本轮不采纳那个落点，采纳 UnitCell**，三个理由：
+              ① UnitCell 的释义是「a periodic unit in a crystal structure, **spanned by
+                 three lattice vectors**」—— 超胞确实是三个（更长的）格矢张成的周期单元。
+                 按「定义确实涵盖它」这个门槛，过。
+              ② 那条反对理由套不住：晶格常数同样是人选的（实验值 vs 优化值 vs 线性插值，
+                 三篇里四种来源都出现过），本文件没有把 LatticeParameter 塞进 SimulationSetting。
+                 **「是什么」与「谁定的」是两个问题，判读那条把它们并成了一个。**
+              ③ 残余因此变小而不是消失：**对象有了家，只剩「是谁的几倍」这条关系没写**（见下）。
+
+          三个类的证据与出处**逐条不同，必须分开读**：
+            Supercell             次篇原话「(2 x 2 x 1) supercell of Fe16N2 containing 72 atoms」。
+                                  df 36.4%（报告 55 缺口 S）。
+                                  ⚠ **上游哪儿都没有** —— cryst / EMMO / CMSO / ASMO 全查过。
+                                  本地新铸，**释义为本文件自写**，已在类身上标注。
+            ConventionalUnitCell  首篇原话「The lattice constants a and c are for a
+                                  **conventional unit cell** described in angstroms」。
+                                  cryst 有，exactMatch ＋ 释义逐字。
+            PrimitiveUnitCell     ⚠⚠ **三篇论文一次都没提过。** 见下面那条纪律记账。
+
+          ⚠⚠ **一处纪律例外，必须写明，否则会被当成先例。**
+            上一节（晶体学属性六件）拒铸 cryst 的 10 个后继，写在账注里的理由是
+            **「三篇一次都没要过 —— 沿用『指不出谁要它的词，不进表』」**。
+            `PrimitiveUnitCell` 正好撞上这一条：上游有、便宜、但**零论文证据**。
+            本轮**经人决定铸它**，理由是「结构性伴生」——超胞的释义本身要指向一个更小的胞，
+            没有 Primitive/Conventional 就说不出「超胞是谁的超胞」。
+            ⚠⚠ **这个理由同样能把上一节拒掉的 10 个全捞回来。** 所以它是一次
+            **明确的例外，不是判据的修改**：上一节那条纪律仍然有效，
+            要再次援引「结构性伴生」，得先说清为什么这一次不是把闸门拆掉。
+
+          ⚠ **留档不做的（本轮零新公理的直接后果）**：
+            铸完之后「**2×2×1**」和「**是 Fe16N2 常规胞的超胞**」这两件事**仍然写不出来**——
+            那需要一条 `Supercell --isExpansionOf--> UnitCell` 加一个倍数。
+            **这一条要紧**：次篇的掺杂比 1.37% 正是由 2×2×1 定的，换成 2×2×2 结论就变。
+            判读那条 needs_subclass 说的正是这一半，本轮没有解决它，只是给它挪了个家。
+
+          闸门④：三个都是裸叶子（填充位 0、∃ 0），按判别式落进豁免、不进分母。
+          实查 cq.md：没有 CQ 要它们。与上一节同一个盲区，同一条待决。
+
+          祖先数预测：三个各 **14** —— UnitCell 13 ＋ 1。
+      ################################################################
+  ConventionalUnitCell:
+    label: ConventionalUnitCell
+    definition: The smallest unit cell that contains the same point group symmetries as the overall lattice.
+    comment: The conventional unit cell is the one that is referred to in International Tables for Crystallography vol. A.
+    parents:
+    - UnitCell
+    exact_match:
+    - <http://emmo.info/domain-crystallography/crystallography#EMMO_fcd69e5c_cc4a_4db8_b157_3f437c3cfdff>
+  PrimitiveUnitCell:
+    label: PrimitiveUnitCell
+    definition: A unit cell that contains exactly one lattice point. It is the smallest possible cell.
+    comment: There may be several choices of primitive unit cell, hence it is not unique.
+    parents:
+    - UnitCell
+    exact_match:
+    - <http://emmo.info/domain-crystallography/crystallography#EMMO_fdfa5395_9c32_4a7b_a15a_f6fa015662d4>
+  Microstructure:
+    label: Microstructure
+    definition: A material whose components are in general so small that they require a microscope to be observed.
+    parents:
+    - emmo:Material
+    - emmo:HolisticArrangement
+    restrictions:
+    - hasPhase min 1 Phase
+    - emmo:hasComponent some MicrostructureComponent
+    rationale:
+    - |-
+      ################################################################
+          commagmo:Microstructure —— 显微组织。
+
+          ⚠ **EMMO 1.0.4 里没有这个类**（全库 prefLabel 扫过，命中 0）。
+            Microstructure、Defect、Dislocation、Vacancy、GrainBoundary 上游一个都没有，
+            所以这是一次真正的本地铸造，不是重述。
+          ⚠ **别和 emmo:Grain 搞混**：上游那个 Grain 是英制质量单位（⊑ emmo:MassUnit），
+            与冶金学的晶粒毫无关系。这个坑本仓库记过一次，写晶粒那一支时会再撞一次。
+
+          参照对象是 domain-microstructure 的 mstr:Microstructure
+          <https://w3id.org/emmo/domain/microstructure#EMMO_14ad97af-303a-58fe-bdcc-c13c57dbbb9e>，
+          它的两条 elucidation 都值得抄在这里，第二条尤其：
+            · "A composite material, who's components are in general so small that they
+               require a microscope to be observed."（who's 是上游的拼写）
+            · "Being nominalistic, the microstructure is the material itself, not just a
+               description of its structure."
+              —— **显微组织就是那份材料本身，不是对它结构的描述。**
+              这一句正是 ⊑ emmo:Material 的依据：它落在物侧，与本文件里
+              commagmo:CrystalStructure（落在 Language 那一支，符号侧）是两种东西。
+              本文件同时有这两个类，读的时候别把它们当成同一层的东西。
+
+          ⚠ **mstr 那三条父类，本文件现在取了两条（Material ＋ HolisticArrangement），
+            另两条仍然不取，各自的账记下：**
+            · **取** emmo:Material <…#EMMO_4207e895…> —— 物侧那条，本类的主父类。
+            · **取** emmo:HolisticArrangement <…#EMMO_b9522e56…> ⊑ emmo:HolisticSystem，
+              "A system which is mainly characterised by the spatial configuration of its
+              elements."  这一条**曾经被本文件拒绝过**，原话是「它的祖先里没有 Material
+              （实测），取它等于把本类同时挂进系统那一支，是一笔跨支承诺，三条里最贵」。
+              ⚠⚠ **那笔跨支承诺后来被 ∃emmo:hasComponent 那条边提前付掉了**（见那一节：
+                hasComponent 的 rdfs:domain 是 HolisticSystem，把本类直接推成了系统），
+                所以现在补这条明父类**几乎不要钱**。实测见下面「祖先 27 → 28」那一段。
+              ⚠ 补它的好处是读 ttl 的人不必跑推理器才知道本类在系统那一支；
+                代价是那句话从此是**断言的**，不再是推出来的 —— 将来若删掉 hasComponent
+                那条边，Holistic 那一身份不会跟着消失。这一点是本次改动唯一的实质变化。
+            · **不取** emmo:MaterialBySize <…#EMMO_e4e80813…> ⊑ Material —— 上游「按尺寸分」
+              那个分面。取它等于说显微组织的定义性判据是尺寸。眼下不想说这句话
+              （尺寸是现象不是判据）。
+            · **不取** emmo:CompositeMaterial <…#EMMO_f678173d…> ⊑ MaterialByType，
+              "A material that contains two or more constituent materials."
+              取它等于承诺**至少两种组分材料** —— 单相材料就落不进来了。
+            两条都是「加一条」不是「改一条」，将来想清楚了随时补。
+            mstr 另有 ⊑ ∃hasComponent.MicrostructureComponent，**本文件现在也有了**
+            （见 commagmo:MicrostructureComponent 那一节）。至此本类与 mstr:Microstructure
+            的四条公理里对上了三条，只差 MaterialBySize / CompositeMaterial 两个分面。
+
+          HermiT 实测（ontology/*.ttl ＋ emmo-inferred-1.0.4.ttl，不可满足类 **0**）：
+            类级祖先 21 个，就是 emmo:Material 的 20 个加它自己那条边。
+            ABox：裸 emmo:Material 个体 22 个类型，本类个体 23 个 —— **只多它自己一个**。
+            ⚠ 下面那条 ≥1 hasSpatialPart.Phase 加上之后这两个数**一个都不变**（复核过），
+              因为它两侧都零成本，账见 commagmo:Phase 那一节。
+
+          ⚠ **但它白捡了一条**：emmo:Material ⊑ ∃emmo:hasChemicalComposition.ChemicalComposition
+            是本文件前面写的，所以**每一份显微组织都必有化学组成**，不必再写边。
+            那 21 个祖先里的 Referent、SemioticEntity、Semiotics、Perspective 四个也来自那条，
+            不是本类带来的。这是那条公理挂在上游类上的第三次连带效果（前两次：emmo:Crystal
+            白捡组成、hasProperty 的主语侧闸门已预付）。
+      ################################################################
+    - |-
+      ################################################################
+          commagmo:Microstructure ⊑ ≥1 commagmo:hasPhase.commagmo:Phase
+          —— 公理写在上面 Microstructure 那个节点里，账记在这里。
+
+          ⚠ **谓词换过一次。** 本条原先直接用上游 emmo:hasSpatialPart，本轮换成本地子谓词
+            commagmo:hasPhase（⊑ emmo:hasSpatialPart，见下面那一节）。
+            **蕴涵一条不差**：子谓词继承父谓词的全部签名，而它自己新加的 rdfs:range
+            commagmo:Phase 正是本条的填充，按定义已满足。实测复核见本节末尾。
+
+          ⚠ **≥1 与 ∃ 在逻辑上完全等价**（minQualifiedCardinality 1 ≡ someValuesFrom）。
+            按指示写成 ≥1，图上标 "≥1"；换成 ∃ 蕴涵一个不差。写成基数形式的好处是
+            将来要收紧成 ≥2 或 =1 时改一个数字就行。
+            ⚠ 对照本仓库记过的坑：**≥0 才是空转的那一种**（mammos 那 40 条），≥1 不是。
+
+          ⚠ 基数限制要求谓词 simple —— EMMO 1.0.4 里 owl:TransitiveProperty 共 0 条、
+            **owl:propertyChainAxiom 也共 0 条**（2026-08-27 补测：simple 要求「不传递
+            **且**不是任何属性链的超谓词」，此前三处都只引了前半个条件；两个数都是 0，
+            结论不变），hasSpatialPart 的两个子谓词（hasSpatialSection、hasSpatialSlice）
+            也都不传递，所以合法。
+
+          HermiT 实测（不可满足类 **0**）：**本条三处全零，换成 commagmo:hasPhase 之后复核过，
+          一个数字都没变。**
+            · 类级：加本条前后 commagmo:Microstructure 的祖先**一个不变**。
+            · 主语侧 ABox：Microstructure 个体加本条前后类型数**一个不变**。
+            · 宾语侧 ABox：一个 commagmo:Phase 个体单独摆着 **18** 个类型，填进本谓词的
+              宾语位后**还是 18 个**——一个都不多。理由见下面 hasPhase 那一节：
+              这条谓词整条祖链没有 rdfs:range，逆谓词也没有 rdfs:domain。
+            对照本文件另外三条边：hasChemicalComposition 宾语侧 +6、hasProperty +9、
+            hasSpatialTile 主语侧类级 +3 宾语侧 +5。**部分论谓词便宜，符号学谓词贵**，
+            这条规律到这里已经量到第四次（第五次是 hasCrystallographicDefect，同样全零；
+            **第一个反例是 emmo:hasComponent** —— 它虽在部分论那一族之下，却两侧都写了签名，
+            主语侧实测 +6，见那一节）。
+
+          ⚠ **绝对数字已经变了，别照抄本节的旧值。** 本节原先记着「Microstructure 祖先 21、
+            个体 23」，那是本文件还没有 ∃emmo:hasComponent 那条边时的状态。
+            加上那条之后当前实测是**祖先 27、个体 29**（多出的 6 个全部由那条带来，
+            与本条无关）。本条自己的代价仍然是零 —— 「加本条前后不变」这句话没有失效，
+            失效的只是那两个绝对值。
+
+          ⚠ 本条说的是「每份显微组织至少有一个相作为空间部分」，**没有说**：
+            · 相之间互不重叠（要 owl:AllDisjointClasses 或 SHACL，本条不管）；
+            · 那些相拼起来就是整个显微组织（穷尽性 OWL 写不出来，要 disjointUnionOf 那一套，
+              而这里的对象是个体不是类）；
+            · 单相材料只有一个相（那要 =1，本条只给下界）。
+            三条都在能力范围之外或本轮没写，别把 ≥1 读成比它更多的意思。
+      ################################################################
+    - |-
+      ################################################################
+          commagmo:Microstructure ⊑ ∃emmo:hasComponent.commagmo:MicrostructureComponent
+          —— 公理写在上面 Microstructure 那个节点里，账记在这里。逐字取自 mstr 同名类。
+
+          HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl；
+          不可满足类 **0**）：
+
+          ⚠⚠ **主语侧不便宜，实测多 6 个祖先，而且多出来的那一个正是本文件先前明确拒绝过的。**
+            commagmo:Microstructure 的类级祖先 **21 → 27**，个体 23 → 29 个类型，多出：
+              **HolisticSystem、Holistic、Whole、QualifiedWhole、Object、Persistence**
+            来源是上一节那张签名表：hasComponent 的 domain 是 HolisticSystem，
+            hasRole 的 domain 是 Whole，hasConstituent 的 domain 是 Object。
+
+            **这笔账要连着本文件先前那条拒绝一起看。** commagmo:Microstructure 那一节写着
+            不取 mstr 的第三个父类 emmo:HolisticArrangement，理由原话是
+            「⚠ 这一个的祖先里没有 Material（实测），取它等于把本类同时挂进系统那一支，
+              是一笔跨支承诺，三条里最贵」。
+            **本条把那笔跨支承诺付掉了** —— HolisticArrangement ⊑ HolisticSystem，
+            而本条经 rdfs:domain 把 Microstructure 直接推成 HolisticSystem。
+            差别只剩：那边是断言的，这边是推出来的；**多背的身份是同一批**。
+            （与本文件 CrystalStructure 被 hasSpatialTile 的 domain 推成
+              SpatioTemporalTessellation 是同一个机制，第二例。）
+            ⚠ **这个待决已经结案：emmo:HolisticArrangement 现在是明父类**（写在
+              commagmo:Microstructure 那个节点里）。实测代价 **+1**：类级祖先 27 → 28，
+              多出来的就是 HolisticArrangement 自己，它那 13 个祖先
+              （CausalCluster / CausalStructure / CausalSystem / EMMO / Fusion / Holistic /
+                HolisticSystem / Item / Object / Persistence / Perspective / QualifiedWhole /
+                Whole）**在补它之前就已经全在本类的 27 个里了** —— 六个来自本条的
+              rdfs:domain 闸门，其余来自 emmo:Material 那一支与 hasChemicalComposition 那条。
+              个体同步 29 → 30。
+            ⚠ 不导致不一致：Perspective 那一支本来就不是排他分区，物侧（Material）与
+              Holistic 同时挂在 EMMO 里合法。所以只是多背身份，撞不出矛盾。
+
+          宾语侧 —— **零成本。**
+            本条的 range 链是 Component / Role / QualifiedRole / Constituent，
+            而 commagmo:MicrostructureComponent ⊑ emmo:Component ⊑ Role ⊓ Constituent，
+            四个上游早已在其上。实测：一个本类个体单独摆着 15 个类型，
+            填进本谓词的宾语位后**还是 15 个**。
+            ⚠ 类级同样不变：MicrostructureComponent 的祖先加不加本条都是 **13** 个。
+
+          ⚠ 闸门实测（口径同 src/commagmo_tools/checks/abox_gate.py）：
+            探针 `Microstructure ⊓ (≤0 hasComponent.⊤)` **不可满足** ——
+            本条把「每一份显微组织都必须有一个组件」钉死了。
+            **这一条物理上站得住**（与 hasCrystallographicDefect 那条不同，那条差一格）：
+            一份没有任何组件的显微组织本来就不成其为显微组织，上游 note 说的
+            「组件的定义依赖于它是显微组织的一部分」是同一句话的另一半。
+
+          ⚠ 用 ∃ 不用 ≥1：与下面那条 hasPhase 的 ≥1 逻辑等价，这里照 mstr 原文取 ∃。
+      ################################################################
+  Phase:
+    label: Phase
+    definition: A region of matter throughout which all physical properties are essentially uniform.
+    parents:
+    - emmo:PhaseOfMatter
+    restrictions:
+    - emmo:hasProperty some emmo:VolumeFraction
+    rationale:
+    - |-
+      ################################################################
+          commagmo:Phase —— 相。
+          ⊑ emmo:PhaseOfMatter，本地这一支的第一个（上游那一格是空的）。
+
+          ⚠ **它不是材料，因此不继承「必有化学组成」。**
+            emmo:PhaseOfMatter 的 15 个祖先里没有 emmo:Material，所以本文件写在
+            emmo:Material 上的 ∃hasChemicalComposition **管不到本类**。这一句仍然成立。
+            ⚠⚠ **但后半句已经不成立，订正**：原话是「实测：本类个体 18 个类型，里面
+              **没有 Referent / Semiotics 那一组**（对照 commagmo:Microstructure 个体 23 个，
+              含那一组）」。本文件后来给本类写了 ∃emmo:hasProperty.emmo:VolumeFraction，
+              而 hasProperty 的 rdfs:domain 是 emmo:Referent —— 闸门开了。
+              **当前实测：类级祖先 20、个体 22 个类型，Referent / SemioticEntity /
+              Semiotics / Perspective 四个都在。** 账记在那条边自己那一节。
+            ⚠ 这一点值得当成待决记下来：**物理上最该带组成的恰恰是相**（相图的横轴就是成分），
+              而当前的公理布局里它偏偏没有。v0.1 的 material:Phase 当年是显式写了
+              ∃hasProperty.ChemicalComposition 的，本轮没写。要补是加一条，
+              谓词用 emmo:hasChemicalComposition 还是 emmo:hasProperty 两条路都通
+              （前者的 rdfs:domain 是 emmo:Substance，本类已在其下，主语侧零成本）。
+
+          ⚠ **mstr:CrystallinePhase 与本类是兄弟，不是子类。**
+            <https://w3id.org/emmo/domain/microstructure#EMMO_658f9df4-e1ec-58ba-b9da-2a860d753a18>
+            ⊑ emmo:Crystal ⊓ emmo:PhaseOfMatter —— 两者都直接挂在 PhaseOfMatter 之下，
+            它另外要求晶态，本类另外什么都没要求。要让它 ⊑ 本类是给上游类加父类，
+            而且得先想清楚本类将来会加什么条件。留作待决（v0.1.1 的墓碑里记过同一条）。
+      ################################################################
+    - "################################################################\n    commagmo:Phase ⊑ ∃emmo:hasProperty.emmo:VolumeFraction\n    —— 公理写在上面 commagmo:Phase 那个节点里，账记在这里。\n\n    HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl；\n    不可满足类 **0**）：\n\n    ⚠⚠ **主语侧不免费，而且这一条正好推翻了本文件先前记在 commagmo:Phase 上的\n      一句话。** 那一节原先写着「实测：本类个体 18 个类型，里面**没有 Referent /\n      Semiotics 那一组**（对照 commagmo:Microstructure 个体 23 个，含那一组）」——\n      本条一写，那句话就不成立了。\n      emmo:hasProperty 的 rdfs:domain 是 **emmo:Referent**，而 commagmo:Phase\n      经 emmo:PhaseOfMatter ⊑ ContinuumSubstance ⊑ Substance 一路上来是纯物侧，\n      Referent 不在其中。\n      实测：commagmo:Phase 的类级祖先 **16 → 20**，个体 **18 → 22**，多出\n      **Referent、SemioticEntity、Semiotics、Perspective** 四个。\n      ⚠ **与本文件 emmo:Material ⊑ ∃hasChemicalComposition 那一节记的 +4 是同一组\n        四个类、同一个机制**（rdfs:domain 在开放世界下推断类型而不是检查类型）。\n        那是本仓库记了一路的「Referent 闸门」，这是它在本文件里的第三次开启\n        （前两次：emmo:Material 那条、hasProperty 用在 emmo:Crystal 上那条 —— \n        后者当时是零成本，因为闸门已被前者提前付掉）。\n      ⚠ 不导致不一致：845 条互斥无序对里没有一条碰 Referent / Semiotics /\n        SemioticEntity / Sign / Conventional / Perspective；Perspective 本来就不是\n        排他分区。所以只是多背四个身份。\n      ⚠ **连带效果**：commagmo:Phase 的后代（CrystallinePhase、CrystallineMagneticPhase、\n        MagneticDomain）**一个都不受影响** —— 它们经 emmo:Crystal ⊑ … ⊑ emmo:Material\n        早就在闸门内侧了，实测祖先数 28 / 29 / 30 加本条前后一个不变。\n        真正变的只有 commagmo:Phase 自己，以及将来直接挂在它下面的非晶态相。\n      ⚠ **一个白捡的后果，记下来**：本文件 commagmo:Phase 那一节留着一条待决 ——\n        「物理上最该带组成的恰恰是相（相图的横轴就是成分），而当前的公理布局里\n        它偏偏没有」。那条待决当年记着两条路，其中 emmo:hasProperty 那条要付\n        Referent 闸门。**本条把那笔钱付掉了**，所以将来补组成边时，\n        无论走 hasChemicalComposition 还是 hasProperty，主语侧都已经是零成本。\n\n    宾语侧 —— **零成本，与本文件另外两条 hasProperty 边形成鲜明对照。**\n      一个 emmo:VolumeFraction 个体单独摆着 **29** 个类型，填进本谓词的宾语位后\n      **还是 29 个，一个都不多**。\n      理由：本谓词的 range 链要 Property（hasProperty）、Conventional（hasConvention）、\n      Sign（isRepresentedBy），而 emmo:VolumeFraction 的 27 个祖先里**三个全都已在**\n      （它本来就是一个物理量，量在 EMMO 里天然落在记号侧）。\n      ⚠ 对照：同一条谓词填 commagmo:CrystalStructure 宾语侧 **+9**、填\n        commagmo:MagneticStructure 也 **+9**。差别不在谓词，在填充类落在哪一侧 ——\n        **那两个是 Language ⊑ Data 侧的描述，本条是 Property 侧的量**，\n        后者早就在闸门内侧。这是本文件第一次量到 hasProperty 宾语侧为零。\n\n    ⚠⚠ **物理上的一处别扭，不掩盖：体积分数是关系量，不是相的内禀属性。**\n      「某相的体积分数」必须相对于一个包含它的整体才有意义（分母是那个整体的体积）。\n      本条把它写成一条一元属性边，等于说**每一份相都自带一个体积分数**，\n      而那个分数相对于什么，公理里没有任何东西说。\n      · 单相块体：分数为 1，说得通。\n      · 一份被抽象考虑、不在任何整体里的相：分数无定义。\n      ⚠ 上游那句定义其实自带分母（\"…divided by the sum of volumes of all\n        constituents…\"），但那是**英文里的**分母，公理里没有。\n        与本文件记过的 \"ordered\"、\"all constituents\"、维度、\"Magnetic\"、\n        \"essentially uniform\" 同一个毛病的第七例。\n      ⚠ 要把分母写进公理，得有一条三元关系（相、整体、分数）或者把分数挂在\n        「相在某显微组织中」那个中间对象上。OWL 写三元关系要具化，代价另算，本轮不做。\n      ⚠ **MAMMOS 走的是同一条路**：mammos:MainMagneticPhase ⊑ ∃hasProperty.VolumeFraction\n        （逐字同形），所以这个别扭不是本文件独有的，是这一族本体的通行做法。\n\n    ⚠ 用 ∃ 不用 =1：写 =1 会说「有且只有一个体积分数」，而同一份相在不同的整体里\n      有不同的分数（母合金里 5%、局部区域里 40%），=1 会把这件事挡掉。∃ 不会。\n################################################################"
+  CrystallinePhase:
+    label: CrystallinePhase
+    definition: A phase with uniform crystalline structure and a defined composition range.
+    parents:
+    - Phase
+    restrictions:
+    - hasCrystallographicDefect some CrystallographicDefect
+    rationale:
+    - |-
+      ################################################################
+          commagmo:CrystallinePhase —— 晶态相。
+          ⊑ emmo:Crystal ⊓ emmo:PhaseOfMatter，两个父类都是上游类，本地不重铸。
+
+          ⚠ **参照 mstr:CrystallinePhase 铸，但第二个父类有意收紧了一格。**
+            <https://w3id.org/emmo/domain/microstructure#EMMO_658f9df4-e1ec-58ba-b9da-2a860d753a18>
+            ⊑ emmo:Crystal ⊓ **emmo:PhaseOfMatter**，elucidation "Phase with uniform crystalline
+            structure with a defined composition range (or stoichiometry)"。
+            本类第二个父类取的是 **commagmo:Phase**（⊑ emmo:PhaseOfMatter），
+            所以本类**严格窄于** mstr 那一个：它蕴涵 mstr 版的全部内容，反之不然。
+            理由见本节末尾那条 ⚠⚠。
+            两者之间仍然没有任何一条边 —— 要挂钩得写 skos:broadMatch（本类更窄，
+            不是 exactMatch），本轮不写（那是对齐，不是结构）。
+            mstr 那边它还有一个子类 SinglePhaseParticle，本地没铸。
+
+          HermiT 实测（不可满足类 **0**）：类级祖先 **28** 个 —— emmo:Crystal 那 24 个
+          与 commagmo:Phase 那 17 个（含它自己）的并。个体 30 个类型。
+          ⚠ 与「照 mstr 挂 emmo:PhaseOfMatter」那一版比，只差 **commagmo:Phase 一个**：
+            emmo:PhaseOfMatter 仍在祖先里（经由 commagmo:Phase 到达），一条都没丢。
+          ⚠ 两个父类分属 emmo:Substance 之下的两个兄弟分面 —— Material 与 ContinuumSubstance
+            —— 两者之间**没有 owl:disjointWith**（Substance 的四个子类不是互斥划分，
+            唯一那条真互斥是 ContinuumSubstance ⊥ MesoscopicSubstance），所以同时挂合法。
+
+          ⚠ **它一口气继承了本文件写下的两条 ∃，一条边都不用再写：**
+            · ⊑ emmo:Crystal ⊑ … ⊑ emmo:Material ⊑ ∃hasChemicalComposition.ChemicalComposition
+            · ⊑ emmo:Crystal ⊑ ∃emmo:hasProperty.commagmo:CrystalStructure
+            也就是说**每一份晶态相都必有一份化学组成和一份晶体结构**。这是本文件里
+            公理内容最饱满的一个类，而它自己一条公理都没写。
+            ⚠ 连带把那两条的账也继承了：那 27 个祖先里的 Referent / SemioticEntity /
+              Semiotics / Perspective 来自 hasChemicalComposition 那条闸门，不是本类带来的。
+
+          ⚠⚠ **第二个父类为什么取 commagmo:Phase 而不是 emmo:PhaseOfMatter。**
+            2026-08-21 先按 mstr 的形状写成 ⊑ emmo:PhaseOfMatter，同日改挂到本地 Phase 之下。
+            改的理由是一条可验证的后果，不是口味：
+            挂 emmo:PhaseOfMatter 时，本类的祖先里**没有 commagmo:Phase**（实测），
+            于是本文件那条 commagmo:Microstructure ⊑ ≥1 hasSpatialPart.commagmo:Phase
+            **不会被一份晶态相满足** —— 一个只含 CrystallinePhase 的显微组织仍然欠一个
+            Phase，推理器只会另造一个匿名的。
+            改挂之后 ABox 探针验过：一份显微组织的唯一空间部分是一份晶态相，
+            那份晶态相被推成 commagmo:Phase，那条 ≥1 由它满足，不再造匿名后继。
+            代价为零：commagmo:Phase ⊑ emmo:PhaseOfMatter，所以旧父类的全部蕴涵一条不丢
+            （实测祖先 27 → 28，只多 commagmo:Phase 本身）。
+            ⚠ 副作用记一笔：本类因此**窄于** mstr:CrystallinePhase。两者不能写 exactMatch。
+            ⚠ 另一半的待决没有变：mstr:CrystallinePhase 与 commagmo:Phase 仍然是兄弟，
+              要让前者 ⊑ 后者是给上游类加父类，得先想清楚本地 Phase 将来会加什么条件
+              （v0.1.1 的墓碑里记过同一条）。
+      ################################################################
+    - |-
+      ################################################################
+          commagmo:CrystallinePhase ⊑ ∃commagmo:hasCrystallographicDefect.commagmo:CrystallographicDefect
+          —— 公理写在上面 CrystallinePhase 那个节点里，账记在这里。
+          **本文件第一条把物侧与缺陷侧接起来的边。** 此前两支在图上是两团，一条边都没有。
+
+          HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl，
+          口径同 src/commagmo_tools/core/reason.py，目录换成 ontology/；不可满足类 **0**）：
+
+          主语侧 —— **零成本。**
+            本条不写 rdfs:domain，继承来的是 hasSpatialPart 的 emmo:CausalSystem 与
+            hasPortionPart 的 emmo:Item。commagmo:CrystallinePhase ⊑ emmo:Crystal ⊑ … ⊑
+            emmo:Material，而 Material 的祖先里 CausalSystem 与 Item 都在（本文件开头那 17 个）。
+            实测：CrystallinePhase 的类级祖先加本条前后**都是 28 个，一个不变**；
+            个体加本条前后都是 30 个类型。
+
+          宾语侧 —— **也是零成本，这一条值得记。**
+            一个 commagmo:CrystallographicDefect 个体单独摆着推出 10 个类型；
+            填进本谓词的宾语位后**还是 10 个，一个都不多**。
+            理由在上一节那张表里：正向链只有 EMMORelation 写了 range（emmo:EMMO，等于没说），
+            而**七条逆谓词一条 rdfs:domain 都没有** —— 宾语位在 EMMO 的部分论那一族里
+            根本没有闸门。本条自己声明的 rdfs:range 是 commagmo:CrystallographicDefect，
+            填充按定义已经在其下，也不产生新类型。
+            ⚠ **这印证了本文件量过四次的那条规律：部分论谓词便宜，符号学谓词贵。**
+              对照 hasChemicalComposition 宾语侧 +6、hasProperty 宾语侧 +9、
+              hasSpatialTile 主语侧类级 +3 宾语侧 +5；本条与 hasSpatialPart 那一条一样，三处全零。
+
+          ⚠⚠ **订正一条本文件先前写错的话。** commagmo:SpatialContrast 那一节原先写着
+            「emmo:hasSpatialPart 继承来的 rdfs:domain 是 CausalSystem 与 Item，而缺陷支的
+            祖先里没有 CausalSystem，所以写这条边会把缺陷个体推成一个 CausalSystem」。
+            **那句话把 domain 用错了方向** —— rdfs:domain 约束的是**主语**，约束宾语的是
+            rdfs:range（或逆谓词的 domain），而两者在这一族里都是空的。
+            本条实测宾语侧 +0，那笔「未量的账」实际上是零。原处已按本条改写。
+
+          ⚠⚠ **代价不在推理器那一侧，在物理那一侧。本条是一条「必然」，而它对某些真实
+            晶态相为假。** 这一点在铸之前就说过，按指示写上，原样记在这里：
+            · **点缺陷（0D）这句话几乎是真的** —— T > 0 时组态熵要求平衡空位浓度非零，
+              有限温度下不存在绝对完美的晶体。
+            · **线缺陷、面缺陷不是** —— 位错与晶界是亚稳的、外来的。**一根无位错晶须、
+              一颗完美单晶都是现成的反例**，它们是晶态相却没有任何 1D/2D 缺陷。
+            而本条的填充是 **CrystallographicDefect（三档的共同父类）**，不是 PointDefect，
+            所以严格读起来它只要求「有某种晶体学缺陷」，被一个空位满足即可 ——
+            **在这个读法下本条是站得住的**。要是将来收紧成 ∃…PlaneDefect 或 ∃…LineDefect，
+            那就变成假的了，别顺手收紧。
+            ⚠ src/commagmo_tools/checks/abox_gate.py 的文档字符串点名的正是这个坑：
+              「强迫了物理上**不存在**的东西 —— 单晶被迫长出晶界、完美晶体被迫有位错。**该修。**」
+              本条踩在那条线的安全一侧，但只差一格。
+            ⚠ 闸门实测：探针 `CrystallinePhase ⊓ (≤0 hasCrystallographicDefect.⊤)`
+              **不可满足** —— 也就是说本条确实把「每一份晶态相都必须有一个晶体学缺陷」
+              钉死了，ABox 里写一份没有缺陷的晶态相会与 TBox 冲突。
+              对照探针 `emmo:Crystal ⊓ (≤0 hasCrystallographicDefect.⊤)` **可满足** ——
+              本条只挂在 commagmo:CrystallinePhase 上，没有落到 emmo:Crystal 身上，
+              一块普通晶体不受约束。
+
+          ⚠ **还有一处物理上的不齐整，本条盖不住：空位是「无」不是「有」。**
+            部分论的边说的是「x 有 y 作为空间部分」，而一个空位是那里**没有原子**。
+            间隙原子、位错芯尚可说成有东西，空位不行。本条照指示写成 hasSpatialPart 的
+            子谓词，等于对三档一视同仁；这个不齐整留在这里，不靠公理解决。
+            （另一条路是参照式的边 —— 缺陷相对于理想结构的偏离，本仓库
+              archive/ontology/v0.0.1/domain-defect.ttl 当年铸的 def:deviatesFrom 走的就是那条，
+              **刻意不挂在 hasPart 家族之下**。两条互补不互斥，本轮只写宿主边。）
+
+          ⚠ 用 ∃ 而不是 ≥1 / =1：与本文件 Microstructure 那条 ≥1 逻辑等价，这里取 ∃ 是因为
+            没有将来要改数字的打算；要收紧成「至少两种缺陷」得先想清楚上面那条物理反例。
+
+          ⚠ 一条**不成立**的读法，先堵住：本条**没有说**缺陷是那份相的一块物质。
+            emmo:hasSpatialPart 在 EMMO 里是纯部分论的谓词，不承诺宾语是 Matter
+            （实测宾语侧 +0 就是这个意思）。缺陷仍然稳稳待在 emmo:Contrast 那一支，
+            8 个祖先一个没变，**没有被这条边拽到物侧来**。
+      ################################################################
+  CrystallineMagneticPhase:
+    label: CrystallineMagneticPhase
+    definition: A crystalline phase that is magnetically ordered, having atomic magnetic moments due to unpaired electrons.
+    parents:
+    - CrystallinePhase
+    restrictions:
+    - emmo:hasProperty some MagneticStructure
+    - hasTopologicalDefect some TopologicalDefect
+    rationale:
+    - |-
+      ################################################################
+          磁学那一支起头：CrystallineMagneticPhase 与 CrystallineMagneticMaterial。
+          **本文件第一次碰磁学**，之前 material.ttl 里一个磁字都没有。
+
+          ⚠⚠ **上游 EMMO 1.0.4 没有任何磁性材料类。** 全库 prefLabel 扫过带 Magnet 的词条
+            共 30 个，**一个都不是材料类** —— 全是量与单位：MagneticFluxDensity、
+            Magnetization、MagneticSusceptibility、MagneticDipoleMoment、
+            MagneticFieldStrength、MagneticFluxUnit… 加两个过程类（Magnetizing）。
+            也就是说 EMMO 有「磁性这件事怎么量」，**没有「什么东西是磁性的」**。
+            本节两个类因此是真正的本地铸造，一个字都不是重述。
+
+          ⚠⚠ **「Magnetic」这个词在本节两个类里都没有变成公理，只活在名字和释义里。**
+            两个类各自只有一条 rdfs:subClassOf，没有任何 owl:Restriction。
+            直接后果：**推理器完全看不出它们与非磁性的兄弟有什么区别** ——
+            commagmo:CrystallineMagneticPhase 与 commagmo:CrystallinePhase 在公理上
+            只差「多了一层名字」，任何一份非磁性的晶态相都满足它的全部条件。
+            这是本文件记过的同一个毛病的**第四例**（前三例：cryst:Crystal 的 "ordered"、
+            TotalComposition 的 "all constituents"、0D/1D/2D 三档的维度）。
+            ⚠ 要把「磁性」变成公理，最短的一条是照 MAMMOS 的形状写
+              ⊑ ∃emmo:hasProperty.<某个磁性质类>（见下），但那需要先铸磁性质那一支
+              （SpontaneousMagnetization / MagneticAnisotropy / …），本地一个都没有。
+              **这是磁学模块真正的下一步，不是这两个类本身。**
+
+          ⚠ **参照 MAMMOS（domain-magnetic-materials 0.0.5，reference/mammos/）读，但没有引用它。**
+            不引用的理由与本文件铸 commagmo:Crystallography、commagmo:SpatialContrast 时同源：
+            MAMMOS 对齐的是 **EMMO 1.0.3**（magnetic-materials-dependencies.ttl 里明写
+            owl:imports <https://w3id.org/emmo/1.0.3/inferred>），本文件按 1.0.4 记账。
+            本地这两个与 MAMMOS 之间一条 skos 对齐都没写（本文件一贯如此）。
+
+          ⚠ **MAMMOS 的形状，逐条摆出来，因为其中两处值得学、两处不值得：**
+            mammos:MagneticMaterial ⊑ **emmo:Referent** ⊓ **emmo:MaterialByStructure**
+              elucidation "Magnetically ordered solids which have atomic magnetic moments
+              due to unpaired electrons."
+              ⊓ =1 hasProperty.emmo:Density
+              ⊓ =1 hasProperty.emmo:ChemicalComposition
+              ⊓ =1 hasProperty.mammos:IntrinsicMagneticProperties
+            mammos:CrystallineMagneticMaterial ⊑ mammos:GranularStructure ⊓ mammos:MagneticMaterial
+              elucidation "Magnetic material with crystalline structure."
+            mammos:GranularStructure ⊑ emmo:Referent ⊓ **emmo:CrystallineMaterial**
+              ⊓ =1 hasProperty.mammos:CrystalStructure
+              ⊓ =1 hasProperty.mammos:GrainSizeDistribution
+              ⊓ **≥0** hasProperty.mammos:XrayDiffractionData
+              ⊓ **≥0** hasSpatialPart.mammos:Grain
+            mammos:MainMagneticPhase ⊑ emmo:PhaseOfMatter ⊓ mammos:MagneticMaterial
+              （MAMMOS 里最接近本节 CrystallineMagneticPhase 的一个，但它不要求晶态）
+
+            · **值得学的一**：把「磁性」落成 =1 hasProperty.IntrinsicMagneticProperties。
+              那是一条真公理，推理器看得见。本节没有这么写，因为填充类不在手里（见上）。
+            · **值得学的二**：CrystallineMagneticMaterial 确实够得着 emmo:CrystallineMaterial
+              —— 但**是绕道 GranularStructure 到的**，不是直接挂。本节按指示直接挂，
+              少一个中间站，蕴涵上更弱（不承诺晶粒、不承诺晶粒尺寸分布）。
+            · **不值得学的一**：那两条 **≥0** 是空转限制。≥0 对任何个体恒为真，
+              写了等于没写，却长得像公理。本仓库量过 MAMMOS 全库共 **40 条**这样的限制，
+              本文件 Microstructure 那条 ≥1 的记账里记过这个对照。
+            · **不值得学的二**：⊑ **emmo:Referent** 是显式断言的。本文件一贯让 Referent
+              由 rdfs:domain 推出来并把账记在触发它的那条边上（见 emmo:Material 那一节
+              的 +4），MAMMOS 直接写死。两种做法都到得了同一个位置，差别在于账记在哪。
+            ⚠ 另记一处口径差：MAMMOS 用 **=1 emmo:hasProperty.ChemicalComposition**，
+              本文件用 **∃ emmo:hasChemicalComposition.ChemicalComposition**（写在 emmo:Material 上）。
+              谓词不同（hasProperty vs 它的兄弟 hasChemicalComposition），基数不同（=1 vs ∃）。
+              **本文件那一版更松，而且是有意的** —— 上游 hasChemicalComposition 的 note
+              明说推荐「一个组分挂一条」，写 =1 会跟那句话打架。理由记在那一节。
+
+          ⚠ **两个新类之间没有任何一条边，这是本节最该先想清楚的事。**
+            按指示，两者的父类分别是 commagmo:CrystallinePhase 与 emmo:CrystallineMaterial。
+            而 CrystallinePhase ⊑ emmo:Crystal ⊑ emmo:CrystallineMaterial 已经成立，
+            所以 **CrystallineMagneticPhase 的祖先里本来就有 emmo:CrystallineMaterial**，
+            与 CrystallineMagneticMaterial 是同一棵树下的两支，**但彼此不相干**。
+            物理上该有的那条边是 **CrystallineMagneticPhase ⊑ CrystallineMagneticMaterial**
+            （一份晶态磁性相当然是一种晶态磁性材料）。
+            ⚠ 实测：补上这条边**零新增蕴涵** —— CrystallineMagneticMaterial 的 24 个祖先
+              **是 CrystallineMagneticPhase 那 29 个的子集**（脚本逐个核过，真包含），
+              加了之后祖先 **29 → 30**、个体 **31 → 32**，多的只有
+              CrystallineMagneticMaterial 自己；CrystallineMagneticMaterial 那一侧
+              **24 与 26 一个不变**。不可满足类仍然 0。
+            **本轮按指示没有补**（指示只给了各自的父类），留作待决。
+            不补的后果：「磁性」这个意思在两个类里各写一遍且互不相认，将来给任一个加公理，
+            另一个不会跟着拿到。
+
+          HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl；
+          不可满足类 **0**）：
+            commagmo:CrystallineMagneticPhase    类级祖先 **29**
+                                                  （commagmo:CrystallinePhase 那 28 个加它自己），
+                                                  ABox 个体 **31** 个类型。
+            commagmo:CrystallineMagneticMaterial 类级祖先 **24**，ABox 个体 **26** 个类型。
+            两条都是纯 subClassOf，没有 owl:Restriction，**两侧零成本**。
+          ⚠ CrystallineMagneticPhase **白捡了本文件写下的三条 ∃**，一条边都不用再写：
+            · ⊑ … ⊑ emmo:Material ⊑ ∃hasChemicalComposition.ChemicalComposition
+            · ⊑ … ⊑ emmo:Crystal  ⊑ ∃emmo:hasProperty.CrystalStructure
+            · ⊑ commagmo:CrystallinePhase ⊑ ∃commagmo:hasCrystallographicDefect.CrystallographicDefect
+            也就是说**每一份晶态磁性相都必有化学组成、晶体结构和至少一个晶体学缺陷**。
+            ⚠ 第三条那笔物理上的账（见 hasCrystallographicDefect 那一节：0D 几乎必然、
+              1D/2D 不必然）**原样传给了本类**，这里不再重复，但别忘了它在。
+          ⚠ CrystallineMagneticMaterial **只捡到第一条**（经 emmo:CrystallineMaterial ⊑ …
+            ⊑ emmo:Material）。晶体结构那条挂在 emmo:Crystal 上，比 CrystallineMaterial
+            低一层，够不着；缺陷那条挂在 commagmo:CrystallinePhase 上，是另一支。
+            **这是两个类眼下公理内容最实在的差别**，不是名字上的。
+      ################################################################
+    - |-
+      ################################################################
+          commagmo:CrystallineMagneticPhase ⊑ ∃commagmo:hasTopologicalDefect.commagmo:TopologicalDefect
+          —— 公理写在上面 CrystallineMagneticPhase 那个节点里，账记在这里。
+
+          HermiT 实测（不可满足类 **0**）：**三处全零**，与 hasCrystallographicDefect 那条
+          逐项相同。
+            · 主语侧：commagmo:CrystallineMagneticPhase 类级祖先加本条前后**都是 29**，
+              个体都是 **31** 个类型。继承来的 domain 是 CausalSystem 与 Item，
+              本类经 … ⊑ emmo:Material 两个都已在其下。
+            · 宾语侧：一个 commagmo:TopologicalDefect 个体单独摆着 **10** 个类型，
+              填进本谓词的宾语位后**还是 10 个**。部分论那一族正向链无 range、
+              七条逆谓词无 domain，宾语位没有闸门。
+            「部分论谓词便宜」第七次实测。
+
+          ⚠ 闸门实测（口径同 src/commagmo_tools/checks/abox_gate.py）：
+              `CrystallineMagneticPhase ⊓ (≤0 hasTopologicalDefect.⊤)`  **⊥ 被强制**
+              `MagneticDomain           ⊓ (≤0 hasTopologicalDefect.⊤)`  **⊥ 被强制**（继承）
+              `emmo:Crystal             ⊓ (≤0 hasTopologicalDefect.⊤)`  可满足（不受约束）
+
+          ⚠⚠⚠ **这条边有三处物理上的问题，逐条写下来，一处都不掩盖。**
+
+            **其一：它是一条「必然」，而它对大量真实体系为假。**
+            本条说的是「每一份晶态磁性相都必然含有至少一个拓扑缺陷」。反例不是边角料：
+              · **单畴颗粒** —— 尺寸低于成畴临界值时不存在畴壁，也没有涡旋、斯格明子；
+              · **饱和磁化的铁磁体** —— 强场下磁化处处一致，拓扑缺陷数为零。
+            ⚠ **这与本文件那条 ∃hasCrystallographicDefect 不是一个档次。**
+              那一条几乎是真的，因为 T > 0 时组态熵**要求**平衡空位浓度非零 ——
+              点缺陷是热力学必然。**拓扑缺陷没有这个性质**：它们是亚稳的、可以被外场
+              彻底抹掉的。所以那一条踩在安全线内侧，**本条踩到了外侧**。
+            ⚠ src/commagmo_tools/checks/abox_gate.py 的文档字符串把这种情形单列成 (a) 档：
+              「强迫了物理上**不存在**的东西 —— 单晶被迫长出晶界、完美晶体被迫有位错。
+               **该修。**」本条属于 (a) 档，不是 (b) 档。**按指示写上，判归本文件的作者。**
+
+            **其二：主语选相，而本仓库先前专门把它从相那一侧挪走过。**
+            archive/ontology/v0.0.1/domain-topological-defect.ttl 的 topo:hasTopologicalDefect 注释原话：
+              「domain 从 magstr:MagneticStructure 改为 magstr:MagneticDomain（report 10
+                §4.3 / §12）。原先这条边把宿主挂在理想磁结构上……并使链条
+                **Phase→MagneticStructure→TopologicalDefect** 成立 —— 而该链**自相矛盾**：
+                相要求所有物理性质在连续介质尺度均匀，持有畴壁则要求不均匀。」
+            本条把主语直接定在 commagmo:CrystallineMagneticPhase（⊑ emmo:PhaseOfMatter，
+            释义 "all physical properties … essentially uniform"），**正是那条被判为自相矛盾
+            的链的两端**。而经 MagneticDomain ⊑ CrystallineMagneticPhase 继承下去更尖锐：
+            **磁畴按定义就是畴壁之间那块均匀区域，现在它被强制含有一个拓扑缺陷。**
+            ⚠ OWL 层面**不报错**，因为「均匀」那句话从来只在英文释义里，没有任何公理承载
+              （本文件记过的同一毛病的第六例）。所以这是「一句话没兑现」，不是矛盾。
+              推理器帮不上忙，这一条只能靠人读。
+
+            **其三：range 收的是整个 TopologicalDefect，但 2D 那一档不该走部分论的边。**
+            畴壁在**两个畴之间**，不在一个畴**里面**。旧仓库对这一点是分开处理的：
+            0D/1D（斯格明子、涡旋线）由畴宿主，**2D（畴壁）是 magstr:MagneticDomainStructure
+            的 hasComponent 组件**，注释原话「exactly as grain boundaries are components of a
+            microstructure」—— 与本文件 Microstructure ⊑ ∃hasComponent.MicrostructureComponent
+            是同一个形制。本条的 range 没有做这个区分，畴壁也落在里面。
+
+          ⚠ **三处都指向同一个缺失的类：commagmo:MagneticDomainStructure**
+            （⊑ emmo:HolisticArrangement，与 commagmo:Microstructure 同父）。
+            把主语换成它，三处问题一起消失：畴结构不要求均匀（它就是畴与畴壁的排布），
+            「一份畴结构含有拓扑缺陷」对多畴体系为真，畴壁作为组件也有了正当落点。
+            **本文件没有铸它**，MagneticDomain 那一节已经记过这个缺口，本节是它的第二次现身。
+            要改是：铸一个类、把本条的主语搬过去，两行。
+
+          ⚠ 另记一条**没有兑现的分工**：本条是「宿主边」（物质 → 缺陷）。与它配对的
+            「参照边」（缺陷 → 它偏离的那份理想序）本文件仍然没有 ——
+            commagmo:deviatesFrom 至今没铸。旧仓库报告 09/10 把这两条边拆开正是为了防止
+            它们被合并成一条；本文件现在**只有前一条**，处于「拆开了但只写了一半」的状态。
+      ################################################################
+    - |-
+      ################################################################
+          commagmo:CrystallineMagneticPhase ⊑ ∃emmo:hasProperty.commagmo:MagneticStructure
+          —— 公理写在上面 CrystallineMagneticPhase 那个节点里，账记在这里。
+
+          ⚠ **主语是本地类，不是上游类 —— 这一次做对了，值得记一笔。**
+            v0.1.1 有一条同形的公理 magmo:MainMagneticPhase ⊑ ∃hasProperty.MagneticStructure，
+            2026-08-15 被删掉，理由是**主语是上游（MAMMOS）的类，属越界公理**。
+            本条的主语 commagmo:CrystallineMagneticPhase 是本文件自己铸的，
+            不存在那个问题。**这正是那条墓碑当年想要的修法。**
+            ⚠ 那条墓碑还记着一件事，一并抄来免得日后有人「顺手翻转」：
+              **不要**把本条翻成 ⊑ ∃emmo:isPropertyFor.CrystallineMagneticPhase。
+              翻转不是等价改写 —— emmo:hasProperty 声明了 rdfs:range emmo:Property，
+              owl:inverseOf 会把它折算成逆谓词的 domain，于是翻转会推出
+              **commagmo:MagneticStructure ⊑ emmo:Property**（当年实测新增 9 个祖先）。
+              原公理从没说过这句话：range 只约束见证个体，domain 才约束主语类。
+
+          ⚠ **它与继承来的那条 ∃hasProperty.CrystalStructure 是收紧，不是重复。**
+            commagmo:CrystallineMagneticPhase ⊑ … ⊑ emmo:Crystal ⊑ ∃hasProperty.CrystalStructure
+            本来就成立。本条把填充类换成 MagneticStructure（⊑ CrystalStructure），
+            **严格更强**：一个既是磁结构的个体同时满足两条，所以 ABox 里
+            一份磁性相有一份磁结构就够了，不必再另外造一份晶体结构。
+            （若 MagneticStructure 不是 CrystalStructure 的子类，两条就要两个见证个体 ——
+              这是 ⊑ CrystalStructure 那个挂法在这里的第二个好处。）
+
+          HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl；
+          不可满足类 **0**）：
+
+          主语侧 —— **零成本。**
+            emmo:hasProperty 的 rdfs:domain 是 emmo:Referent，而本类经
+            CrystallinePhase ⊑ emmo:Crystal ⊑ … ⊑ emmo:Material ⊑ ∃hasChemicalComposition
+            早已被推成 Referent（本文件那条公理的第四次连带效果）。
+            实测：commagmo:CrystallineMagneticPhase 的类级祖先加本条前后**都是 29 个**，
+            个体都是 31 个类型。
+
+          宾语侧 —— **不免费，落在填进来的那份磁结构个体上。**
+            commagmo:MagneticStructure 个体单独摆着 **18** 个类型
+            （commagmo:CrystalStructure 那 17 个加它自己）；
+            填进本谓词的宾语位后 **27** 个，多出 **9** 个：
+            **Property、Coded、CodedByStructure、Conventional、Sign、SignByReferent、
+              SemioticEntity、Semiotics、Information**。
+            ⚠ 与本文件 emmo:Crystal ⊑ ∃hasProperty.CrystalStructure 那一节记的 +9
+              **逐个相同** —— 同一条谓词、同一支填充类，机制与代价一模一样。
+              「部分论谓词便宜，符号学谓词贵」到这里是第六次实测。
+            ⚠ 类级不受影响：commagmo:MagneticStructure 的类级祖先里**没有 Property**，
+              rdfs:range 只作用于填进去的个体。本地这个类仍然干净地待在 Language 那一支。
+      ################################################################
+  CrystallineMagneticMaterial:
+    label: CrystallineMagneticMaterial
+    definition: A magnetic material with a crystalline structure.
+    parents:
+    - emmo:CrystallineMaterial
+    restrictions:
+    - hasPhase some CrystallineMagneticPhase
+  MagneticStructure:
+    label: MagneticStructure
+    definition: A crystallographic language construct that describes the ideal, periodic arrangement of magnetic moments on the crystallographic sites of a magnetically ordered phase.
+    parents:
+    - CrystalStructure
+    rationale: |-
+      ################################################################
+          commagmo:MagneticStructure —— 一份磁结构的描述。⊑ commagmo:CrystalStructure。
+
+          ⚠ **上游 EMMO 1.0.4 没有这个类**（带 Magnet 的 30 个词条全是量与单位，
+            见上面 CrystallineMagneticPhase 那一节）。本地铸造，不是重述。
+
+          ⚠⚠ **本轮的挂法与本仓库全部先例都不同，差别是实质的，先说清楚。**
+            · archive/ontology/v0.0.1/domain-magnetic-structure.ttl 的 magstr:MagneticStructure
+              ⊑ **magstr:Magnetographical** ⊑ emmo:Language —— 与 xtal:Crystallographical
+              **平行**的另一个描述根，两者是**兄弟**。
+            · archive/ontology/v0.1.1 的 material:MagneticStructure 同样 ⊑ material:Magnetographical。
+            · **本轮按指示 ⊑ commagmo:CrystalStructure —— 磁结构是一种晶体结构，
+              不是晶体结构的兄弟。** 这句话比先例强：它蕴涵先例的位置（本类照样落在
+              Crystallography ⊑ emmo:Language 那一支），反过来不成立。
+            ⚠ 好处是**三条 tile 边全部白捡**。v0.1.1 当年逐条手写的那三条
+                =1 hasSpatialTile.MagneticSpaceGroup ／ =1 hasSpatialTile.UnitCell
+                ／ ∃ hasSpatialTile.Site
+              （它自己记着「与 cryst:CrystalStructure 那三条逐字同形」），
+              本轮一条都不用写 —— commagmo:CrystalStructure 身上那三条顺 subClassOf 落下来。
+            ⚠ 代价是**那三条的填充类也一并继承，而其中一格对磁结构不对**，见下。
+
+          ⚠⚠ **继承来的 =1 hasSpatialTile.commagmo:Spacegroup 是这一节最该盯住的一条。**
+            磁结构的对称性群是 **Shubnikov 磁空间群（BNS setting）**，不是普通空间群。
+            本类现在被强制**恰好有一个普通 Spacegroup**。
+            ⚠ 这**不是死结**，但要按顺序走：先铸 commagmo:MagneticSpacegroup
+              **⊑ commagmo:Spacegroup**，那条 =1 就由它满足（磁空间群确实是空间群的扩展，
+              archive/ontology/v0.0.1/domain-magnetic-structure.ttl 里 magstr:MagneticSpaceGroup ⊑
+              xtal:SpaceGroup 走的正是这条）。**若把它铸成 Spacegroup 的兄弟，
+              本类就会同时欠一个普通群和一个磁群，=1 立刻变成一个错误的约束。**
+              本轮没铸磁空间群，这条路线记在这里。
+
+          ⚠⚠ **继承来的 =1 hasSpatialTile.commagmo:UnitCell 有两处不准，都是继承来的，
+            不是本节新造的，但从此静默生效，必须写下来：**
+            · **磁胞一般是化学胞的超胞**（由传播矢量 k 与 transformation matrix 给出）。
+              反铁磁体的磁胞与化学胞不是同一个胞。「恰好一个 UnitCell」于是含糊：
+              指的是哪一个？v0.1.1 记过同一处不贴（cryst:UnitCell 的上游定义写的是
+              "A periodic unit in **a crystal structure**"，物理上没问题，字面对不上）。
+            · **非公度磁结构根本没有磁晶胞**（周期与点阵不可通约），要用磁超空间群与
+              调制波矢描述。所以 =1 UnitCell 与 =1 Spacegroup **对非公度那一半都为假**。
+              v0.1.1 把这一条记在自己写的那两条边上；本轮它们是继承来的，
+              **反例没变，只是不再写在眼前**。要修得先有 MagneticSuperspaceGroup，
+              本地与 magstr 两边现在都没有。
+
+          ⚠⚠ **磁性本身仍然一个字都没写进去 —— 这是本节最大的空缺，与上一节同一个毛病。**
+            三条 tile 说的是「有一个胞、有一个群、有若干位点」，**晶体结构也是这三样**。
+            真正把它变成磁结构的是两件事：
+              (甲) 群是 Shubnikov 群 —— 靠 MagneticSpacegroup 那个填充类承担，**本轮没铸**；
+              (乙) 位点上挂着磁矩 —— **完全没有**。
+            commagmo:Site 的释义是 "A site within a unit cell related to the position of
+            a **species**."，说的是物种的位置，不是磁矩。MAGNDATA 原子表里那几列
+            Mx / My / Mz / |M| 在本文件里**没有任何东西承载**。
+            要铸的是 commagmo:MagneticMoment 加一条把它挂到位点上的谓词，
+            **那才是磁性支真正的内容**。v0.1.1 原样记过这一条，本轮照抄，因为它还没解决。
+
+          ⚠ 定义依据 Bilbao Crystallographic Server / MAGNDATA：一份磁结构用一个磁空间群
+            描述，把原子位置与磁矩放进同一形式框架，信息压缩到相对该 MSG 的不对称单元。
+            **三个要件本节的公理只覆盖了半个**：Shubnikov 群（欠填充类）、不对称单元的磁矩
+            （欠）、与顺磁母相的关系（传播矢量 k、irrep、母空间群及变换 —— 欠，magstr 那边
+            有 PropagationVector 但也没有母相与 irrep）。
+
+          ⚠ **同名不同 IRI，本文件的第六对**：magstr:MagneticStructure
+            <https://w3id.org/emmo/domain/magnetic-structure#MagneticStructure>。
+            那一个的定义还带着本类没有的半句：「…and the reference an ordering defect
+            departs from. **NOT the magnetisation pattern of a particular body**: that is a
+            magstr:MagneticDomainStructure.」
+            ⚠ 后半句值得记：magstr 当年把本类的父类从 emmo:Arrangement 挪到 Language 那一支，
+              理由是 Arrangement 的释义是「A causal **object** which is tessellated…」——
+              实在构型，不是描述；混用会让同一个类同时充当理想磁序、实际畴构型、
+              计算基态三样东西。**本轮 ⊑ CrystalStructure 自动站在正确的一侧**
+              （CrystalStructure ⊑ Crystallography ⊑ emmo:Language ⊑ … ⊑ emmo:Data，
+              纯描述侧），这个坑绕过去了。
+            本文件对这六对一次 skos 对齐都没写，本条同样没写。
+      ################################################################
+  MagneticDomain:
+    label: MagneticDomain
+    definition: A region of a magnetically ordered body throughout which the magnetisation direction is uniform.
+    parents:
+    - CrystallineMagneticPhase
+    rationale: |-
+      ################################################################
+          commagmo:MagneticDomain —— 磁畴。⊑ commagmo:CrystallineMagneticPhase。
+
+          ⚠⚠ **本仓库先前明确把这个类放在别处，理由写得很硬，先原样摆出来再说本轮的做法。**
+            archive/ontology/v0.0.1/domain-magnetic-structure.ttl 的 magstr:MagneticDomain
+            ⊑ **emmo:PhysicalObject** <…#EMMO_38b579de…>，注释原话：
+              "Placed under emmo:PhysicalObject, **not emmo:Material**: by the substitution
+               test of report 09 §9.1 **a domain wall sweeping through swaps every atom
+               while the domain stays the same domain**, so its identity is not carried by
+               the matter it is made of; but it is a causally convex block, which is all
+               emmo:PhysicalObject requires."
+            **本轮按指示挂在 CrystallineMagneticPhase 之下，于是本类落进 emmo:Material。**
+            ⚠⚠ **这一句已过期，2026-08-28 订正 —— 见本节末尾那块订正。**
+            这与上面那条替换判据正面冲突：畴壁扫过时组成畴的原子全换了一遍，畴还是那个畴。
+            按 EMMO 的读法，emmo:Material 是「一份普通物质」，其同一性由物质承载。
+            **这一条没有被驳倒，本轮是按指示写的，记在这里。**
+            ⚠ 要退回旧口径，做法是把父类换成 emmo:PhysicalObject（本文件尚无该引用节点），
+              代价是本类同时失去下面列的那四条继承公理。两条路的差别不是好看不好看。
+
+          ⚠ **但反方向也有一条实打实的支持，一并记：畴的定义就是「均匀」。**
+            emmo:PhaseOfMatter 的释义是 "A matter object throughout which all physical
+            properties of a material are **essentially uniform**."，
+            而磁畴的定义是「磁化方向处处一致的那块区域」。**两句话说的是同一件事**，
+            只是后者把「性质」specialise 成了磁化方向。所以 ⊑ Phase 这一步在**定义层面**
+            是贴的；不贴的是上面那条同一性判据。两者不是同一个问题，别混着算。
+
+          ⚠⚠ **一个由此产生的、必须写下来的张力：如果畴按定义是均匀的，它就装不下
+            斯格明子。** v0.1.1 给拓扑缺陷定第一条边时的原话是：
+              「斯格明子处处有定义、处处满模，什么都没被违反；它坏的是**整个区域取同一个
+                G/H 成员**这件事，而那正是**畴**的定义。所以本文件的第一条边指向畴，
+                不指向结构。」
+            也就是说旧口径里畴是拓扑缺陷的**宿主**。而本轮把畴挂进 Phase（均匀）之后，
+            「一个畴里有一个斯格明子」在语义上就变成了「一块均匀区域里有一处不均匀」。
+            ⚠ **OWL 层面不会报错**（PhaseOfMatter 那条「均匀」只在释义的英文里，
+              没有任何公理承载它 —— 与本文件记过的 "ordered"、"all constituents"、
+              0D/1D/2D、"Magnetic" 同一个毛病的第五例）。所以这不是矛盾，是**一句话没兑现**。
+            ⚠ 旧口径对这一处的答案是分层：宿主是 magstr:MagneticDomain（物侧的那块区域），
+              参照是 magstr:MagneticStructure（符号侧的理想序），而**畴的容器**是
+              magstr:MagneticDomainStructure ⊑ emmo:HolisticArrangement
+              —— 与 commagmo:Microstructure 同一个父类，畴壁是它的 hasComponent 组件。
+              本文件**没有铸 MagneticDomainStructure**，所以这一层现在是缺的。
+              要接着走磁学支，这个类比再铸几个具体的拓扑缺陷更要紧。
+
+          ⚠ **它一口气继承了四条 ∃，一条边都不用写**（经 CrystallineMagneticPhase）：
+            ⚠⚠ **下面四条现在只剩两条，2026-08-28 订正 —— 见本节末尾那块订正。**
+            · ⊑ … ⊑ emmo:Material ⊑ ∃emmo:hasChemicalComposition.ChemicalComposition
+            · ⊑ … ⊑ emmo:Crystal  ⊑ ∃emmo:hasProperty.commagmo:CrystalStructure
+            · ⊑ … ⊑ commagmo:CrystallinePhase ⊑ ∃commagmo:hasCrystallographicDefect.CrystallographicDefect
+            · ⊑ commagmo:CrystallineMagneticPhase ⊑ ∃emmo:hasProperty.commagmo:MagneticStructure
+            **每一个磁畴都必有化学组成、晶体结构、磁结构，以及至少一个晶体学缺陷。**
+            ⚠ 第四条读起来是对的（畴的那份均匀磁序正是它的磁结构，与旧口径「参照是磁结构」
+              指的是同一样东西，只是这里走的是 hasProperty 不是 deviatesFrom）。
+            ⚠ 第三条那笔物理账原样传下来（0D 几乎必然、1D/2D 不必然，见
+              hasCrystallographicDefect 那一节）。**磁畴被迫带一个晶体学缺陷**这句话
+              与「畴是均匀的」放在一起读格外别扭，但它不是本节引入的。
+
+          HermiT 实测（不可满足类 **0**）：类级祖先 **30**（CrystallineMagneticPhase 那 29 个
+          加它自己），ABox 个体 **32** 个类型。纯 subClassOf，无 owl:Restriction，两侧零成本。
+
+          ⚠⚠⚠ **2026-08-28 订正：上面这一节有三处已经与文件的实际状态对不上了。**
+            原句一律留着，好看出改过什么。成因是后来删掉了 commagmo:CrystallinePhase
+            ⊑ emmo:Crystal 那条父类边（本文件开头那一节记了那次删除与它的账），
+            **但本节没有跟着改**。逐条订正：
+
+            (1) **「于是本类落进 emmo:Material」不再成立。** 实测本类的祖先里
+                **没有** Material、没有 CrystallineMaterial、没有 Crystal。
+                它现在的物侧路径是 commagmo:Phase ⊑ emmo:PhaseOfMatter ⊑
+                ContinuumSubstance ⊑ Substance ⊑ Matter。
+                ⚠ **但那条张力没有消失，只是换了说法**：本类仍在 Matter／Substance
+                  之下，同一性仍由物质承载，替换判据（畴壁扫过原子全换、畴还是那个畴）
+                  照样与它冲突。要驳的是「在物侧」，不是「叫 Material」。
+
+            (2) **那四条继承的 ∃ 现在只剩两条。** 还在的：
+                  · ⊑ … ⊑ commagmo:CrystallinePhase ⊑ ∃hasCrystallographicDefect.…
+                  · ⊑ commagmo:CrystallineMagneticPhase ⊑ ∃emmo:hasProperty.MagneticStructure
+                没了的：**∃hasChemicalComposition**（挂在 emmo:Material 上，够不着了）、
+                  **∃hasProperty.CrystalStructure**（挂在 emmo:Crystal 上，同理）。
+                所以「每一个磁畴都必有化学组成、晶体结构」这句话**现在是假的**；
+                「必有磁结构与至少一个晶体学缺陷」仍然为真。
+                ⚠ 下面那条闸门实测（`MagneticDomain ⊓ (≤0 hasCrystallographicDefect.⊤)`
+                  不可满足）**不受影响**，因为它依赖的正是还在的第三条。
+
+            (3) **类级祖先不是 30，是 23**（不含 owl:Thing；`.baseline-ancestors.json`
+                的含 Thing 口径是 24）。CrystallineMagneticPhase 同样从 29 降到 **22**。
+                ⚠ ABox 那个「32 个类型」**本轮没有重新量**，它多半也过期了，
+                  标成待复核，别照抄。
+
+            本轮（2026-08-28）只订正账，**一条公理都没有动** —— 父类那个选择
+            （留在物侧 vs 退回 emmo:PhysicalObject）仍在待决，见 HB.txt 本周第 2 条。
+          ⚠ 闸门实测：探针 `MagneticDomain ⊓ (≤0 hasCrystallographicDefect.⊤)` **不可满足**
+            —— 上面第三条继承是硬的，ABox 里写一个不带晶体学缺陷的磁畴会与 TBox 冲突。
+          ⚠ 另一处实测：**TopologicalDefect ⊓ MagneticDomain 可满足**（收紧到
+            NonEncodedContrast 之后**仍然可满足**，因为本类在物侧不在 Data 侧，
+            那条互斥够不着）。物理上「一个拓扑缺陷同时是一个磁畴」是错的，
+            眼下没有任何东西挡住它。要挡得另写一条互斥，本轮没写。
+
+          ⚠ **同名不同 IRI，第七对**：magstr:MagneticDomain
+            <https://w3id.org/emmo/domain/magnetic-structure#MagneticDomain>。
+            本地这一个**不窄于也不宽于**它 —— 两者的父类分属两支（Material vs PhysicalObject），
+            连 broadMatch 都写不出来。本文件对七对一次 skos 对齐都没写。
+      ################################################################
+  TopologicalDefect:
+    label: TopologicalDefect
+    definition: A defect in an ordered medium that is topologically protected, classified by the homotopy group of the order-parameter space.
+    comment:
+    - 'SCOPE. Within this ontology the ordered medium of interest is a magnetically ordered one: the order parameter is the magnetisation direction field, its target manifold is the unit sphere, and the intended instances are the topological defects of magnetic order — skyrmions and antiskyrmions, magnetic bubbles, vortex and skyrmion lines, Bloch points and emergent monopoles, domain walls of Bloch, Neel and cross-tie type, and hopfions. Lattice defects belong to the sibling class CrystallographicDefect instead.'
+    - 'SCOPE IS EDITORIAL, NOT LOGICAL. The definition above is the general one and covers ordered media of any kind — liquid crystals, superfluids, superconductors — and no axiom on this class restricts it to magnetic systems. Nothing prevents a non-magnetic instance, and nothing here carries the topological criterion itself: neither an order-parameter field, nor a target manifold, nor a winding number is represented. Making the magnetic scope logical would require that machinery first.'
+    - TOPOLOGICAL AND DIMENSIONAL ARE ORTHOGONAL CRITERIA OVER ONE POPULATION, NOT TWO TREES. This class is a sibling of CrystallographicDefect, not a fourth member of the PointDefect / LineDefect / PlaneDefect triad, which cuts by the dimension of the defect locus. A dislocation is both a LineDefect and a TopologicalDefect and should carry both parents; a vacancy is a PointDefect and is not topological; a skyrmion in a thin film is topological and its host lattice is perfect.
+    parents:
+    - Defect
+    rationale: |-
+      ################################################################
+          commagmo:TopologicalDefect —— 拓扑缺陷。⊑ commagmo:Defect。
+
+          ⚠⚠ **父类必须是 Defect，不能是 CrystallographicDefect，也不能与 0D/1D/2D 三档并排。
+            这两条都不是口味，各有理由：**
+            · **不能挂在 CrystallographicDefect 之下** —— 斯格明子活在**完美点阵**里，
+              坏掉的是磁序不是点阵，它不是晶体学缺陷。本文件的 Defect 释义
+              （"A local deviation from a **regular pattern**."）本来就不限于点阵，
+              正好容得下它：晶体学缺陷偏离的是点阵，拓扑缺陷偏离的是序参量场。
+            · **不能与 PointDefect / LineDefect / PlaneDefect 并排** —— 那三档按 locus 的
+              **维度**切，拓扑保护是**正交的第二判据**，并排会变成「第四个维度」。
+              archive/ontology/v0.0.1/ 那边报告 10 §7.3 的原话：「topological and structural are two
+              **orthogonal** criteria over one population, **not two trees**」。
+            ⚠ 正交的证据（v0.1.1 逐格核过，两条对角线上的格子都非空）：
+                0D：空位不拓扑，二维薄膜里的斯格明子拓扑
+                1D：位错与旋错整支拓扑
+                2D：反相畴界与铁磁畴壁拓扑，一般大角晶界与自由表面不拓扑
+            ⚠ 因此**交叉是要的，不是漏的**：一条位错既是 LineDefect 又是 TopologicalDefect，
+              该同时挂两个父类（archive/ontology/v0.0.1/ 那边给 def:Dislocation 就是这么做的）。
+              实测本文件当前状态下 TopologicalDefect ⊓ LineDefect **可满足**，
+              所以那样写不会撞矛盾。**本轮没铸 Dislocation，交叉这一半还落不了地。**
+
+          ⚠ **本类身上有三条 rdfs:comment —— 本文件正文里的第一条 rdfs:comment**
+            （此前 27 个条目全部只用 rdfs:label ＋ skos:definition ＋ 两条 skos:altLabel）。
+            三条各管一件事，**全部是注解，零蕴涵**：
+              (1) **SCOPE** —— 本体关心的有序介质是磁有序介质：序参量是磁化方向场，
+                  靶流形是单位球面，预期实例是斯格明子／反斯格明子、磁泡、涡旋线与
+                  斯格明子管、Bloch 点与涌现单极子、Bloch／Néel／十字系畴壁、Hopfion。
+                  点阵缺陷归兄弟类 CrystallographicDefect。
+              (2) **SCOPE IS EDITORIAL, NOT LOGICAL** —— 释义是通用的，覆盖液晶、超流、
+                  超导等任何有序介质，**本类身上没有任何公理把它收到磁性系统**。
+                  非磁性的实例不会被挡住。这一条是刻意写进注解的，免得读者把范围当成约束。
+              (3) **两条判据正交** —— 本类是 CrystallographicDefect 的兄弟，不是 0D/1D/2D
+                  三档的第四个成员；位错该同时挂 LineDefect 与本类。
+            ⚠ **为什么用注解而不是公理**：要把 (1) 变成公理，得写
+              ⊑ ∃deviatesFrom.MagneticStructure 一类的东西 —— 而那对非奇异的那一半为假
+              （斯格明子什么都没违反，见下），且 deviatesFrom 还没铸。
+              要把 (3) 变成公理，得让 Dislocation 之类的交叉实例真的存在，本地也还没铸。
+              **两条都不是「懒得写」，是写下去会说出假话或者零件不在手里。**
+            ⚠ 但这也正是本仓库反复警惕的失败模式的边缘：注解读起来像承诺，推理器一个字
+              都看不见。与 archive/ontology/v0.0.1/domain-topological-defect.ttl 把同伦群做成字符串注解
+              （topo:homotopyFacet = "π1"）是同一档做法，区别只在本节把这件事说破了。
+
+          ⚠⚠ **本类现在是一个「标签」，「凭什么拓扑」在本体里没有任何东西承载。**
+            判据是「序参量场的同伦类非零」，要说这句话得有**序参量场、它的靶流形、绕数**
+            —— 三样本文件一样都没有。
+            ⚠ **emmo:LongRangeOrderParameter / ShortRangeOrderParameter 帮不上忙**：
+              它们是 ISQDimensionlessQuantity（Ising 铁磁体里朝一个方向的原子分数减去
+              朝反方向的分数），**一个标量数值**；同伦分类要的是取值在流形上的**场**
+              （S¹、S²、RP²、SO(3)/…）。两者同名不同物。
+            ⚠ archive/ontology/v0.0.1/domain-topological-defect.ttl 遇到同一个坎，处理办法是把同伦群与
+              奇异性做成**注解属性**（topo:homotopyFacet = "π1"、topo:singularityFacet =
+              "singular"，字符串，**零蕴涵**）。诚实，但那正是本仓库反复警惕的失败模式。
+              本轮不抄那两条注解，缺口明写在这里。
+            ⚠ **能兑现的版本是定义类**：TopologicalDefect ≡ Defect ⊓
+              ∃hasTopologicalCharge.(非零不变量)。而 **Burgers 矢量就是位错的拓扑荷**
+              （LDO 现成有 ldo:hasBurgersVector），那样 Dislocation ⊑ TopologicalDefect
+              就是**推出来的**而不是断言的。要铸一条新谓词，记为下一步。
+
+          ⚠ **上游那条 deviatesFrom 明确不抄。** topo:TopologicalDefect 身上写着
+            ≥1 def:deviatesFrom.(xtal:CrystalStructure ⊔ magstr:MagneticStructure)。
+            **它对非奇异的那一半为假** —— topo:singularityFacet 自己的定义就把判据写好了：
+            singular「the order parameter has no well-defined value in the core」
+            vs non-singular「the order parameter is everywhere defined」。
+            **斯格明子处处有定义、处处满模，什么都没被违反**；它坏的是「整个区域取同一个
+            G/H 成员」这件事，而那正是**畴**的定义（见上面 MagneticDomain 那一节）。
+            本文件连 deviatesFrom 这条谓词都还没铸，两件事一并留作待决。
+
+          ⚠ **上游那 28 个子类一个都没铸**：TopologicalPointDefect（BlochPoint、Boojum、
+            Skyrmion、Antiskyrmion、Bimeron、MagneticBubble、EmergentMagneticMonopole…）、
+            TopologicalLineDefect（MagneticVortexLine、SkyrmionTube、Meron…）、
+            WallDefect（BlochWall、NeelWall、CrossTieWall、90°/180° DomainWall…）、
+            TopologicalVolumeDefect（Hopfion、ChiralBobber）。
+            ⚠ 注意那一支的三档命名是 **TopologicalPoint/Line/Volume**，与本文件
+              Point/Line/Plane 那三档**不是一回事**（那边切的是缺陷芯的维度且带拓扑限定），
+              照抄会撞上上面说的「第四个维度」那个坑。
+
+          HermiT 实测（不可满足类 **0**）：类级祖先 **8**，与 commagmo:CrystallographicDefect
+          逐个相同（两者是兄弟，各自都只有一条 subClassOf）；ABox 个体 10 个类型。
+          纯 subClassOf，无 owl:Restriction，两侧零成本。
+
+          ⚠ **那条互斥仍然没兑现，而且现在的赌注比先前大。** 本类经 commagmo:Defect ⊑
+            commagmo:SpatialContrast ⊑ **emmo:Contrast**（不是 emmo:NonEncodedContrast）。
+            实测当前状态下 **TopologicalDefect ⊓ commagmo:MagneticStructure 可满足** ——
+            也就是说「某个拓扑缺陷同时被当成一份磁结构」推理器一声不吭地放过。
+            **这正是旧仓库报告 10 §4.3 拆开「宿主边 / 参照边」时要防的那个错。**
+            收紧 commagmo:SpatialContrast 的父类到 emmo:NonEncodedContrast 一行即可
+            （见文件后面那个待决），实测收紧后
+            **TopologicalDefect ⊓ MagneticStructure = ⊥** 与 **⊓ CrystalStructure = ⊥**
+            同时成立，非探针不可满足数仍为 0。本轮按惯例仍未收紧，记在案。
+      ################################################################
+  MagneticDomainWall:
+    label: MagneticDomainWall
+    definition: A two-dimensional topological defect separating two magnetic domains, across which the direction of the magnetisation rotates.
+    parents:
+    - TopologicalDefect
+    rationale: |-
+      ################################################################
+          commagmo:MagneticDomainWall —— 磁畴壁。⊑ commagmo:TopologicalDefect。
+
+          ⚠ **上游一个都没有。** reference/ 全库 grep 不到任何 MagneticDomainWall／
+            DomainWall 类（含 mammos），所以释义**不是逐字取自上游**：它改写自本仓库
+            旧模块 archive/ontology/v0.0.1/domain-topological-defect.ttl 的 topo:WallDefect
+            （"A two-dimensional topological defect (wall/interface) of an ordered medium,
+              classified by pi_0."），把「任何有序介质的壁」磁学专名化。
+
+          ⚠ **为什么取磁学专名而不照搬旧模块的通用名 WallDefect。**
+            上面 TopologicalDefect 的第一条 rdfs:comment 已经把 "domain walls of Bloch,
+            Neel and cross-tie type" 列为 intended instances —— 本类填的正是那个已许诺的位子。
+            通用名会诱人把它当成 PointDefect/LineDefect/PlaneDefect 三档的第四档，
+            而那正是同一节点第三条 rdfs:comment 明令禁止的并排。
+
+          ⚠⚠ **「畴壁是 2D」这句话在本文件根本说不出来。**
+            本文件的 0D/1D/2D 三档全部 ⊑ commagmo:CrystallographicDefect —— **维度轴与
+            晶体学轴被绑死在一条链上**。畴壁不是晶体学缺陷（坏的是磁序不是点阵），
+            所以它拿不到 PlaneDefect 那个父类，它的二维性于是无处安放。
+            要说得出来，得先把维度那三档从 CrystallographicDefect 底下解绑 —— 与
+            TopologicalDefect 那条「拓扑与维度是两条正交判据，不是两棵树」是同一件事。
+            **本轮不动，记成待决。**
+
+          ⚠ **本轮一条关系边都不接**（按指示只落类层次）。三个缺口逐条记下，免得下一轮重造：
+            · **宿主边** —— 旧模块的做法是「畴壁不需要自己的宿主边：它是
+              magstr:MagneticDomainStructure 的 emmo:hasComponent 组件，从那里够得着」，
+              与晶界之于显微组织同一个例外。本文件**没有铸 MagneticDomainStructure**
+              （旧模块里它 ⊑ emmo:HolisticArrangement，与 commagmo:Microstructure 同父），
+              所以本类现在是一片**没有宿主**的叶子。
+            · **=2 分隔边** —— 旧模块有 topo:separatesMagneticDomain，并写着
+              WallDefect ⊑ =2 separatesMagneticDomain.MagneticDomain；它还论证过
+              **=2 为什么不能挂在参照边上**：180° 畴壁两侧共用**一份**磁结构，只是磁化方向
+              不同，写成 =2 deviatesFrom.MagneticStructure 会逼推理器凭空造出第二份磁结构
+              —— 与晶界那一处同一个错。要接就接在「分隔的畴」上。
+            · **参照边** —— 本文件至今没有 deviatesFrom 这个谓词（commagmo:Defect 那一节
+              记过：它现在是「一个没有参照对象的分类节点」）。本类继承同一个缺口，
+              不是本节新增的。
+
+          ⚠ **一个洞本轮留着，而且不能顺手堵到父类那一层去。**
+            实测 `MagneticDomainWall ⊓ MagneticDomain` **可满足** —— 畴壁不是畴，
+            物理上这个交该是空的，堵它要另写一条互斥，本轮没写（守洞测试
+            test_magnetic_domain_wall_and_magnetic_domain_still_intersect 钉住了这个状态）。
+            ⚠⚠ 但**父类那一层的同一个交必须留着**：`TopologicalDefect ⊓ MagneticDomain`
+              可满足是有真用例的 —— 旧模块 topo:MagneticBubble ⊑ Skyrmion ⊓ magstr:MagneticDomain
+              是**故意**的双父类（磁泡就是一个柱状磁畴，其畴壁的绕数让它拓扑等价于斯格明子；
+              注释里写明这与 GrainBoundary 同时是组件和面缺陷是同一个处理：
+              一个个体、两张面孔）。一条全局互斥会把磁泡判成 ⊥。要堵只能堵窄的那一层。
+
+          本轮不碰（HB 明写）：「凭什么拓扑」那个真缺口 —— 序参量场、靶流形、绕数
+            本文件一样都没有；TopologicalDefect 的第二条 rdfs:comment 已经写明这一点。
+
+          HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl；
+          不可满足类 **0**）：本类类级祖先 **9** 个（TopologicalDefect 那 8 个加它自己），
+          纯 subClassOf、无 owl:Restriction，**两侧零成本**。
+          ⚠ **本轮是 v1.1 第一次铸新类，所以快照必须重冻结**：自有类 66 → 67，
+            `.baseline-ancestors.json` 多一个 key，**其余 66 个类的祖先集一字不变**
+            （逐类比对过，见本轮提交信息）。这是「先逐项解释再 --freeze」，
+            不是拿 --freeze 掩盖变化。
+      ################################################################
+  SpatialContrast:
+    label: SpatialContrast
+    alt_labels:
+    - SpatialPattern
+    - SpatialVariation
+    definition: An entity with a spatial variation of its properties.
+    parents:
+    - emmo:Contrast
+    rationale: |-
+      ################################################################
+          commagmo:SpatialContrast —— 空间对比。照 mstr:SpatialContrast 重铸。
+          释义与两个 altLabel 逐字取自 mstr 原文。
+
+          ⚠ mstr 那边它有**两个**直接子类：Boundary 与 Defect。本轮只取 Defect 一支，
+            Boundary（以及它下面的 DualBoundary、GrainBoundary 那一层）没铸。
+            记这一笔是因为它解释了这个类为什么要单独存在：**它是缺陷与界面共用的那个根**，
+            只为 Defect 一个类而设的话，直接 Defect ⊑ emmo:Contrast 更省。
+
+          HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl，
+          口径同 src/commagmo_tools/core/reason.py，目录换成 ontology/；不可满足类 **0**）：
+            类级祖先 **6** 个，一条直链，没有分叉：
+              Contrast → Perspective → CausalStructure → Item → Fusion → EMMO。
+            ABox：一个本类个体推出 8 个类型（6 ＋ 自己 ＋ owl:Thing）。
+
+          ⚠ **本节三个类一条 owl:Restriction 都没有，所以两侧都没有闸门可付，代价是真的零。**
+            对照本文件另外四条边：hasChemicalComposition 主语侧 +4 宾语侧 +6、
+            hasProperty 宾语侧 +9、hasSpatialTile 主语侧类级 +3 宾语侧 +5。
+            便宜的原因不是这一支特别好，而是**它现在还没有跟任何东西连起来**（见下）。
+
+          ⚠⚠ **缺陷这一支整个不在物侧。** 那 6 个祖先里没有 Material、没有 Matter、
+            没有 Substance、没有 PhysicalObject —— 一个物侧的类都没有。
+            与本文件的 commagmo:Microstructure（⊑ emmo:Material，21 个祖先全在物侧）
+            正好是对称的两边。这不是疏漏，是 EMMO 的读法：**缺陷是性质在空间上的变化，
+            不是材料的一个零件。** v0.1.1 记过这句话的一个直接后果：CDOS 那条
+            hasCrystallographicDefect 把宿主定在材料上却始终没人给出「相对于什么理想结构」
+            那条边，因为**两端根本不在同一棵树上**，部分论谓词跨不过去。
+
+          ⚠⚠ **本节先前在这里写过一句错话，订正如下。** 原话是「emmo:hasSpatialPart
+            继承来的 rdfs:domain 是 CausalSystem 与 Item，而缺陷支的祖先里没有 CausalSystem，
+            所以写 Microstructure hasSpatialPart Defect 会把缺陷个体推成一个 CausalSystem，
+            这笔代价没有量，别当成零」。
+            **rdfs:domain 约束的是主语，不是宾语。** 约束宾语的是 rdfs:range，或者逆谓词的
+            rdfs:domain —— 而部分论那一族**两者都是空的**（正向链只有 EMMORelation 写了
+            range emmo:EMMO；七条逆谓词一条 domain 都没有，逐条查过）。所以那笔账实际是零。
+            本文件后来铸的 commagmo:hasCrystallographicDefect 把它量了：**宾语侧 +0**，
+            缺陷个体填进宾语位前后都是 10 个类型。详见那一节。
+            ⚠ 缺陷支的祖先里确实没有 CausalSystem（那半句没错），但它不产生代价 ——
+              除非哪天有人给这一支写一条以缺陷为**主语**的部分论边，那时闸门才会开。
+          ⚠ 参照式的那条边仍然没有写：本仓库 archive/ontology/v0.0.1/domain-defect.ttl 当年铸的
+            def:deviatesFrom（「缺陷不是理想结构的部分，理想结构是缺陷偏离的那个参照」，
+            刻意不挂在 hasPart 家族之下）。它与宿主边互补不互斥，留作待决。
+      ################################################################
+  Defect:
+    label: Defect
+    definition: A local deviation from a regular pattern.
+    parents:
+    - SpatialContrast
+    rationale: |-
+      ################################################################
+          commagmo:Defect —— 缺陷。⊑ commagmo:SpatialContrast，位置与 mstr:Defect 相同。
+          释义逐字取自 mstr："Local deviation from a regular pattern."
+
+          ⚠ **这条释义本身是参照式的**（相对于「某个规则图样」的偏离），
+            而 mstr:Defect 除了那条父类**一条公理都没有** —— 那个参照对象在上游从未落成公理。
+            本文件照抄了这个状态，所以眼下它是一个**没有参照对象的分类节点**。
+            这一点 v0.1.1 记过原话，本轮没有变。
+
+          HermiT 实测（不可满足类 **0**）：类级祖先 **7** 个（SpatialContrast 那 6 个加它自己）；
+          ABox 一个本类个体 9 个类型。**加本类前后本文件其余各类的祖先集一个不变**
+          （它是一片新叶子，不碰任何已有的边）。
+      ################################################################
+  CrystallographicDefect:
+    label: CrystallographicDefect
+    definition: An imperfection in the regular geometrical arrangement of the atoms in a crystalline solid.
+    parents:
+    - Defect
+    rationale: |-
+      ################################################################
+          commagmo:CrystallographicDefect —— 晶体学缺陷。⊑ commagmo:Defect，位置同 mstr。
+          释义逐字取自 mstr（原文 "crystalline  solid" 有两个空格，这里并成一个）：
+            "Imperfection in the regular geometrical arrangement of the atoms in a
+             crystalline solid."
+
+          HermiT 实测（不可满足类 **0**）：类级祖先 **8** 个；ABox 个体 10 个类型。
+
+          ⚠ **它与晶体那一侧仍然没有任何一条边。** 释义里的 "in a crystalline solid" 一个字
+            都没有进公理 —— 本文件有 emmo:Crystal、emmo:CrystallineMaterial、
+            commagmo:CrystalStructure、commagmo:CrystallinePhase 四个现成的落点，
+            本轮一条都没接。这与「ordered 只活在释义里」是同一个毛病的第三例
+            （前两例：cryst:Crystal 的 "ordered"、TotalComposition／PartialComposition
+              的 "all / some constituents"）。
+            ⚠ **宿主那条边本轮已经写了**，但它接的是相那一侧：
+              commagmo:CrystallinePhase ⊑ ∃commagmo:hasCrystallographicDefect.本类
+              （见下面 commagmo:hasCrystallographicDefect 那一节，两侧实测全零）。
+              **参照那条仍然没有** —— 写 本类 ⊑ ∃commagmo:deviatesFrom.CrystalStructure
+              要先铸谓词，留作待决。两条互补不互斥：一条说缺陷在哪块物质里，
+              另一条说它相对于哪份理想结构才算「缺陷」。
+      ################################################################
+  PointDefect:
+    label: PointDefect
+    definition: A crystalline defect which is localized at or around a single lattice point. It is considered to be a zero-dimensional defect because it does not extend in any dimension in the lattice.
+    parents:
+    - CrystallographicDefect
+    rationale: |-
+      ################################################################
+          0D / 1D / 2D 三档：PointDefect / LineDefect / PlaneDefect，
+          全部 ⊑ commagmo:CrystallographicDefect。释义逐字取自 **CDOS**（指示说参考 cdco）。
+
+          ⚠⚠ **CDOS 那一支的形状，先说清楚，因为它不是「三个整整齐齐挂在一起」。**
+            cdco.ttl 里确实有三条 ⊑ cdco:CrystallographicDefect，三个主语分别是
+              <http://purls.helmholtz-metadaten.de/cdos/ldo/LineDefect>     ← **http**
+              <http://purls.helmholtz-metadaten.de/cdos/pldo/PlanarDefect>  ← **http**
+              <http://purls.helmholtz-metadaten.de/cdos/podo/PointDefect>   ← **http**
+            三个都带着完整定义，看起来是三个占位类。但另外三份文件自己声明的是：
+              ldo.ttl   <http://…/cdos/ldo/LineDefect>      ← **http**，与占位**同一个 IRI**
+              pldo.ttl  <https://…/cdos/pldo/PlanarDefect>  ← **https**，与占位**不是**同一个
+              podo.ttl  <https://…/cdos/podo/PointDefect>   ← **https**，与占位**不是**同一个
+            RDF 里 http 与 https 是两个 IRI，四份合并加载也接不上。所以实测结果是：
+              · **1D 通了** —— ldo 恰好也用 http，Disclination / Dislocation 两个子类
+                真的落在 cdco:CrystallographicDefect 之下。
+              · **0D 与 2D 断了** —— podo:PointDefect（6 个子类）与 pldo:PlanarDefect
+                （5 个子类）各自 **rdfs:subClassOf 为空**，是两棵**孤树**，
+                cdco 那边挂着的只是两个同名的空壳。
+            本仓库 reference/cdos/README.md 记过其中两处错配（podo→cdco、cdco→pldo），
+            这里把第三条腿（ldo 恰好对上）补齐，三条一起才看得出「1 通 2 断」这个形状。
+            ⚠ 记这一笔不是为了挑错，是因为**本节抄的正是这三条**：抄的是 cdco 那三条
+              断言的意思（0D/1D/2D 三档同属晶体学缺陷），不是它实际连通的那张图。
+
+          ⚠ **CDOS 整套是一棵纯分类树，一条公理都没有。** 四份合并实测：
+              owl:disjointWith **0** 条、owl:AllDisjointClasses **0** 个、
+              owl:Restriction **0** 条、owl:equivalentClass **0** 条。
+            也就是说它给的全部内容是 rdfs:label ＋ 定义 ＋ rdfs:subClassOf。
+            本节抄过来的东西因此也只有这些 —— 这不是本节偷懒，是上游只有这些。
+
+          ⚠ **名字用 PlaneDefect，与 CDOS 和 mstr 都不同（两家都叫 PlanarDefect）。**
+            按指示取 PlaneDefect，这也是本仓库 archive/ontology/v0.0.1/domain-defect.ttl 当年用的名字。
+            为了让另一个名字仍然查得到，本节给它写了一条 skos:altLabel "PlanarDefect"。
+            ⚠ altLabel **不是对齐**，它只是本类的另一个名字，不声称与 pldo:PlanarDefect
+              或 mstr:PlanarDefect 是同一个类。三个同名类之间一条 skos:*Match 都没写
+              （本文件一贯如此），要写的话 IRI 在上面那张单子里。
+
+          ⚠ **与 mstr 那一层的两处差别，都记下：**
+            · mstr 把 **Dislocation 与 LineDefect 平级**挂在 CrystallographicDefect 下，
+              自己留着 "NEED TO CLARIFY LINE OR PLANAR"。**CDOS 没有这个毛病** ——
+              ldo:Dislocation ⊑ ldo:LineDefect，位置是对的。本节按 CDOS 的形状铸。
+            · mstr 的 PlanarDefect **0 个子类**，内容全在兄弟支 Boundary 里。
+              本仓库 v1.0 曾据此推断「上游明确否掉了 GrainBoundary ⊑ PlanarDefect」，
+              **那个结论是错的**（README 记着这次翻车）：补抓 pldo 之后实测
+              pldo:GrainBoundary ⊑ pldo:PlanarDefect，还带 4 个子类。
+              **mstr 那一档空着是分工不是判断**，2D 让给了 PLDO。
+
+          ⚠ **本轮只铸这三档，它们下面 13 个具体缺陷一个都没铸。** 接着走照这张单子
+            （全部是 CDOS 的直接子类，本地要铸时按 CDOS 的位置放）：
+              podo:PointDefect  (6) Vacancy、Interstitial、Impurity、AntisiteDefect、
+                                    FrenkelDefect、SchottkyDefect
+              ldo:LineDefect    (2) Dislocation、Disclination
+              pldo:PlanarDefect (5) GrainBoundary、TwinBoundary、AntiphaseBoundary、
+                                    StackingFault、Surface
+                                    （GrainBoundary 自己还有 4 个：LowAngle / Mixed /
+                                      SymmetricalTilt / Twist）
+            ⚠ 其中 GrainBoundary 一铸就会撞上本文件开头记过的坑：
+              **emmo:Grain 是英制质量单位**（⊑ emmo:MassUnit），与晶粒毫无关系。
+
+          HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl，
+          口径同 src/commagmo_tools/core/reason.py，目录换成 ontology/；不可满足类 **0**）：
+            三个类的类级祖先各 **9** 个（CrystallographicDefect 那 8 个加它自己），
+            ABox 各 11 个类型。三条边都是纯 subClassOf，没有 owl:Restriction，
+            **两侧零成本**，与上面那三个类同一档。
+
+          ⚠⚠ **一个洞，如实记：三档之间没有 owl:disjointWith，所以它们可以重叠。**
+            探针实测（probe ≡ A ⊓ B，看是否落进 owl:Nothing）：
+              PointDefect ⊓ LineDefect   可满足
+              PointDefect ⊓ PlaneDefect  可满足
+              LineDefect  ⊓ PlaneDefect  可满足
+            也就是说**一个既是 0D 又是 2D 的缺陷个体合法**，推理器一声不吭地放过。
+            "zero-dimensional" / "one-dimensional" / "two-dimensional" 这三句话
+            只活在定义的英文里，公理里一个字都没有 —— 与本文件记过的
+            cryst:Crystal 的 "ordered"、TotalComposition 的 "all constituents" 同一个毛病。
+            ⚠ 上游帮不上忙：**CDOS 全套 0 条互斥**（见上），mstr 那边同样 0 条。
+            ⚠ 堵这个洞只要一条 owl:AllDisjointClasses ( PointDefect LineDefect PlaneDefect )，
+              零件全在本地手里，不涉及上游。实测加上之后那三个探针**全部落进 owl:Nothing**，
+              且非探针类的不可满足数仍然是 0（不会误伤别的东西）。
+              **本轮按指示只补三个类，没写这一条，留作待决** —— 与本文件
+              UnitCell / Spacegroup / Site 那一处**同一个洞、同一个补法、同样没补**。
+      ################################################################
+  Vacancy:
+    label: Vacancy
+    definition: A vacancy is a point defect in which an atom is missing from its original lattice site.
+    parents:
+    - PointDefect
+    exact_match:
+    - <https://purls.helmholtz-metadaten.de/cdos/podo/Vacancy>
+    sources:
+    - PODO
+    rationale: |-
+      ################################################################
+          点缺陷三档 —— 2026-08-28 起版。**只铸类，零新公理，零新谓词。**
+          全部 ⊑ commagmo:PointDefect。报告 55 的缺口 R（df 57.1%，抽 ABox 第 3、复刻第 2）。
+
+          **源头是 PODO，而且本仓库自己早就认过这个源。**
+          `archive/ontology/v0.0.1/domain-defect.ttl`（2026-08-03 那批十个域模块）的 def:Vacancy 身上
+          写着 `dcterms:source "PODO"` ＋ `rdfs:seeAlso podo:Vacancy` —— 这一支的来源不是
+          本轮新选的。释义逐字取自 PODO（老模块那边的释义比 PODO 短，取 PODO 的原文）。
+          ⚠ **PODO 是 BFO 系不是 EMMO 系**（purls.helmholtz-metadaten.de/cdos/podo/，
+            PMDco 那一家，见报告 31）。这是 ontology/ 第一次对齐到非 EMMO 系的本体。
+            skos:exactMatch 零蕴涵，不引入解析依赖；dcterms:source 照老模块的写法。
+
+          **本轮只铸三个，经人决定。** PODO 那一支实际有八个
+          （Vacancy / Interstitial / Impurity / InterstitialImpurity / SubstitutionalImpurity /
+            Self-interstitial / AntisiteDefect / FrenkelDefect / SchottkyDefect）。
+          证据分档：
+            强 —— Impurity、Interstitial：次篇原话「placed a single impurity atom
+                  (Li, Be, B, C and N) on the **octahedral interstitial site**」
+            弱 —— Vacancy：首篇的 Nd2Fe14X0（把 X 拿掉、几何冻结）结构上就是空位，
+                  ⚠ 但论文把它写成「假想化合物」而不是缺陷。**证据是真的，说法不是。**
+            零 —— Self-interstitial / AntisiteDefect / FrenkelDefect / SchottkyDefect：
+                  三篇一次都没提，不铸。
+          ⚠ 上一节 PrimitiveUnitCell 那条「结构性伴生」的例外**在这里用不上**：
+            Vacancy / Antisite / Frenkel 互相之间没有定义依赖，缺一个不影响另一个说得通。
+
+          ⚠⚠ **不铸交类 InterstitialImpurity 的理由，以及它为什么成立。**
+            次篇实际做的正是「外来原子占间隙位」，PODO 把它铸成一个交类
+            （`⊑ Impurity , Interstitial`，双父）。本轮不铸，因为 **ABox 里给那个个体
+            同时标两个类型就够了**：`:imp_Li a commagmo:Impurity , commagmo:Interstitial .`
+            两条 rdf:type，表达力与交类等价，零成本。
+            ⚠ **2026-08-28 同日追补 SubstitutionalImpurity（见下），本条因此要分两半读：**
+              · **对照档本身有名字了** —— 次篇明确排除的那一档现在铸得出来。
+              · **「明确排除了它」这件事仍然写不出来。** ∃ 语义 ＋ 开放世界下，
+                不给个体标 SubstitutionalImpurity 只是「没说」，不是「说了没有」。
+                **加类不解决否定式** —— 与 research/evidence/dft-branch/README §6 第 5 条同一族，仍留档。
+
+          ⚠ 留档不做的：铸完之后「杂质是 Li／Be／B／C／N 中的哪一个」与「占的是**八面体**
+            间隙位」仍然写不出来 —— 前者要一条指向元素的边，后者要
+            `Interstitial --atSite--> Site`（Site 上一轮刚补了 WyckoffSymbol 那批属性）。
+            本轮零新公理，不写。
+
+          闸门④：三个都是裸叶子（填充位 0、∃ 0），落进豁免、不进分母。
+          实查 cq.md：没有 CQ 要它们。与前两节同一个盲区、同一条待决。
+
+          祖先数预测：三个各 **11** —— PointDefect 10 ＋ 1。
+      ################################################################
+  Interstitial:
+    label: Interstitial
+    definition: An interstitial is a point defect where an atom occupies an interstitial site.
+    parents:
+    - PointDefect
+    exact_match:
+    - <https://purls.helmholtz-metadaten.de/cdos/podo/Interstitial>
+    sources:
+    - PODO
+  Impurity:
+    label: Impurity
+    definition: An impurity is a point defect where foreign atoms (of different type as the host atom) enter the crystal lattice.
+    parents:
+    - PointDefect
+    exact_match:
+    - <https://purls.helmholtz-metadaten.de/cdos/podo/Impurity>
+    sources:
+    - PODO
+  SubstitutionalImpurity:
+    label: SubstitutionalImpurity
+    definition: A substitutional impurity is an impurity where an atom of different type replaces a host or matrix atom.
+    parents:
+    - Impurity
+    exact_match:
+    - <https://purls.helmholtz-metadaten.de/cdos/podo/SubstitutionalImpurity>
+    sources:
+    - PODO
+    rationale: |-
+      ################################################################
+          commagmo:SubstitutionalImpurity —— 2026-08-28 同日追补，人定。
+
+          ⚠ **它补的是「对照档有没有名字」，不是「排除记不记得下」。**
+            次篇原话把替位写成**被考察过并放弃的一档**（"其它可能的间隙位/替位没有考察"）。
+            铸出这个类之后：**替位杂质说得出来了**；但**「这次没做替位」仍然写不出来** ——
+            不给个体标这个类只等于「没说」，不等于「说了没有」（∃ 语义 ＋ 开放世界）。
+            加类不解决否定式，README §6 第 5 条那一条照旧挂着。
+
+          ⚠ 与 InterstitialImpurity 的**不对称是上游的，不是本文件挑的**：
+            PODO 里 SubstitutionalImpurity ⊑ Impurity（单父，普通子类），
+            而 InterstitialImpurity ⊑ Impurity , Interstitial（双父，交类）。
+            上一节记过不铸交类的理由（ABox 里两条 rdf:type 等价），那条仍然成立 ——
+            **本类不是交类，所以不受那条理由约束。**
+
+          祖先数预测：**12** —— Impurity 11 ＋ 1。
+      ################################################################
+  LineDefect:
+    label: LineDefect
+    definition: A linear or one-dimensional defect around which some of the atoms are misaligned.
+    parents:
+    - CrystallographicDefect
+  PlaneDefect:
+    label: PlaneDefect
+    alt_labels:
+    - PlanarDefect
+    definition: A defect of the crystal structure across a plane. It is considered to be a two-dimensional defect, such as an internal interface or the surface.
+    parents:
+    - CrystallographicDefect
+  MicrostructureComponent:
+    label: MicrostructureComponent
+    definition: A part (component) of a microstructure that contributes to the overall properties of the microstructure itself.
+    parents:
+    - emmo:Component
+    rationale: |-
+      ################################################################
+          commagmo:MicrostructureComponent —— 显微组织的组件。
+          ⊑ emmo:Component。照 mstr:MicrostructureComponent
+          <https://w3id.org/emmo/domain/microstructure#EMMO_fc7ad1c6-73e2-5525-9116-e4aee2f0dfc7>
+          铸，elucidation 逐字取自它：
+            "A part (component) of a microstructure that contributes to the overall
+             properties of the microstructure itself."
+          上游还有一条 skos:note 值得抄，它解释了这个类为什么不能单独存在：
+            "Microstructure components are defined as holistic spatial parts of a
+             microstructure. Hence, single microstructure components does not exists -
+             their definition depends on being a part of a microstructure."
+
+          ⚠ **mstr 那一个有两个具名父类，本文件只取一个。**
+            mstr:MicrostructureComponent ⊑ emmo:Component ⊓ **emmo:Material**。
+            按指示只取 emmo:Component，代价如实记：
+            · 本类因此**不在物侧** —— 13 个祖先里没有 Material、没有 Matter、没有 Substance
+              （实测那张单子：Component、Constituent、Role、QualifiedRole、Object、
+                ObjectByContext、Holistic、Persistence、Perspective、CausalStructure、
+                Item、Fusion、EMMO）。
+            · 直接后果：本文件写在 emmo:Material 上的 ∃hasChemicalComposition
+              **管不到本类**。一个晶粒、一个析出相在这里不必有化学组成。
+              对照 commagmo:Microstructure（⊑ Material，白捡了那条）与 commagmo:Phase
+              （不 ⊑ Material，同样捡不到）—— 本类跟 Phase 是一档，不跟 Microstructure 一档。
+              要补就把 emmo:Material 加成第二个父类（照 mstr 的形状），是加一条不是改一条。
+
+          ⚠ **它白捡了一条上游公理**：emmo:Component ⊑ ∃(hasComponent⁻).emmo:HolisticSystem，
+            所以**每一个显微组织组件都必然是某个整体系统的组件**，不必再写边。
+            ⚠ 但那条说的是 HolisticSystem，**不是 Microstructure**。mstr 在自己那个类上
+              另写了一条收紧版 ∃(hasComponent⁻).mstr:Microstructure（「组件的定义依赖于
+              它是某个显微组织的一部分」，就是上面那条 note 的公理化）。
+              **本轮没取这一条**，留作待决：取了之后一个孤立的晶粒个体会被强制推出
+              一个显微组织后继，那笔账没量。
+
+          ⚠ **上游那 10 个子类一个都没铸**，接着走照这张单子：
+            Grain、GrainBoundary、Precipitate、Dispersoid、Pore、MicrostructureMatrix、
+            MicrostructureParticle、SoluteCluster、OrderedCluster、GPZone。
+            ⚠ 铸 Grain 会撞上本文件开头记过的坑：**emmo:Grain 是英制质量单位**（⊑ MassUnit）。
+            ⚠ 铸 GrainBoundary 会撞上另一处：CDOS 把它放在 PlanarDefect 之下，
+              mstr 把它放在 MicrostructureComponent 之下，**两家的位置不一样**，得先选一边。
+      ################################################################
+  Grain:
+    label: Grain
+    definition: A part of a microstructure with (almost) the same crystal orientation.
+    parents:
+    - MicrostructureComponent
+    restrictions:
+    - emmo:overlaps some Phase
+    rationale: |-
+      ################################################################
+          2026-08-27 补一条：commagmo:Grain ⊑ ∃emmo:overlaps.commagmo:Phase。
+          上面那句「四条边都是纯 subClassOf，没有 owl:Restriction」到这里为止只对
+          GrainBoundary / Pore / Precipitate 三条继续成立 —— Grain 现在多了一条。
+
+          ⚠⚠ **为什么 Grain 只给 overlaps，不给 isPartOfPhase。** mstr:Grain 自己的
+            skos:note 明写（本节前面「四个里有三个是双父类」那段引过同一句，用来说明
+            不取 emmo:CrystallineMaterial 的理由；这里是同一句话的第二重后果）：
+              "Grains (and subgrains) are in general not (single) crystals since they
+               may include small particles (e.g. precipitates) with another crystal
+               structure."
+            含另一相小颗粒时，整个晶粒不是某**一个**相的部分 —— 写
+            ∃commagmo:isPartOfPhase.Phase 就是在说假话。这不是「真部分 vs 改进部分」
+            的问题（isPartOfPhase 挂的 emmo:isPartOf 本就允许改进部分，参见上面
+            isPartOfPhase 那一节）：即便放宽到改进部分，「是某一个相的部分」这句话
+            本身，对一个跨着两个相的晶粒也不成立。emmo:overlaps 只说「至少与某个相
+            有重叠」——弱，但不说假话。
+
+          ⚠ **emmo:overlaps 的代价：两侧零成本。** 静态查（EMMO 1.0.4，
+            reference/emmo/emmo-inferred-1.0.4.ttl）：emmo:overlaps 是 isPartOf 的父类
+            （isPartOf ⊑ overlaps ⊑ mereological ⊑ EMMORelation），自身是
+            owl:SymmetricProperty，不带 domain/range；父类 mereological 同样不带；
+            整条链只有顶端 EMMORelation 带 domain/range（都是 emmo:EMMO，等于没说）。
+            与 isPartOfPhase 那一节算过的账同一个结论：两侧真正零成本。
+            HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl；
+            不可满足类 **0**）：commagmo:Grain 的类级祖先 **14 → 14**，一个不变 ——
+            与上面「四个类的类级祖先各 14 个」那句仍然相符，∃ 限制是匿名类，不会把
+            commagmo:Phase 的祖先带进 Grain。
+
+          ⚠⚠ **探针改了：Grain ⊓ (≤0 emmo:overlaps.commagmo:Phase) 实测 ⊥（限定基数）。**
+            2026-08-27 三次评审推翻了本行原来的记法。原记的是
+            「探针 Grain ⊓ (≤0 emmo:overlaps.⊤) 实测 ⊥，证明那条 ∃ 真在推理器里干活」——
+            **⊥ 是真的，但它一个字都证明不了，这是本轮的第二条假保险。**
+            成因：EMMO 顶类自己带一条
+              emmo:EMMO ⊑ ∃emmo:hasPart.emmo:Quantum
+              （emmo:EMMO_802d3e92_… ⊑ ∃emmo:EMMO_17e27c22_….emmo:EMMO_3f9ae00e_…），
+            而 hasPart ⊑ **overlaps**。于是**任何 ⊑ emmo:EMMO 的类**都必有 overlaps
+            后继，X ⊓ (≤0 overlaps.⊤) 对谁都是 ⊥ —— 与 X 身上写没写公理无关。
+            2026-08-27 实测坐实（同一次 HermiT，探针互不干扰）：
+              PoreWithoutOverlap        ⊥            ← Pore 根本没有 overlaps 公理
+              GBWithoutOverlap          ⊥            ← GrainBoundary 同样没有
+              PoreWithoutIsPartOfPhase  可满足        ← 对照组，机制不是普适的
+            变异实测（把 Grain 那条 ∃overlaps.Phase 从图里删掉再跑）：
+              Grain ⊓ (≤0 overlaps.⊤)          仍然 ⊥       ← 旧探针照样绿，假保险
+              Grain ⊓ (≤0 overlaps.Phase)      变可满足      ← 新探针当场变红，真有牙
+            改用**限定**基数（owl:maxQualifiedCardinality 0 ＋ owl:onClass commagmo:Phase）
+            之后的实测（不可满足类仍 **0**，探针不进 .baseline-ancestors.json）：
+              GrainNoPhaseOverlap  (Grain ⊓ ≤0 overlaps.Phase)          **⊥**
+              PoreNoPhaseOverlap   (Pore ⊓ ≤0 overlaps.Phase)           可满足   ← 负对照
+              GBNoPhaseOverlap     (GrainBoundary ⊓ ≤0 overlaps.Phase)  可满足   ← 负对照
+            只有对照可满足，那个 ⊥ 才是「这条 ∃ 在干活」的证据。
+            ⚠ 这条错的来历要一起记：它是上一轮为了修「一条守洞测试守不住它自称要守的
+              东西」才补上的 —— **用一条假保险替换了另一条假保险**，并把「实测 ⊥」
+              当成证据写进了账。账错比公理错更严重，所以写在这里。
+
+          ⚠⚠⚠ **由此立一条规矩，写探针的人先读这一条：**
+            **在 EMMO 之下，任何未限定的 `≤0 <部分论谓词>.⊤` 探针都恒 ⊥**
+            （根子是 emmo:EMMO ⊑ ∃hasPart.Quantum，凡在 hasPart／overlaps 链上的谓词
+            都会被它满足），所以那种 ⊥ 不是证据。
+            **凡是「⊥ 证明公理有牙」的探针，必须配一条同形状、但公理不在的对照类；
+              只有对照可满足，⊥ 才算证据。** 做法二选一：把基数限定到那条 ∃ 的填充上
+            （本节 Grain 用的这条），或者换一条不在 hasPart 链上的本地谓词
+            （commagmo:isPartOfPhase 用的那条）。对照类本文件现成的有 Pore 与
+            GrainBoundary —— 本轮它们身上一条相关公理都没有，正好当对照。
+
+          ⚠ **这条边弱在哪。** overlaps 说不出「晶粒主要是哪个相」——一个晶粒可以同时
+            与好几个相各重叠一点点就满足这条 ∃，公理挡不住这种退化情形，也分不出
+            单相晶粒与多相晶粒。将来若要说得出「晶粒主要属于哪个相」，得先决定
+            单相晶粒与多相晶粒分不分类：分类之后，单相晶粒那一支才谈得上再收紧成
+            ∃isPartOfPhase（那时它不再说假话）。
+      ################################################################
+  GrainBoundary:
+    label: GrainBoundary
+    definition: A boundary between at least two grains.
+    parents:
+    - MicrostructureComponent
+  Pore:
+    label: Pore
+    definition: A small opening in a solid substance.
+    parents:
+    - MicrostructureComponent
+  Precipitate:
+    label: Precipitate
+    definition: Finely dispersed particles containing one phase of matter, forming from a solid phase of matter by precipitation.
+    parents:
+    - MicrostructureComponent
+    restrictions:
+    - isPartOfPhase some Phase
+properties:
+  hasPhase:
+    kind: object
+    label: hasPhase
+    definition: A relation between a material whole and one of the phases it contains as a spatial part.
+    parents:
+    - emmo:hasSpatialPart
+    range: Phase
+    rationale: |-
+      ################################################################
+          commagmo:hasPhase —— 相那条边的专用谓词。
+          ⊑ emmo:hasSpatialPart，rdfs:range commagmo:Phase，**不写 rdfs:domain**。
+
+          ⚠ **本条是替换，不是新增。** 上一版写的是
+            commagmo:Microstructure ⊑ ≥1 **emmo:hasSpatialPart**.commagmo:Phase，
+            直接拿上游谓词当边。本轮换成本地子谓词，理由与铸
+            commagmo:hasCrystallographicDefect 时同一条：**边要有名字**。
+            「显微组织有一个相作为空间部分」与「晶态相有一个缺陷作为空间部分」
+            在上一版里是同一条谓词，图上、查询里都分不开；各铸一条之后分得开，
+            而且各自可以带自己的 rdfs:range。
+
+          ⚠ **rdfs:range commagmo:Phase 是本文件加的，指示里没说。** 加的理由：
+            不写 range 这条谓词对宾语一个字都不说，与刚铸的兄弟条
+            hasCrystallographicDefect（指示明确要了 range）形制不一致。
+            代价为零（填充按定义已在其下，实测见下）。不要就删这一行。
+            domain 照旧不写 —— 同 hasCrystallographicDefect 那一节的理由，
+            不写 domain 就不开主语侧闸门，将来给别的主语用时不必提前付账。
+
+          ⚠ **⊑ emmo:hasSpatialPart 的全部承诺照旧继承**，那条链的实测在
+            commagmo:hasCrystallographicDefect 那一节：正向链只有 EMMORelation 有 range
+            （emmo:EMMO，等于没说），七条逆谓词一条 domain 都没有 —— **宾语侧没有闸门**。
+            ⚠ 2026-08-27 订正：这里原写「两侧都没有闸门」，是句过头话 —— 那两条事实
+              约束的都只是**宾语位**。**主语侧是有闸门的**：hasSpatialPart 自己的
+              rdfs:domain 是 CausalSystem，hasPortionPart 那一环再加 Item，
+              逐条链表见 commagmo:hasCrystallographicDefect 那一节（本文件 :2101-2110）。
+              本节下面「commagmo:hasPhase 继承来的 domain 是 CausalSystem 与 Item」
+              与 isPartOfPhase 那一节「主语侧继承 hasSpatialPart 的 domain
+              CausalSystem＋Item」记的都是主语侧那道闸门，与原句直接打架，现改回实情。
+            非自反与反对称同样继承自 hasProperPart，所以 **ABox 里一份显微组织与它的相
+            必须是两个不同的个体**。
+
+          ⚠ **≥1 仍然合法。** 基数限制要求谓词 simple；EMMO 1.0.4 里 owl:TransitiveProperty
+            共 0 条、**owl:propertyChainAxiom 也共 0 条**（2026-08-27 补测，见本文件
+            emmo:hasSpatialTile 那一节的同一条论证），本条自己也没标传递，
+            子谓词 0 个，所以 simple。
+      ################################################################
+  isPartOfPhase:
+    kind: object
+    label: isPartOfPhase
+    definition: A relation between a microstructure component and the phase of matter it is a part of.
+    parents:
+    - emmo:isPartOf
+    range: Phase
+    rationale: |-
+      ################################################################
+          commagmo:isPartOfPhase —— 组件挂靠相那条边的专用谓词。
+          ⊑ emmo:isPartOf，rdfs:range commagmo:Phase，不写 rdfs:domain。
+
+          ⚠⚠ **方向是组件 → 相，不是相 → 组件。** 本地 commagmo:Phase 带
+            ∃emmo:hasProperty.commagmo:VolumeFraction —— 体积分数只对「这块显微组织里
+            的那摊某相物质」说得通，对「某个相的类型」说不通，所以本地 Phase 的个体是
+            一摊物质（token），不是相的类型（type）。由此推出：一个析出相是**某相的
+            一部分**，不是「含有一个相」。反过来写（相是组件的部分）要求「相是晶粒的
+            真部分」，对单相晶粒（与它那摊相共外延）说假话。
+            ⚠ **这条论证只走到 token，走不到「一个 Phase 个体有多大一摊」。**
+              2026-08-27 补记：体积分数论证判的是 token 不是 type；至于**一个 Phase
+              个体是「这块显微组织里那一摊某相物质的全部」（聚合读法，同相可不连通）
+              还是「一块连通的均匀区」（连通读法）**，它一个字都没说 —— 体积分数在
+              两种读法下都说得通。本文件此前没有声明取哪一种，而 commagmo:Phase
+              自己的 skos:definition（"A region of matter throughout which all
+              physical properties are essentially uniform."）字面偏连通读法。
+              **本轮落的三条公理在两种读法下都成立**（isPartOfPhase 允许改进部分，
+              overlaps 更弱，Pore/GrainBoundary 不落公理），所以不影响本轮；
+              受影响的是 GrainBoundary 那一节的论证，见那一节的降级批注。
+              **读法本身留作待决**，见报告 51 §8。
+
+          ⚠ **父类取 emmo:isPartOf，不取 emmo:isSpatialPartOf。** 静态实测
+            （EMMO 1.0.4，reference/emmo/emmo-inferred-1.0.4.ttl）：
+            · emmo:isPartOf ⊑ overlaps ⊑ mereological ⊑ EMMORelation，自身**无**
+              characteristics（Asymmetric ⊓ Irreflexive 只挂在 isProperPartOf 上），
+              全链只有 EMMORelation 带 domain/range（都是 emmo:EMMO，等于没说）。
+            · emmo:isSpatialPartOf ⊑ isNonTemporalPartOf ⊑ isPortionPartOf ⊑ isPieceOf
+              ⊑ **isProperPartOf**（Asymmetric ⊓ Irreflexive），range **CausalSystem**
+              （另 isPortionPartOf 还要 Item）。
+            走 isSpatialPartOf 会把「单相晶粒与它那摊相共外延」判成假（真部分不允许
+            自等），且付账的是**宾语侧**——`X ⊑ ∃isSpatialPartOf.Phase` 会把填进
+            someValuesFrom 的 **Phase**（不是主语 X）推成 CausalSystem ⊓ Item，因为
+            isSpatialPartOf 自己的 domain 是空的、range 才挂着这两个闸门（另
+            isPortionPartOf 那一环加的 Item）。isPartOf 两侧全链只有 EMMORelation 的
+            emmo:EMMO，也允许改进部分（improper part），两侧真正零成本。
+
+          ⚠ **与 commagmo:hasPhase 的分工，账的方向刚好镜像。** hasPhase ⊑
+            emmo:hasSpatialPart，rdfs:range commagmo:Phase，是 Microstructure → Phase
+            的**整体分解**（**主语侧**继承 hasSpatialPart 的 domain CausalSystem＋Item，
+            这条链是正向的：domain 扛、range 空）；本条 isPartOfPhase 挂的是
+            isPartOf——若走反向的 isSpatialPartOf，扛的会是**宾语侧**（上面那段刚算
+            过）。isPartOf 本身两侧都只挂 EMMORelation 的 emmo:EMMO，所以本条真正的
+            代价是零，不是"反向所以扛得少"，而是"选对了两侧都不挂闸门的父类"。
+            本条与 hasPhase 是两件不同的事各自成边（组件挂靠 vs 整体分解），不是
+            同一条边改了名字。
+
+          HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl；
+          不可满足类 **0**）：commagmo:Precipitate 的类级祖先 **14 → 14**，一个不变——
+          isPartOfPhase 无 domain，主语侧零成本；commagmo:Phase 早已在 EMMO 之下，
+          宾语侧也零成本；∃ 限制是匿名类，不会把 Phase 的 20 个祖先带进 Precipitate。
+
+          ⚠ **探针 Precipitate ⊓ (≤0 isPartOfPhase.⊤) 实测 ⊥。** 证明那条 ∃ 真在
+            推理器里干活，不是摆设——没有它，把 ∃ 静默删掉不会有任何测试变红。
+            ⚠ **这条探针经住了 2026-08-27 那次复核，是真的**（同轮 Grain 那条不是，
+              见 commagmo:Grain 那一节新记的账与那条规矩）。它站得住的理由是
+              **isPartOfPhase 是本地谓词，不在 emmo:hasPart／overlaps 链上**
+              （它挂的 emmo:isPartOf 是 overlaps 的**子**谓词，不被
+              emmo:EMMO ⊑ ∃hasPart.Quantum 那条满足），所以未限定的 ≤0 在这里不空转。
+              负对照实测：**PoreWithoutIsPartOfPhase（Pore ⊓ ≤0 isPartOfPhase.⊤）
+              可满足** —— Pore 身上没有这条 ∃，同形状的探针就不 ⊥，⊥ 才算证据。
+
+          ⚠ **被否掉的两个口径：**
+            B（交类，mstr 口径）—— commagmo:Precipitate ⊑ commagmo:Phase。否掉的
+              理由：Precipitate 会顺着 Phase 继承回**物侧**（Substance /
+              ContinuumSubstance）并白捡 ∃hasProperty.VolumeFraction，而本文件是
+              刻意把组件那一支留在视角侧的——MicrostructureComponent 只取
+              emmo:Component 正是为了躲开「一个『无』怎么会是一块物质」（Pore 那一节
+              的账）。B 等于把躲开的问题请回来。
+            C（新铸非部分论谓词）—— EMMO 里没有合适的父类可挂（hasConstituent 也在
+              hasProperPart 链上），真要非部分论只能直接挂 emmo:EMMORelation，
+              成为语义孤岛，且闸门④ 口径下它没有 CQ 背书。
+      ################################################################
+  hasTopologicalDefect:
+    kind: object
+    label: hasTopologicalDefect
+    definition: A relation between an ordered medium and a topological defect it contains, such as a skyrmion, a vortex line or a domain wall.
+    parents:
+    - emmo:hasSpatialPart
+    range: TopologicalDefect
+    rationale: |-
+      ################################################################
+          commagmo:hasTopologicalDefect —— 拓扑缺陷那条宿主边的谓词。
+          ⊑ emmo:hasSpatialPart，rdfs:range commagmo:TopologicalDefect，**不写 rdfs:domain**。
+          与 commagmo:hasCrystallographicDefect、commagmo:hasPhase 三条同形，
+          继承来的签名、非自反反对称、两侧无闸门这几点全部相同，不重复记，读那两节。
+
+          ⚠ **rdfs:domain 不写，这一次尤其要紧。** 上游 topo:hasTopologicalDefect
+            <https://w3id.org/emmo/domain/topological-defect#hasTopologicalDefect>
+            写了 **rdfs:domain magstr:MagneticDomain**。本条不写，理由与前两条同源
+            （不写 domain 就不开主语侧闸门），**而且这一次写了会更糟**：它会把任何用这条边的
+            主语推成磁畴，而下面那条公理的主语是相不是畴。
+          ⚠ 上游那一条另有 owl:inverseOf topo:occursInMagneticDomain（真声明了的逆谓词）。
+            本条**不铸逆谓词**，本文件至今一条 owl:inverseOf 都没有写过。
+      ################################################################
+  hasCrystallographicDefect:
+    kind: object
+    label: hasCrystallographicDefect
+    definition: A relation between a crystalline whole and a crystallographic defect it contains, such as a vacancy, an interstitial or a dislocation.
+    parents:
+    - emmo:hasSpatialPart
+    range: CrystallographicDefect
+    rationale: |-
+      ################################################################
+          commagmo:hasCrystallographicDefect —— 宿主边的谓词。
+          ⊑ emmo:hasSpatialPart，rdfs:range commagmo:CrystallographicDefect，**不写 rdfs:domain**。
+
+          照 cdco:hasCrystallographicDefect <https://purls.helmholtz-metadaten.de/cdos/cdco/
+          hasCrystallographicDefect> 铸，那一条的签名是
+            rdfs:domain cdco:CrystallineMaterial ； rdfs:range cdco:CrystallographicDefect。
+          ⚠ 上游那条的定义原文写着 "**A data property** linking a crystalline material and a
+            crystallographic defect, such as vacancies, interstitials, or dislocations."
+            —— 但它实际声明的是 **owl:ObjectProperty**。定义文字与声明打架，三条
+            （hasCrystallographicDefect / hasDefectComplex / isPartOfDefectComplex）**全都这样**。
+            本文件按它实际的声明取（对象属性），不按它的定义文字取。
+          ⚠ 另一处**故意不照抄**：上游写了 rdfs:domain，本条**不写**。理由见下面主语侧那一段
+            —— 不写 domain 等于不开闸门，而这条边将来还要给 emmo:Crystal、Microstructure
+            一类的主语用，写死 domain 只会替它们提前付账。
+
+          ⚠⚠ **⊑ emmo:hasSpatialPart 是一条部分论的边，这一步有实质承诺，先摆明。**
+            <https://w3id.org/emmo#EMMO_dc57d998_23db_4d8e_b2cd_f346b195b846>，
+            本文件前面已有它的引用节点（commagmo:Microstructure 那一节用过同一条）。
+            整条祖谓词链逐条查过：
+              hasSpatialPart      domain CausalSystem                inverseOf isSpatialPartOf
+              ⊑ hasWellFormedPart —                                  —
+              ⊑ hasNonTemporalPart domain CausalSystem               inverseOf isNonTemporalPartOf
+                ⊑ hasPortionPart  domain Item                        inverseOf isPortionPartOf
+                  ⊑ hasPiece ⊑ hasProperPart ⊑ hasPart ⊑ overlaps ⊑ mereological ⊑ EMMORelation
+            **全链只有 EMMORelation 有 rdfs:range（emmo:EMMO，等于没说）。**
+            七条逆谓词（isSpatialPartOf / isPortionPartOf / isPieceOf / isProperPartOf /
+            isPartOf / isNonTemporalPartOf / isOvercrossedBy）**rdfs:domain 一条都没有**
+            （只有 range，镜像正向的 domain）。这一点是本节代价为零的全部原因，见下。
+
+          ⚠ **非自反与反对称是继承来的，而且真的起作用。** hasProperPart 是
+            owl:IrreflexiveProperty ⊓ owl:AsymmetricProperty，本条 ⊑ … ⊑ hasProperPart，
+            所以 **ABox 里一份晶态相与它的缺陷必须是两个不同的个体**，不能自指，
+            也不能反过来说缺陷有那份相作为部分。（与 Microstructure/Phase 那一处同款。）
+      ################################################################
+upstream:
+  emmo:Material:
+    label: Material
+    restrictions:
+    - emmo:hasChemicalComposition some emmo:ChemicalComposition
+    - emmo:hasProperty some emmo:Property
+    rationale:
+    - |2-
+          emmo:Material
+          <https://w3id.org/emmo#EMMO_4207e895_8b83_4318_996a_72cfb32acd94>
+          disciplines/materials.ttl —— "The class of individuals standing for an amount
+          of ordinary matter substance."
+
+          上游三条 skos:note，都值得抄在这里，因为它们规定了这个类怎么用：
+            · "A instance of a material (e.g. nitrogen) can represent any state of matter.
+               The fact that the individual also belongs to other classes (e.g. Gas)
+               would reveal the actual form in which the material is found."
+              ——**物态不在 Material 这一支里分**，靠个体同时属于别的类来表达。
+            · "A material may be either a mesoscopic or a continuum substance."
+            · "Material usually means some definite kind, quality, or quantity of matter,
+               especially as intended for use."
+
+          上游公理：⊑ emmo:OrdinaryMatter ⊓ emmo:Substance（EMMO_6e9cb807… / EMMO_bc37743c…）。
+          本文件**不重述** —— 这一步会带出两个孤立的灰框，而本文件眼下没有任何东西
+          需要接到它们身上。等材料侧真开始铸类时再补，连代价一起记。
+
+          位置实测（inferred 1.0.4）：祖先 17，全在物侧 —— Substance、OrdinaryMatter、
+          Matter、MatterByType、MatterByStructure、PhysicalObject、CompositePhysicalObject、
+          PhysicalObjectByBond、GenericPhysicalSystem、InteractingSystem、CausalSystem、
+          CausalCluster、CausalStructure、Item、Fusion、EMMO。
+          **没有 Data，没有 Sign** —— 与 simulation.ttl 里那个「软件被推成物」的账正好是
+          对称的一侧：材料是纯物侧的东西，编码物（超胞一类）不该落在这里。
+
+          后代 23，直接子类 6 —— 上游这一支已经很满（MaterialByStructure /
+          MaterialByCompactness / MaterialBySize / MaterialByFunction / MaterialByOrigin /
+          MaterialByClassicalMaterialsScience 这几个分面，下面挂着 Crystal、
+          CrystallineMaterial、AmorphousMaterial、GranularMaterial、MetallicMaterial、
+          CeramicMaterial、CompositeMaterial、NanoMaterial…）。
+          本地要铸磁性材料那一支之前，先照着这几个分面看一遍，别重推已有的。
+
+          ⚠ 同一条三元组 simulation.ttl 里也有一份（那边 hasSimulatedMaterial 的
+            rdfs:range 要用它）。两处内容逐字相同，合到一张图里是同一条三元组，
+            不冲突；本文件是它的落脚处，那边算本地引用。
+          ⚠⚠ **本文件给这个上游类写了两条公理**（∃hasChemicalComposition 与
+            ∃hasProperty），与 simulation.ttl 一路的「主语收在本地类」不同。
+            两条的账分别记在下面各自那一节，包括退回本地口径的做法。
+
+          ⚠⚠ **2026-08-22 同步补齐：从 emmo:Material 出发的两条边，两个文件各写一份。**
+            在此之前是一边一条 —— material.ttl 只有 ∃hasChemicalComposition，
+            simulation.ttl 只有 ∃hasProperty。合并加载时两条都在，看不出问题；
+            **单独加载任何一个文件，另一条就不存在**，而这两个文件各自都是一份
+            能独立加载的 ttl。实测过的不对称（HermiT，各自 ＋ emmo-inferred-1.0.4.ttl）：
+
+              加载              Material 祖先  Referent  无属性材料⊥  无组成材料⊥
+              ─────────────────────────────────────────────────────────────────
+              只有 EMMO              18          否          否          否
+              material.ttl 单独      22          是        **否**        是
+              simulation.ttl 单独    22          是          是        **否**
+              两个合并               22          是          是          是
+
+            补齐之后四行的后三列全部一致：每个文件单独加载，两条义务都在。
+            ⚠ **合并加载的那张图一个蕴涵都没变** —— 两处的 owl:Restriction 结构逐字
+              相同，合到一张图里是两个空白节点说同一句话，逻辑上冗余。
+              变的只有「单独加载一个文件时它说了什么」，以及两张概念图各自画出的边。
+            ⚠ 代价是**同一条公理有两份手写副本**，改一处必须改另一处，没有任何机器在守。
+              这一笔与本文件此前记的「两个文件之间的 Referent 闸门依赖」是同一类问题，
+              区别是补齐之后闸门由每个文件自己顶住，不再互相借。
+    - |-
+      ################################################################
+          emmo:Material ⊑ ∃emmo:hasChemicalComposition.emmo:ChemicalComposition
+          —— 公理写在上面 emmo:Material 那个节点里，账记在这里。
+
+          ⚠⚠ **这是本仓库第一次给上游类写公理。** v1.1 此前一路的做法是「主语收在
+            本地类」：要说什么，先铸一个 commagmo: 的类，把 ∃ 挂在它身上，上游节点
+            只留 rdfs:label。本条按指示直接挂在 emmo:Material 上，两点后果先摆明：
+              · 它顺 subClassOf 落到 Material 的 **23 个后代**身上 —— Crystal、
+                CrystallineMaterial、AmorphousMaterial、GranularMaterial、
+                MetallicMaterial、CeramicMaterial、CompositeMaterial、NanoMaterial…
+                全都跟着「必有化学组成」。
+              · 任何 import 本文件的下游本体，拿到的 emmo:Material 都比上游的紧。
+                这不是「我们自己的类」的事，是把一个上游概念改了。
+            要退回本地口径，做法是铸 commagmo: 的材料类（或直接铸磁性材料那一支），
+            把 ∃ 挂到它身上，emmo:Material 恢复成纯引用节点。留作待决。
+
+          主语侧 —— **不免费，实测多 4 个祖先。**
+            本条自己声明的 rdfs:domain 是 emmo:Substance，而 Material ⊑ Substance
+            上游成立，这一层零成本。但父谓词 emmo:isRepresentedBy 的 rdfs:domain 是
+            **emmo:Referent**，Material 的 16 个祖先里没有它。
+
+            HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl，
+            口径同 src/commagmo_tools/core/reason.py；不可满足类 **0**）：
+              · 类级：emmo:Material 的祖先 **16 → 20**，多出
+                **Referent、SemioticEntity、Semiotics、Perspective**。
+              · ABox 对照：裸 Material 个体本来推出 18 个类，加了本条之后推出 22 个，
+                多的是同样那 4 个 —— 而且**不必写任何一条 hasChemicalComposition 断言**。
+                类级公理已经把每一份材料判成了符号学视角下的被指称物。
+            一句话：**一份普通物质被静默推成一个 Referent。** 与本仓库记了一路的
+            Referent 闸门同一个机制（rdfs:domain 在开放世界下推断类型而不是检查类型），
+            区别是这次由我们自己写的公理触发，不是重述上游。
+            ⚠ 不导致不一致：把 owl:disjointWith（56 条）、owl:AllDisjointClasses（14 条）
+              与 owl:disjointUnionOf 全部展开成无序对共 **845** 条，其中**没有一条**
+              碰 Referent / Semiotics / SemioticEntity / Sign / Conventional / Perspective。
+              Perspective 本来就不是排他分区，物侧与符号侧同时挂在 EMMO 里合法。
+              所以撞不出矛盾，只是多背了四个身份。
+
+          宾语侧 —— 同样不免费，代价落在填进来的那个组成个体上，**多 6 个类**。
+            本条自己声明的 rdfs:range 是 emmo:ChemicalComposition（按定义零成本），
+            但继承来的 range 是 emmo:Conventional（hasConvention）与 emmo:Sign
+            （isRepresentedBy），而 ChemicalComposition 的 18 个祖先里两个都没有。
+            HermiT 实测：一个 ChemicalComposition 个体单独摆着推出 20 个类，
+            填进本谓词的宾语位后推出 26 个，多出
+            **Conventional、Sign、SignByReferent、SemioticEntity、Semiotics、Information**。
+            ⚠ Information 是被 ≡ Data ⊓ Sign 定出来的（reference/information.ttl）：
+              组成个体本来就是 Data，一进宾语位拿到 Sign，于是升格成 Information。
+              这一条读起来是**对的** —— 组成式确实是「有意义的数据」；但它是靠 range
+              推出来的，没有任何文件说过，记账时算副作用不算设计。
+            ⚠ 这笔宾语侧的账**上游自己用这条谓词时同样要付** —— 上游 skos:example 里
+              subst:alloy1 那段 Turtle 跑出来是同一个结果。不是本文件引入的。
+
+          ABox 负担 —— 断言一个 Material 个体，就欠下一整条链：
+              Material → ChemicalComposition（必属三档之一）
+                       → 落到 SingleComponentComposition 那一档还要
+                         ∃hasSpeciesPart.ChemicalSpecies ⊓ ∃hasQuantityPart.ChemicalCompositionQuantity
+            ⚠ 但这条链**是有穷的**：ChemicalSpecies 与 ChemicalCompositionQuantity
+              都不再回头要求一份材料。对照 simulation.ttl 里 PhysicsEquation 那个环
+              （PE ⊑ PhysicsBasedModel ⊑ ∃hasSpatialPart.PE，无穷下去），本条没有这个
+              毛病：推理器造一个匿名后继就收工，有穷 ABox 填得满。
+
+          ⚠ 用 someValuesFrom 而不是 allValuesFrom 或基数限制，理由：
+            要说的是「每份材料都有组成」，不是「材料只能有组成」（后者要 allValuesFrom，
+            会把下游别的合法填充一并挡掉），也不是「有且只有一个总组成」（上游 note
+            明确推荐一个组分挂一条，写基数上界会打架）。
+
+          ⚠ 顺带一条免费的连接：simulation.ttl 里
+            commagmo:MaterialSimulation ⊑ ∃commagmo:hasSimulatedMaterial.emmo:Material，
+            本条一写，**每一次材料模拟所模拟的那份材料都必有化学组成** —— 不必再写边。
+      ################################################################
+    - |-
+      ################################################################
+          emmo:Material ⊑ ∃emmo:hasProperty.emmo:Property
+          —— 公理写在文件开头 emmo:Material 那个节点里，账记在这里。
+          2026-08-22 同步补齐时加入；simulation.ttl「属性侧」那一节写的是同一条，
+          那边记着这条公理自己的完整代价（宾语侧 +13、义务探针翻转等）。
+          这里只记**本文件加它要付什么**，不重复那边已经记过的。
+
+          主语侧 —— **本文件里零成本，因为闸门早被上面那条 ∃hasChemicalComposition 推开了。**
+            两条谓词是亲兄弟，同挂 emmo:hasConvention 之下，走的是同一个
+            emmo:isRepresentedBy → rdfs:domain emmo:Referent 闸门。
+            HermiT 实测（本文件 ＋ emmo-inferred-1.0.4.ttl）：
+            emmo:Material 祖先 **22 → 22**，逐个比对一个不差。
+            ⚠ 反过来说：**先有哪一条，哪一条付账。** 若哪天删掉 ∃hasChemicalComposition
+              （它自己那一节写着退回本地口径的做法），本条会立刻自己把闸门推开一次，
+              代价是 emmo:Material 多背 4 个：Referent、SemioticEntity、Semiotics、
+              Perspective。两条公理谁也不比谁便宜，只是同一笔账不付两次。
+
+          义务 —— 探针 `emmo:Material ⊓ (≤0 emmo:hasProperty.⊤)`
+            本文件加它之前 **可满足**，加之后 **⊥**。
+            也就是说本文件从此也说：**ABox 里写不出一份没有任何属性的材料。**
+            这条义务与 ∃hasChemicalComposition 那条并列，都落到 Material 的 23 个后代身上。
+
+          ⚠ 反例照旧记在案：一份刚被命名、还没人给它写下任何属性的材料。
+            emmo:hasProperty 的释义里那个 "declaration process" 说的是**已经被声明出来**，
+            不是「客观上具有」。这条属于 shapes 的 sh:Warning 那一档，不是 Violation。
+
+          ⚠ 本文件已经有两条本地公理用着 emmo:hasProperty（commagmo:Phase 与
+            commagmo:CrystallineMagneticPhase 各一条 ∃），主语都是本地类。
+            本条是本文件第一次把它的主语放在上游类上。
+      ################################################################
+  emmo:ChemicalComposition:
+    label: ChemicalComposition
+    rationale: |-
+      ################################################################
+          emmo:ChemicalComposition
+          <https://w3id.org/emmo#EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3>
+          disciplines/chemistry.ttl —— "A language construct that provides information
+          about the consitutents of a substance and their fractions or amounts."
+          （consitutents 是上游的拼写，原样抄。）
+
+          ⚠⚠ **它在符号侧，不在物侧。** 名字里带 chemical，但 18 个祖先没有一个是物：
+            ChemicalSymbolicConstruct、SymbolicConstruct、Symbolic、SymbolicByStructure、
+            Language、Data、DiscreteData、DataByDiscretness、Contrast、Reductionistic、
+            Chemical、Perspective、Tessellation、SpatioTemporalTessellation、
+            CausalStructure、Item、Fusion、EMMO。
+            **没有 Matter，没有 Substance，没有 PhysicalObject。**
+            一份化学组成是写下来的那段东西（"98.1 wt% Al"），不是材料里的那些原子。
+            与上面 emmo:Material 那 16 个纯物侧祖先正好是对称的两边 —— 本文件把两者
+            接起来的那条边因此是一条**跨侧的边**，不是 mereology 的边。见下一节。
+
+          上游三条公理，本文件一条都不重述（纯引用节点）：
+            ⊑ emmo:ChemicalSymbolicConstruct
+            ⊑ emmo:SpatioTemporalTessellation
+            ≡ TotalComposition ⊔ SingleComponentComposition ⊔ PartialComposition
+
+          ⚠ 第三条是 **owl:unionOf，不是 owl:disjointUnionOf** —— 只覆盖，不互斥。
+            对照 simulation.ttl 里 MaterialsModel 那条真正的 disjointUnionOf：那边
+            顶三件事（互斥、穷尽、子类），这边只顶后两件。后果：断言一个个体是
+            ChemicalComposition，推理器知道它必属三档之一，但不会替你定到某一档；
+            三档之间也允许重叠（实测全库 845 条互斥无序对里，没有一条落在这三个上）。
+
+          ⚠ 三档里 TotalComposition 与 PartialComposition 的公理**逐字相同**：
+            ⊑ ChemicalComposition ⊓ ∃emmo:hasSpatialTile.SingleComponentComposition。
+            "all constituents" 与 "some (but not all) constituents" 的区分**只活在
+            elucidation 的英文句子里**，推理器一个字都看不见 —— 与 simulation.ttl 里
+            MultiSimulation 那一条同一个毛病。要把它变成公理得写基数或 allValuesFrom。
+            三档里只有 SingleComponentComposition 有实质公理：
+              ⊑ ∃emmo:hasSpeciesPart.emmo:ChemicalSpecies
+              ⊓ ∃emmo:hasQuantityPart.emmo:ChemicalCompositionQuantity
+            —— 也就是「一个物种 ＋ 一个量」，上游 skos:example 里 98.1 wt% Al 那段
+            Turtle 填的就是它。
+
+          后代 3，就是上面那三档；再往下全空。具体组成要么本地铸类，要么直接写个体
+          （上游示例走的是后者）。
+      ################################################################
+  emmo:hasChemicalComposition:
+    label: hasChemicalComposition
+    rationale: |-
+      ################################################################
+          emmo:hasChemicalComposition
+          <https://w3id.org/emmo#EMMO_51f426a6_af4a_4e91_a392_2b0bb635e2d5>
+          disciplines/chemistry.ttl —— "Relates a substance to chemical composition."
+          上游 note："This property is often used to relate a substance directly to
+          SingleComponentComposition indifiduals for each of its components."
+          ——**上游自己推荐的用法是一个组分挂一条**，不是挂一个总组成。下面不写基数
+          上界就是为了不跟这句话打架。
+
+          签名：本条自己声明的两行是紧的，继承来的两行是松的。
+            hasChemicalComposition   rdfs:domain emmo:Substance
+                                     rdfs:range  emmo:ChemicalComposition
+              ⊑ emmo:hasConvention <…#EMMO_eb3518bf_f799_4f9e_8c3e_ce59af11453b>
+                                     rdfs:range  emmo:Conventional
+                ⊑ emmo:isRepresentedBy
+                                     rdfs:domain emmo:Referent
+                                     rdfs:range  emmo:Sign
+                  ⊑ emmo:semiotical
+
+          ⚠ **整条祖链在符号学侧**，与 simulation.ttl 里 hasMaterialsModel 走的
+            isRepresentedBy 是同一条。这条边说的是「这份材料被这段组成式代表」，
+            **不是**「这些元素是这份材料的部分」。后者要走物侧的 emmo:hasConstituent
+            那一支（simulation.ttl 里 SimulatedObject 那节量过）。两条不冲突，
+            可以并存，本轮只写前者。
+
+          同父兄弟九条，本仓库后面多半都要用到，记在这里免得再找：
+            hasChemicalSpecies、hasChemicalSymbol、hasQuantityValue、hasDescription、
+            hasVariable、hasResourceIdentifier、hasMetrologicalReference、**hasProperty**。
+            ⚠ **emmo:hasProperty 也在这一格** —— TODO 里「material <-> property」那条
+              要走的就是它。也就是说 EMMO 把「有属性」与「有组成」并列放在
+              「有约定表示」之下，两者是兄弟，不是一支套一支。
+
+          ⚠ 上游拿它写过的 owl:Restriction：**0 条**（全库实测）。这一格是空的 ——
+            「材料必有化学组成」这句话上游从没说过，下面那条是第一次说。
+      ################################################################
+  emmo:MaterialByStructure:
+    label: MaterialByStructure
+    parents:
+    - emmo:Material
+  emmo:CrystallineMaterial:
+    label: CrystallineMaterial
+    parents:
+    - emmo:MaterialByStructure
+    restrictions:
+    - hasPhase some CrystallinePhase
+    rationale: |2-
+          emmo:CrystallineMaterial
+          <https://w3id.org/emmo#EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655>
+          disciplines/materials.ttl。
+          ⚠ **它没有 elucidation** —— 全类身上只有一条 rdfs:comment，内容是
+            "Suggestion of Rickard Armiento"，那是出处备注不是定义。
+            兄弟只有 emmo:AmorphousMaterial（同样一个字的定义都没有，只有一条 altLabel
+            NonCrystallineMaterial），两者并列挂在 emmo:MaterialByStructure 之下。
+          ⚠ 直接子类**只有 emmo:Crystal 一个**。也就是说这一层是个空壳，
+            「晶态」在 EMMO 里真正的锚点在下一层（见下），不在这一层。
+          ⚠ **上游 ⊑ emmo:MaterialByStructure，2026-08-22 按指示重述上来了**（本节点下面
+            那一行）。本节先前记着的待决原话是「那条链在 EMMO 里是通的，图上暂时分成两团，
+            要连起来是补**四条**重述、零新增蕴涵，留作待决」——**用两条接上了**，
+            省下的两条是跳过中间站 emmo:MaterialByClassicalMaterialsScience 省的，
+            账记在上面 emmo:MaterialByStructure 那一节。**待决结清。**
+          emmo:MaterialByStructure
+          <https://w3id.org/emmo#EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54>
+          disciplines/materials.ttl —— 上游「按结构分」那个分面桶。
+          ⚠ **它一个字的定义都没有。** 全类身上只有 5 条三元组：rdf:type owl:Class、
+            rdfs:subClassOf、rdfs:isDefinedBy、rdfs:label、skos:prefLabel。
+            没有 elucidation、没有 comment、没有 owl:equivalentClass、没有任何限制。
+            「按结构分的材料」这个意思**只能从名字读**，与 emmo:MaterialBySize /
+            MaterialByFunction 那几个分面桶一样。
+          ⚠ **后代只有 3 个**（1.0.4 实测）：直接子类 emmo:AmorphousMaterial 与
+            emmo:CrystallineMaterial，后者下面再挂一个 emmo:Crystal。
+            ⚠ 它**不是**那两个的并 —— 上游 owl:equivalentClass 0 条，它只是父类。
+              所以拿它当「非晶 ⊔ 晶态」用是一次**放松**，今天为空（后代就那 3 个），
+              上游加第四个子类的那天会**静默变松**。
+
+          ⚠⚠ **下面那条 ⊑ emmo:Material 上游没有写，是抄推论。**
+            上游本类的父类是 **emmo:MaterialByClassicalMaterialsScience**
+            <…#EMMO_39348191_08fd_4bb6_9b1e_012d5b2f1ff6>（它的另一个子类是 MaterialByType），
+            而那个类的父类才是 emmo:Material。严格的写法有两条：
+              (甲) 重述 ⊑ MaterialByClassicalMaterialsScience，并把那个类也摆成一个引用节点
+                   —— 又一个中间站；
+              (乙) 像下面这样跳过去，直接写 ⊑ emmo:Material。
+            **本轮按指示走 (乙)**，与 v0.1.1 在同一个类上做的选择一致，那边的原话是
+            「第四轮删 MaterialBySize 定下的调子就是**不为好看多摆中间站**，所以这里跟着跳」。
+            ⚠ 代价：**零新增蕴涵**（推理器本来就从上游那条链推得出来），
+              但出图脚本拿 reference/ 缓存比不中这条边，本节点在概念图上会显示为
+              **紫色虚线框**「在此处被赋予父类」。**这一次那个颜色是如实的** ——
+              本文件确实写了一条上游没有逐字写过的公理，尽管它不新增任何蕴涵。
+
+          ⚠ 本节这两条边**把图上分成两团的材料侧接起来了**。commagmo:CrystallineMaterial
+            那一节先前记着一条待决：「那条链在 EMMO 里是通的，图上暂时分成两团，
+            要连起来是补**四条**重述、零新增蕴涵，留作待决」。
+            本轮用**两条**接上了（省下的两条正是跳过中间站省的），那个待决到此结清。
+  emmo:Language:
+    label: Language
+    rationale: |-
+      ################################################################
+          emmo:Language
+          <https://w3id.org/emmo#EMMO_d8d2144e_5c8d_455d_a643_5caf4d8d9df8>
+          perspectives/symbolic.ttl —— "A language object is a discrete data entity
+          respecting specific language syntactic rules (a well-formed formula)."
+          上游 ⊑ emmo:Symbolic ⊑ … ⊑ emmo:Data，本文件不重述（纯引用节点）。
+          10 个祖先全在数据／符号侧：Symbolic、Data、DiscreteData、DataByDiscretness、
+          Contrast、Perspective、CausalStructure、Item、Fusion、EMMO。
+
+          ⚠ **它的直接子类正好是四门学科语言**：Chemical、ComputerScience、
+            Mathematical、Metrological。本文件下面那个 commagmo:Crystallography 就是
+            按这个格式铸的第五个 —— 不是新发明一种挂法，是填上游留着的那一格。
+            cryst:Crystallographical <…crystallography#EMMO_78a3d6f9…> 当年挂的也是这里
+            （它有 18 个直接子类：CIF、UnitCell、Spacegroup、Site、CrystalSystem、
+              LatticeParameter*、CellVolume…，那是本地这一支将来的路线图）。
+
+          ⚠ **这一次没有改名坑。** emmo:Language 在 1.0.0-beta 与 1.0.4 里是同一个 hash、
+            同一个 prefLabel，逐字核过。与 hasSpatialPart/hasSpatialSlice 那一处不同，
+            所以 cryst 那条 ⊑ emmo:Language 可以按名字读，不会读错。
+
+          ⚠ **对称性值得记一笔**：上一节那个 emmo:ChemicalComposition 的祖先里同样有
+            Language（路径是 ChemicalComposition ⊑ ChemicalSymbolicConstruct ⊑ … ⊑
+            Chemical ⊑ Language）。也就是说「化学组成」与「晶体结构」在本文件里落在
+            **同一层的两门学科语言**之下，而且都是从物侧靠 emmo:hasConvention 的子谓词
+            够过去的（hasChemicalComposition 与 hasProperty 是亲兄弟，见下）。
+            两条边形制一致，不是各写各的。
+      ################################################################
+  emmo:hasSpatialTile:
+    label: hasSpatialTile
+    rationale: |-
+      ################################################################
+          emmo:hasSpatialTile
+          <https://w3id.org/emmo#EMMO_b2282816_b7a3_44c6_b2cb_3feff1ceb7fe>
+          "A relation between the whole and one of its tiles, where the tile is only
+          spatially connected with the other tiles forming the tessellation."
+          altLabel hasSpatialDirectPart。owl:AsymmetricProperty ⊓ owl:IrreflexiveProperty。
+          rdfs:range emmo:SpatialTile；继承来的签名：
+            ⊑ hasSpatioTemporalTile  domain SpatioTemporalTessellation, range SpatioTemporalTile
+              ⊑ hasTile              domain Tessellation,              range Tile
+                ⊑ hasDirectPart ⊑ hasProperPart ⊑ hasPart
+
+          ⚠ **跨版本改名，第三例。** 同一个 IRI 在 cryst 实际 import 的 1.0.0-beta 里
+            prefLabel 是 **hasSpatialDirectPart**，1.0.4 改叫 **hasSpatialTile**，旧名降为
+            skos:altLabel。这一次没有别人接盘旧名（与 hasSpatialPart/hasSpatialSlice 那处不同），
+            所以只是改名不是换指，按名字读也不会读错实体 —— 但读 cryst 的公理时要知道
+            作者当年写下的意思是「空间直接部分」，是一个部分论分解，不是 tessellation 术语。
+            （报告 09 §2.1 记过这一例。）
+
+          ⚠ **=1 这种限定基数在这里合法。** OWL 2 DL 要求基数限制里的谓词是 simple，
+            而 EMMO 1.0.4 里 owl:TransitiveProperty **共 0 条**，整个本体没有一条传递谓词；
+            **owl:propertyChainAxiom 同样共 0 条**（2026-08-27 补测——simple 的定义是
+            「不传递、且不是任何属性链的超谓词」，此前只查了前半个条件，结论不变），
+            所以每条谓词都 simple。
+            ⚠ 注意 beta **不是**这样：那一版有 9 条传递谓词（hasPart、hasProperPart、
+              hasSpatialPart、hasSpatioTemporalPart、hasTemporalPart、encloses、
+              mereotopological、EMMORelation、topObjectProperty）。逐条核过，
+              hasSpatialDirectPart 的子谓词闭包里没有传递的，所以 cryst 那三条 =1 在
+              它自己的版本里也合法 —— 但这是核出来的，不是想当然的。
+
+          主语侧 —— **不免费，类级就动，多 3 个祖先。**
+            继承来的 rdfs:domain 是 emmo:Tessellation 与 emmo:SpatioTemporalTessellation，
+            而 commagmo:CrystalStructure 在 Language 那一支，两个都不在其上。
+            HermiT 实测：本类的类级祖先 **12 → 15**，多出
+            **Tessellation、SpatioTemporalTessellation、Reductionistic**。
+            个体同步：14 个类型 → 17 个。
+            ⚠ **这一步其实是回到了上游给 ChemicalComposition 的那个位置。**
+              emmo:ChemicalComposition 上游**明写**着 ⊑ emmo:SpatioTemporalTessellation
+              （见本文件上一节），它的三档也正是用 hasSpatialTile 往下分的。
+              所以「一份描述是一个镶嵌，零件是它的瓦片」是 EMMO 自己的写法，本文件跟的是它。
+              差别只在：那边是断言的，我们这边是被 rdfs:domain 推出来的。
+              要把它变成明写，加一条 ⊑ emmo:SpatioTemporalTessellation 即可，**零新增蕴涵**，
+              好处是读 ttl 的人不必跑推理器才知道。本轮没加，记在这里。
+
+          宾语侧 —— **不免费，落在填进来的瓦片个体上，多 5 个类。**
+            一个 commagmo:UnitCell 个体单独摆着推出 14 个类；填进本谓词的宾语位后 19 个，
+            多出 **SpatialTile、SpatioTemporalTile、SpatioTemporalTileByConnection、
+            Tile、Reductionistic**。Spacegroup 与 Site 同理。
+            ⚠ 类级不受影响：commagmo:UnitCell 的类级祖先加不加这三条都是 12 个 ——
+              range 只作用于填进去的个体，不改类本身的位置。与上一节 hasProperty 一样。
+
+          ⚠⚠ **一个真漏洞，cryst 也有，照抄就一并抄了过来：三档之间没有 owl:disjointWith。**
+            后果是那两条 =1 可以被**同一个个体**同时满足 —— 一个既是 UnitCell 又是
+            Spacegroup 又是 Site 的个体，就能让一份晶体结构总共只有一片瓦片。
+            HermiT 实测（断言 tile1 同时属三类，接在一个 CrystalStructure 个体上）：
+            **不可满足类 0，一声不吭地通过。**
+            要堵这个洞，一条 owl:AllDisjointClasses ( UnitCell Spacegroup Site ) 就够，
+            零件都在本地手里，不涉及上游。本轮按指示只补三个类，没写这一条，留作待决。
+      ################################################################
+  emmo:hasProperty:
+    label: hasProperty
+    rationale: |-
+      ################################################################
+          emmo:hasProperty
+          <https://w3id.org/emmo#EMMO_e1097637_70d2_4895_973f_2396f04fa204>
+          "A semiotic relation that connects a semiotic object to a property in a
+          declaration process."
+          rdfs:domain emmo:Referent，rdfs:range emmo:Property，
+          ⊑ emmo:hasConvention ⊑ emmo:isRepresentedBy ⊑ emmo:semiotical。
+
+          ⚠ **它与上一节的 emmo:hasChemicalComposition 是亲兄弟**，同挂在 hasConvention
+            之下（那一格共九条：hasChemicalComposition、hasChemicalSpecies、hasProperty、
+            hasQuantityValue、hasDescription、hasVariable、hasChemicalSymbol、
+            hasResourceIdentifier、hasMetrologicalReference）。
+            所以本文件从物侧伸向符号侧的两条边走的是同一条祖链，形制一致。
+
+          ⚠ 与 hasChemicalComposition 的一处**关键差别**：那一条自己声明的 rdfs:range 是
+            emmo:ChemicalComposition（在 Data 那一侧），本条的 rdfs:range 是 **emmo:Property**
+            —— 而 emmo:Property ⊑ Coded ⊑ … ⊑ Conventional ⊑ Sign ⊑ SignByReferent，
+            整支在**记号侧**，与 Language 那一支（Data 侧）是两条路。
+            后果是宾语位的代价比上一条贵，实测见下。
+      ################################################################
+  emmo:Property:
+    label: Property
+    rationale: |-
+      ################################################################
+          emmo:Property
+          <https://w3id.org/emmo#EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba>
+          perspectives/semiotics.ttl —— "A coded that makes use of an atomic symbol with
+          respect to the code used to refer to the interaction."
+          skos:note: "A property is atomic in the sense that is aimed to deliver one and
+          one only aspect of the object according to one code, such as the color with one
+          sign (e.g., black) or a quantitiative property (e.g., 1.4 kg)."
+          上游唯一公理 ⊑ emmo:CodedByStructure（EMMO_38f31ba5…），本文件不重述。
+
+          ⚠ 同一条三元组 simulation.ttl 里也有一份（那边「属性侧」那一节要用它）。
+            两处内容逐字相同，合到一张图里是同一条三元组，不冲突。
+      ################################################################
+  emmo:PhaseOfMatter:
+    label: PhaseOfMatter
+    rationale: |-
+      ################################################################
+          emmo:PhaseOfMatter
+          <https://w3id.org/emmo#EMMO_668fbd5b_6f1b_405c_9c6b_d6067bd0595a>
+          "A matter object throughout which all physical properties of a material are
+          essentially uniform."
+          上游 ⊑ emmo:ContinuumSubstance ⊑ emmo:Substance，本文件不重述（纯引用节点）。
+
+          ⚠ **它的 skos:altLabel 就是 "Phase"** —— 下面本地类取这个名字，与上游的别名撞脸。
+            按本仓库图例，自家的类不带前缀、上游的带 emmo:，图上分得开；读推理器输出时
+            认 IRI 不认标签。与 emmo:Crystal 那次同一类情况。
+          ⚠ **上游直接子类 0 个** —— 这一格是空的，本地这个是第一个。
+          ⚠ 15 个祖先里**没有 emmo:Material**：在 EMMO 里相不是材料，是连续体物质的一种。
+            后果见下面那节：本地 Phase **不继承**本文件写在 emmo:Material 上的
+            ∃hasChemicalComposition。
+          ⚠ ⊑ ContinuumSubstance 那一条把「连续体 / 介观」的二选一又选了一次
+            （ContinuumSubstance ⊥ MesoscopicSubstance 是真互斥，本文件 emmo:Solid 那节记过）。
+            这次是上游替我们选的，不是我们加的。
+  emmo:hasSpatialPart:
+    label: hasSpatialPart
+    rationale: |2-
+          emmo:hasSpatialPart
+          <https://w3id.org/emmo#EMMO_dc57d998_23db_4d8e_b2cd_f346b195b846>
+          "A proper part of a whole, whose parts always cover the full temporal extension
+          of the whole within a spatial interval."
+          owl:inverseOf emmo:isSpatialPartOf；⊑ emmo:hasWellFormedPart 与
+          emmo:hasNonTemporalPart ⊑ hasPortionPart ⊑ hasPiece ⊑ hasProperPart ⊑ hasPart。
+
+          ⚠⚠ **注意这是哪一个 IRI。** 本文件前面记过两次的那个改名坑，这里正是它的另一端：
+            "hasSpatialPart" 这个名字在 1.0.4 里属于 **dc57d998**（本节点，beta 里根本不存在），
+            而 beta 里叫这个名字的是 **f68030be**，1.0.4 已改称 hasSpatialSlice 并成为本条的
+            **子谓词**（本条的子谓词共两个：hasSpatialSection、hasSpatialSlice）。
+            所以本条比 beta 那个同名谓词**更弱**。本文件写的是 1.0.4 的 hasSpatialPart，
+            按 IRI 取，名字对得上。
+
+          ⚠ **两侧都零成本。**
+            主语侧：domain 是 emmo:CausalSystem（写在本条上）与 emmo:Item（写在
+                    hasNonTemporalPart 上），commagmo:Microstructure ⊑ … ⊑ Material 两个都已在其下。
+            宾语侧：**整条祖链一条 rdfs:range 都没有**（逐条查过，只有最顶上的 EMMORelation
+                    写了 range emmo:EMMO）。与 hasSpatialSlice 同款，与 hasSpatialTile 相反
+                    （那一条有 range SpatialTile，代价 +5）。
+
+          ⚠ **非自反是继承来的，而且真的起作用。** 本条本身没标 owl:IrreflexiveProperty，
+            但它 ⊑ … ⊑ emmo:hasProperPart，后者是 owl:IrreflexiveProperty ⊓ owl:AsymmetricProperty。
+            x hasSpatialPart y 蕴涵 x hasProperPart y，所以 **ABox 里一份显微组织与它的相
+            必须是两个个体**，不能自指。（对照 simulation.ttl 里 hasConstituent 那条同款记账。
+            注意与「属性特征不沿 subPropertyOf 向下继承」不是一回事：那说的是子谓词不自动
+            获得父谓词的特征标记，而这里是父谓词的约束对子谓词的实例仍然成立。）
+  emmo:VolumeFraction:
+    label: VolumeFraction
+    rationale: |-
+      ################################################################
+          emmo:VolumeFraction
+          <https://w3id.org/emmo#EMMO_a8eb87b5_4d10_4137_a75c_e04ee59ca095>
+          disciplines/isq.ttl —— **"Volume of a constituent of a mixture divided by the
+          sum of volumes of all constituents prior to mixing."**
+          上游 ⊑ emmo:Intensive ⊓ emmo:ChemicalCompositionQuantity ⊓ emmo:RatioQuantity，
+          本文件不重述（纯引用节点）；0 条 owl:Restriction，0 个直接子类。
+
+          ⚠⚠ **上游这条定义说的是「混合物的组分」，不是「显微组织里的相」，两者不是一回事。**
+            注意 "prior to mixing" 那半句 —— 它是化学口径的体积分数（配制混合物时各组分
+            混合前的体积之比），所以它的父类里才有 **ChemicalCompositionQuantity**。
+            冶金学的相分数是「某一相的体积除以总体积」，分母是同一块材料，没有「混合前」。
+            ⚠ **domain-microstructure 判断这两者不是同一个量，专门铸了一个窄类**：
+                mstr:VolumePhaseFraction ⊑ **emmo:VolumeFraction** ⊓ mstr:PhaseFraction
+                "Volume of one phase divided by the total volume."
+              它另有 mstr:PhaseFraction（"Ratio of the quantity of a phase over the total
+              quantity of all the phases over the domain considered. Quantity is usually
+              mass, mole, area, or volume."）与 mstr:AreaPhaseFraction。
+            **本轮按指示直接用上游那个宽的**，代价是本文件说的是化学口径那一句。
+            要收紧，做法照 mstr：铸 commagmo:VolumePhaseFraction ⊑ emmo:VolumeFraction，
+            把下面那条 ∃ 的填充换掉，一行。留作待决。
+
+          ⚠ **它的 27 个祖先里已经有 Referent / SemioticEntity / Semiotics / Sign /
+            SignByReferent / Property / Conventional / Coded 全套** —— 这一点决定了
+            下面那条边的宾语侧不要钱，见记账。
+  emmo:isPartOf:
+    label: isPartOf
+  emmo:Contrast:
+    label: Contrast
+    rationale: |2-
+          emmo:Contrast
+          <https://w3id.org/emmo#EMMO_1e877c70_3b01_45a8_a8f6_8ce4f6a24660>
+          perspectives/contrast.ttl —— "A perspective in which entities are represented
+          according to the variation of their properties."
+          altLabel 两个：Pattern、**Dedomena**（上游给了 etymology：希腊语 δεδομένο 的复数）。
+          上游 ⊑ emmo:Perspective，本文件不重述（纯引用节点）。
+
+          ⚠ **这是本文件第一次碰 emmo:Contrast 这一支。** 注意本文件此前已经**在它下面**
+            待了一路而没说出口：commagmo:Crystallography ⊑ emmo:Language ⊑ … ⊑ emmo:Data，
+            而 **emmo:Data 的直接父类就是 emmo:Contrast**。也就是说描述侧（CrystalStructure、
+            ChemicalComposition）与缺陷侧从这一层起是**同一棵树**，不是两个不相干的视角。
+            v0.1.1 曾把两者写成「互不相干的三个视角」，那是错的，同一份决策文档里已订正。
+
+          ⚠ **直接子类只有三个：Data、NonEncodedContrast、Perceptual**（1.0.4 实测）。
+            本文件下面那个 commagmo:SpatialContrast 挂上去之后是**第四个** —— 它落在
+            Data / NonEncodedContrast 那一对之**外**，这一点是下面整段记账的支点。
+
+          ⚠⚠ **上游的 note 与它自己的公理对不上。** 本类身上有一条 skos:note 写着
+            "The covering axiom that defines the contrast class discriminates within all the
+             possible causal objects between encoded contrast (data) or non encoded contrast."
+            但 **emmo:Contrast 的 owl:equivalentClass 实测 0 条**（1.0.4 源文件与 inferred
+            两处都查过）—— **那条 covering axiom 根本不存在**。后果：一个 Contrast 个体
+            不必是 Data 也不必是 NonEncodedContrast，第三档（本地这个）合法且不产生矛盾。
+            这与本文件 emmo:ChemicalComposition 那一节记的毛病同类（话在英文里，公理里没有），
+            区别是那一节至少有 owl:unionOf，这里连 unionOf 都没有。
+
+          ⚠ 唯一那条硬约束在下一层：**emmo:Data ⊥ emmo:NonEncodedContrast**
+            （owl:disjointWith，写在 Data 身上）。emmo:Contrast 自己身上 owl:disjointWith 0 条。
+            这条互斥是下面那个待决的全部本钱。
+
+          ⚠ 顺带一笔已知的坑：inferred 文件给本类的 rdfs:isDefinedBy 是
+            <https://w3id.org/emmo/disciplines/chemistry#>，而它**实际定义在
+            perspectives/contrast.ttl**。isDefinedBy 的模块 tag 不可靠，本仓库记过一次，这是又一例。
+  emmo:Component:
+    label: Component
+    rationale: |-
+      ################################################################
+          emmo:Component
+          <https://w3id.org/emmo#EMMO_f76884f7_964e_488e_9bb7_1b2453e9e817>
+          reference/persholistic.ttl —— "A constituent of a system."
+          上游公理三条，本文件**一条都不重述**（纯引用节点）：
+            ⊑ emmo:Role ⊓ emmo:Constituent
+            ⊑ ∃(hasComponent⁻).emmo:HolisticSystem
+          ⚠ 第三条是**逆谓词表达式**（owl:onProperty [ owl:inverseOf hasComponent ]），
+            读作「凡组件必是某个整体系统的组件」。不重述也照样继承 —— 本地那个子类
+            一挂上来就带着它，见下面记账。
+          ⚠ 上游给这条公理写的 :OWLRL2DLAxioms 注解是
+            "SubClassOf: inverse (**hasConstituent**) some HolisticSystem"，
+            而实际公理里的谓词是 **hasComponent**。注解与公理对不上，按公理读。
+            （同款：emmo:Contrast 那条不存在的 covering axiom。）
+  emmo:HolisticArrangement:
+    label: HolisticArrangement
+    rationale: |2-
+          emmo:HolisticArrangement
+          <https://w3id.org/emmo#EMMO_b9522e56_1fac_4766_97e6_428605fabd3e>
+          reference/persholistic.ttl —— "A system which is mainly characterised by the
+          spatial configuration of its elements."
+          上游 ⊑ emmo:HolisticSystem，本文件**不重述**（纯引用节点）；0 条 owl:Restriction。
+          ⚠ 它是 emmo:HolisticSystem 四个直接子类之一，兄弟是 **Factory、Network、Organisation**。
+            也就是说 EMMO 这一格装的是「工厂／网络／组织／空间构型」这一类东西，
+            commagmo:Microstructure 挂进来是与它们并列。
+          ⚠ 它自己的两个直接子类是 **Assembled 与 ManufacturingSystem**，所以本地这个类
+            在图上会与「装配体」「制造系统」成为兄弟。读起来别扭但不是错：这一支说的是
+            「主要由元素的空间构型来刻画的系统」，显微组织正是这个意思。
+          ⚠ 13 个祖先里**没有 Material**（实测），这一条从 v0.1.1 起就记着，没有变 ——
+            本类之所以同时在物侧，靠的是另一个父类 emmo:Material，不是这一条。
+  emmo:hasComponent:
+    label: hasComponent
+    rationale: |2-
+          emmo:hasComponent
+          <https://w3id.org/emmo#EMMO_3c7f239f_e833_4a2b_98a1_c88831770c1b>
+          reference/persholistic.ttl —— "Relation a holistic system to one of its components."
+
+          ⚠⚠ **这条谓词两侧都写了签名，与本文件用过的部分论谓词完全不同。**
+            整条祖谓词链逐条查过（domain / range）：
+              hasComponent        domain **HolisticSystem**   range **Component**
+              ⊑ hasRole           domain **Whole**            range **Role**
+                ⊑ hasQualifiedRole —                          range **QualifiedRole**
+              ⊑ hasConstituent    domain **Object**           range **Constituent**
+                ⊑ hasDirectPart / hasNonTemporalPart(domain CausalSystem)
+                  / hasPortionPart(domain Item) / hasPiece / hasDistinctPart
+                  ⊑ hasProperPart ⊑ hasPart ⊑ overlaps ⊑ mereological ⊑ EMMORelation
+            对照 emmo:hasSpatialPart：那一条**全链只有 EMMORelation 有 range**，
+            逆谓词一条 domain 都没有，所以两侧全零。**本条不是那样，主语侧要付钱。**
+  emmo:overlaps:
+    label: overlaps

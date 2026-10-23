@@ -1,0 +1,2249 @@
+module:
+  iri: https://w3id.org/emmo/domain/commagmo/simulation
+  version: 1.2.0
+  title: ComMagMO simulation module (v1.2)
+  imports:
+  - https://w3id.org/emmo
+  prefixes:
+    commagmo: https://w3id.org/emmo/domain/commagmo#
+    dcterms: http://purl.org/dc/terms/
+    emmo: https://w3id.org/emmo#
+    owl: http://www.w3.org/2002/07/owl#
+    rdfs: http://www.w3.org/2000/01/rdf-schema#
+    skos: http://www.w3.org/2004/02/skos/core#
+    xsd: http://www.w3.org/2001/XMLSchema#
+  notes:
+  - before: emmo:Material
+    text: |-
+      ################################################################
+          上游引用节点 —— 只写 rdfs:label，本文件不给它们任何公理。
+          没有 `a owl:Class`：类型声明属于声明它的那个文件。
+
+          ⚠ **2026-08-22 起本节有一个例外**：emmo:Material 在文件末尾「属性侧」那一节
+            多了一条 ⊑ ∃emmo:hasProperty.emmo:Property。整笔账记在那一节，
+            包括退回本地口径的做法。本节这一条仍然只是标签。
+      ################################################################
+  - before: MaterialSimulation
+    text: |-
+      ################################################################
+          commagmo:SimulatedObject —— emmo:hasSimulatedObject 的宾语端。
+          父类取 emmo:Object（持续论视角）：零存在承诺，只说它是持续体而非过程。
+
+          ∃emmo:hasConstituent.emmo:Material —— 被模拟对象由一份材料构成。
+          emmo:hasConstituent <https://w3id.org/emmo#EMMO_dba27ca1_33c9_4443_a912_1519ce4c39ec>
+          rdfs:domain emmo:Object（本类已在其下，主语侧零新增），rdfs:range emmo:Constituent，
+          ⊑ emmo:hasNonTemporalPart ⊑ emmo:hasPortionPart（owl:AsymmetricProperty）。
+          非自反的后果：ABox 里被模拟对象与那份材料必须是两个个体。
+      ################################################################
+  - before: MaterialSimulation
+    text: |-
+      commagmo:SimulatedObject a owl:Class ;
+          rdfs:label "SimulatedObject"@en ;
+          rdfs:subClassOf emmo:EMMO_90ae56e4_d197_49b6_be1a_0049e4756606 ;
+              [ a owl:Restriction ;
+                  owl:onProperty emmo:EMMO_dba27ca1_33c9_4443_a912_1519ce4c39ec ;
+                  owl:someValuesFrom emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 ] ;
+          skos:definition "The object that a simulation takes as its simulated object."@en .
+  - before: emmo:ElectronicModel
+    text: |2-
+          四档的判据在 RoMM 里是「**方程描述的是哪一级实体**」，不是名字里的尺度词。
+          各条 elucidation 逐字取自 EMMO 1.0.4 disciplines/models.ttl。
+  - before: DFTSimulation
+    text: |-
+      ################################################################
+          四个自铸模型类的互斥，一条边都没画，全是继承来的 —— 实测汇总。
+
+            DensityFunctionalTheory  ⊑ emmo:ElectronicModel
+            AtomisticSpinModel       ⊑ emmo:AtomisticModel
+            MicromagneticModel       ⊑ emmo:MesoscopicModel
+            PhaseFieldModel          ⊑ emmo:ContinuumModel
+
+          HermiT 实测：**六个两两交类全部 ⊥**（DFT×ASM、DFT×MM、DFT×PF、
+          ASM×MM、ASM×PF、MM×PF 逐对跑过）。来源是 emmo:MaterialsModel 上那条
+          owl:disjointUnionOf（本文件抄了它），顺着各自那条 ⊑ 传下来。
+          **本文件在这四个类之间没有写过任何一条公理。**
+
+          ⚠ **这条互斥说的是什么，不是什么** ——
+            是：没有任何一个东西同时是这两个模型。
+            不是：一次模拟不能同时用这两个模型。
+            后者完全合法（多尺度耦合就是这么干的），走的是 MaterialSimulation 上
+            ∃hasMaterialsModel 的多重填充，与本条互斥不矛盾。
+            ⚠ 但本文件目前的 commagmo:hasMaterialsModel **没有任何基数约束**，
+              所以「这次模拟解了几个模型」在类级说不出来。要说得用
+              ≥2 hasMaterialsModel（emmo:MultiSimulation 那一节已经把这条写好了，
+              并查实 EMMO 1.0.4 里 owl:TransitiveProperty 共 0 条，基数限制随便用）。
+              本轮不写。
+      ################################################################
+  - before: emmo:Property
+    text: |-
+      ################################################################
+          属性侧起版（2026-08-22）—— 一条写在上游类身上的 ∃，一个本地属性类。
+
+          ⚠⚠ **这一节破了本文件从起版起守着的一条规矩：「主语收在本地类」。**
+            下面那条 ∃ 的主语是 emmo:Material，填充类是 emmo:Property，**两端全在上游**。
+            这正是 v0.1.1 瘦身时用来删掉同款公理的那条判据（当时删的是
+            emmo:Material ⊑ ∃hasConventionalProperty.emmo:ConventionalProperty，
+            理由原话「主语与填充类都是上游的，本仓库没有立场给 emmo:Material 新增公理」）。
+            本轮按指示写，账记在这里，退路也写在这里。
+
+          ⚠ material.ttl 里已经有一条同款的（emmo:Material ⊑ ∃hasChemicalComposition.…），
+            那一条是那个文件里唯一的例外；本条是本文件的第一条。两条同主语，
+            合到一张图里叠加，谁都不覆盖谁。
+      ################################################################
+classes:
+  MaterialSimulation:
+    label: MaterialSimulation
+    definition: A simulation that takes a material as its simulated object, solves a materials model, and is run by simulation software.
+    parents:
+    - emmo:Simulation
+    restrictions:
+    - hasSimulatedMaterial some emmo:Material
+    - hasMaterialsModel some emmo:MaterialsModel
+    - emmo:hasParticipant some MaterialSimulationSoftware
+    - hasBoundaryCondition some BoundaryCondition
+    - hasConvergenceCriterion some ConvergenceCriterion
+    annotations:
+      mayHaveInputProperty:
+      - emmo:Property
+      mayHaveOutputCalculatedProperty:
+      - SimulatedProperty
+      mayHaveSolver:
+      - Solver
+    rationale:
+    - |-
+      ################################################################
+          commagmo:MaterialSimulation —— 按「被模拟的是什么」分出来的一档模拟。
+          上游 emmo:Simulation 的**七个**后代全按耦合方式分，这一格空着：
+            PhysicsBasedSimulation
+              MultiSimulation
+                Coupled
+                  IterativeCoupledModelsSimulation
+                  TightlyCoupledModelsSimulation
+                LinkedModelsSimulation
+              StandaloneModelSimulation
+
+          断言式：属于本档由本体作者写定，推理器不做自动归类。
+          父类取 emmo:Simulation 而非 emmo:PhysicsBasedSimulation —— 材料模拟不必是物理基的
+          （机器学习势、数据驱动代理模型同样算）。
+
+          emmo:hasSimulatedObject <https://w3id.org/emmo#EMMO_ad0bdf66_93c4_4a4d_8e1d_57ec850b1741>
+          rdfs:domain emmo:Simulation，⊑ emmo:hasReferent（rdfs:range emmo:Referent），
+          所以填在宾语位的个体同时被推成 emmo:Referent。
+      ################################################################
+    - |-
+      ################################################################
+          commagmo:MaterialSimulation ⊑ ∃emmo:hasParticipant.MaterialSimulationSoftware
+          —— 这条公理写在上面 MaterialSimulation 节点里，账记在这里。
+
+          emmo:hasParticipant <https://w3id.org/emmo#EMMO_ae2d1a96_bfa1_409a_a7d2_03d69e8a125a>
+          perspectives/persistence.ttl —— "The relation between a process and an object
+          participating to it, i.e. that is relevant to the process itself."
+          ⊑ emmo:hasNonTemporalPart，rdfs:domain emmo:Process，rdfs:range emmo:Participant。
+          上游 rdfs:comment 说得很直白："Participation is a parthood relation: you must be
+          part of the process to contribute to it."
+
+          主语侧免费：emmo:Simulation ⊑ … ⊑ emmo:Process 成立。
+
+          ⚠⚠ **宾语侧不免费，而且这是本文件目前最贵的一条边。**
+            rdfs:range emmo:Participant，而 MaterialSimulationSoftware 的祖先里没有它。
+            上一轮拿 MaterialsModel 做过同一个测量：填进 hasParticipant 宾语位的个体
+            多背 4 个类（Participant、Object、ObjectByContext、Persistence）。
+            对软件而言这句话是：**一段编码信息被静默推成一个持续论视角下的物。**
+            没有任何文件说过，靠 rdfs:range 推出来 —— 与本仓库记了一路的
+            Referent 闸门、CausalSystem 闸门同一个机制。
+
+            ⚠ 本仓库已核过 EMMO 的 553 条互斥无序对，Data 那一支唯一的硬约束是
+              Data ⊥ NonEncodedContrast；Object 与 Data 之间**没有** owl:disjointWith，
+              所以这条边不导致不一致，只导致静默错分。
+
+            HermiT 实测（本文件 ＋ emmo-inferred-1.0.4.ttl）：
+              不可满足类 0，MaterialSimulationSoftware 类可满足。
+              对照个体（不参与任何模拟）推出 23 个类；
+              填进 hasParticipant 宾语位后 **多背 4 个：
+              Object、ObjectByContext、Participant、Persistence**，
+              且**原来的身份一个没丢** —— 同一个个体同时是 Data ⊓ Sign ⊓ Software
+              ⊓ Object ⊓ Participant ⊓ Persistence，推理器一声不吭。
+              这与本仓库既有的结论一致：Perspective 之间不是排他分区，
+              同时挂描述侧与物侧合法，所以撞不出矛盾，只是没人说过。
+
+          别的走法（都没走，理由记下免得再议）：
+            · emmo:hasInput —— range 只到 emmo:Item，软件已在其下，**宾语侧零成本**。
+              但 hasInput 的语义是「非重叠的那部分导致了 P」，说的是输入品不是执行者。
+            · emmo:computes（domain Software，range Computation）—— 方向正好相反，
+              主语是软件、宾语是计算。要用得铸它的逆，而上游没给具名逆谓词。
+              这条其实最贴「软件跑出这次模拟」，留作待决。
+      ################################################################
+    - |-
+      ################################################################
+          收敛判据挂全部四支（走 MaterialSimulation 一条即可）；
+          随机种子只挂两支。
+      ################################################################
+  DensityFunctionalTheory:
+    label: DensityFunctionalTheory
+    alt_labels:
+    - DFT
+    definition: An electronic model whose physics equation determines the ground state of a many-electron system from functionals of the spatially dependent electron density.
+    parents:
+    - emmo:ElectronicModel
+    restrictions:
+    - hasEquationForm some ExchangeCorrelationFunctional
+    - hasEquationForm some CoreElectronTreatment
+    - hasModelParameter some ModelParameter
+    rationale:
+    - |-
+      ################################################################
+          commagmo:DensityFunctionalTheory —— 电子模型那一档下面的第一个具体模型。
+          2026-08-22 按指示**自铸**，不复用 domain-atomistic 那一份。
+
+          **TBox 不 ABox，先把这个判断的依据摆出来**（它决定了下面写 owl:Class 而不是
+          owl:NamedIndividual）：
+            · EMMO 自己只在 emmo:ElectronicModel 上写了
+              skos:example "Density functional theory. Hartree-Fock." —— **注解，形式上什么都没说。**
+            · 真正落笔的是 domain-atomistic（reference/atomistic/atomistic.ttl:333）：
+                atomistic:DensityFunctionalTheory a owl:Class ;
+                    rdfs:subClassOf <https://w3id.org/emmo#EMMO_6eca09be…>   ← 正是 ElectronicModel
+              父类与本类逐字相同。ASMO 与 MDO 也都是类（各自挂在自家的
+              ComputationalMethod 底下，那是另一条轴，不是 RoMM 这一条）。
+            · **ABox 的线，atomistic 那份文件自己划出来了**：25 个本地类对 4 个具名个体，
+              个体是 :pbe / :b3lyp（⊑ atomistic:Functional）、:aug-cc-pVDZ（BasisSet）、
+              :cosmo（SolvationModel）。**方法族是类，具名的标准化零件才是个体。**
+            · 结构上的理由，与上游怎么写无关：DFT 有子种（LDA / GGA / meta-GGA / hybrid），
+              做成个体就写不出 GGA ⊑ DFT；而 MDO 在它身上挂了类级
+              ∃hasXCFunctional 限制，owl:Restriction 的主语必须是类。
+            · 旁证：EMMO 1.0.4 全库 **3488 个类对 17 个具名个体**，它整体就是一份 TBox 本体。
+            ⚠ 唯一的例外模式来自 OSMO/VIMMP：osmo:pe_type_atomistic_density_functional
+              是类，同时还有一个 osmo:INDIVIDUAL_OF_PE_TYPE_A.1 是它的实例。
+              但那个个体是**受控词表的取值条目**，不是 DFT 这个理论本身。类型仍然是类。
+
+          **为什么自铸而不复用 atomistic 那一份。** 本仓库的统筹原则是「只 import EMMO，
+          别人家的概念自己重铸」。另有两条具体理由：
+            · atomistic 0.0.4 的前缀写的是 emmo: <http://emmo.info/emmo#>（旧命名空间），
+              它 import 的是 …/atomistic/0.0.4/dependencies 这个间接件，对着哪一版 EMMO
+              本文件没查实。**幸而它那条父类边用的是 w3id 全 IRI**，与 1.0.4 的
+              ElectronicModel 是同一个 IRI，而且 EMMO_6eca09be 的 prefLabel 在
+              1.0.0 / 1.0.3 / 1.0.4 三版里都是 ElectronicModel（逐版查过，没有漂移）。
+              所以复用在语义上站得住 —— 但要付一条对外部本体的 import 依赖。
+            · 本轮不写 skos:closeMatch。写它是**站得住的**（两者父类相同、释义同指），
+              但 v1.1 至今**一条 skos:*Match 三元组都没有写过**（material.ttl 里
+              mstr / chameo 那几处都是「论证写了、三元组不写」）。这一条照旧，
+              对齐留在注释里。要补对齐时，closeMatch 而不是 exactMatch —— 理由同
+              v0.1.1 给 core:Material 记的那条：exactMatch 断言无条件可互换。
+
+          **判据是 RoMM 的那一条，不是名字里的尺度词**：方程描述的是哪一级实体。
+          DFT 的方程（Kohn-Sham）描述的是电子，所以落在 ElectronicModel 这一档。
+
+          HermiT 实测（ontology/*.ttl ＋ emmo-inferred-1.0.4.ttl，加本类前后各跑一次，
+          非探针的不可满足类**两边都是 0**）：
+
+          **零新增蕴涵。**
+            本类祖先 26（不含自身）。ABox 探针：一个本类的个体推出 **27** 个类，
+            对照一个裸 emmo:ElectronicModel 个体推出 **26** 个 —— 多的正好是本类自己。
+
+          **白拿到的三件事，都是继承来的，本文件一个字都没写：**
+            (1) **⊑ emmo:MaterialsModel 成立**，所以本类可以直接填进
+                commagmo:hasMaterialsModel 的宾语位（那条的 rdfs:range 就是 MaterialsModel）。
+                探针 `MaterialSimulation ⊓ ∃hasMaterialsModel.DensityFunctionalTheory`
+                **可满足** —— 「这次材料模拟解的是一个 DFT 模型」现在写得出来，零新增公理。
+            (2) **与另外三档互斥，是硬的。** 探针 `DFT ⊓ emmo:AtomisticModel` 与
+                `DFT ⊓ emmo:MesoscopicModel` **都是 ⊥**。来源是 emmo:MaterialsModel 上那条
+                owl:disjointUnionOf（本文件抄了）—— 挂进四档之一，另外三档自动排除。
+                ⚠ 这也是**不可撤销**的：日后若有人主张某个 DFT 变体同时是原子模型，
+                  改不了公理，只能改这个类的位置。
+            (3) **「必有空间部分」的义务一并继承。** 探针 `DFT ⊓ (≤0 hasSpatialPart.⊤)`
+                加本类之后 **⊥**。两条上游 ∃ 都落到本类身上：
+                  MaterialsModel     ⊑ ∃hasSpatialPart.MaterialRelation   （RoMM 的 MR 那一半）
+                  PhysicsBasedModel  ⊑ ∃hasSpatialPart.PhysicsEquation    （PE 那一半）
+                读起来是对的：一个 DFT 模型确实由 Kohn-Sham 方程加交换关联泛函构成。
+
+          ⚠⚠ **代价一条，是继承来的那个环，现在落到自家类身上了。**
+            本文件 emmo:PhysicsEquation 那一节记过：
+              PhysicsEquation ⊑ PhysicsBasedModel ⊑ ∃hasSpatialPart.PhysicsEquation
+            是一个无穷回归。本类在 PhysicsBasedModel 之下，于是**任何一个 DFT 个体都欠着
+            一条填不满的链**：推理器会一路造匿名后继，永远不说「够了」。
+            类**可满足**（OWL 允许无穷模型，实测不可满足类 0），但**有穷的 ABox 填不完**。
+            这不是本轮引入的，是抄上游那两条 ∃ 时一并带进来的；本轮只是让它有了
+            第一个自家的承受者。要在 ABox 里查这件事得靠 SHACL，不是推理器。
+
+          ⚠ **没被拦住的**：探针 `DFT ⊓ commagmo:MaterialSimulation` 仍然**可满足** ——
+            一个模型同时是一次模拟，推理器不吭声。与本文件已记的同款账同一个理由
+            （Perspective 之间不是排他分区）。要拦得自己写 owl:disjointWith，本轮不写。
+
+          ⚠ **没铸的东西，记下免得再议**：LDA / GGA / meta-GGA / hybrid 这些子种，
+            以及交换关联泛函那个类（atomistic 叫 Functional，MDO 叫
+            ExchangeCorrelationEnergyFunctional，两家都拿它当 ∃hasXCFunctional 的填充）。
+            本轮只铸属这一层。真要往下铸时，**泛函那一支的实例（pbe / b3lyp）该是个体**，
+            这条线 atomistic 已经划好，照抄即可。
+      ################################################################
+    - |-
+      ################################################################
+          八条窄化 —— 四个模型类各两条：方程形式一条、模型参数一条。
+
+          ⚠ **这是本文件第一次给这四个模型类写本地公理。** 起版时它们是零本地公理的
+            （只有一条 rdfs:subClassOf，互斥全靠继承）。这两条是**方程侧**的 ——
+            求解器、软件、离散化那些跑法一律不挂这里，理由见四个 XxxSimulation 那一节。
+      ################################################################
+  AtomisticSpinModel:
+    label: AtomisticSpinModel
+    definition: An atomistic model whose physics equation describes the behaviour of the magnetic moments localised on atomic sites.
+    parents:
+    - emmo:AtomisticModel
+    restrictions:
+    - hasEquationForm some SpinHamiltonian
+    - hasModelParameter some ModelParameter
+    rationale: |-
+      ################################################################
+          commagmo:AtomisticSpinModel —— 原子模型那一档下面的第一个具体模型。
+          2026-08-22 自铸，形状与上面的 DFT 对称。
+
+          **落在 emmo:AtomisticModel 这一档，RoMM 直接写着，不用靠判据推。**
+            reference/romm/romm-KI0417104ENN.txt 第 2 章 "Atomistic models" 的目录：
+              2.1 Classical Density Functional Theory and Dynamic DFT
+              2.2 Newton's equation based models        （Molecular Mechanics / Dynamics）
+              2.3 Statistical Mechanics atomistic models（Monte Carlo / kinetic MC）
+              2.4 **Atomistic spin models**              ← 本类
+                    2.4.1 Deterministics spin models
+                    2.4.2 Langevin Dynamic method for magnetic spin systems
+              2.5 Statistical transport model at atomistic level
+              2.6 Atomistic phonon-based models
+            而 EMMO 的四档就是 RoMM 那四章，所以这一步没有自由度。
+
+          **TBox 不 ABox，这次的依据比 DFT 那次还硬**：
+            · OSMO 写成类（reference/osmo/osmo.ttl:239）：
+                osmo:pe_type_atomistic_spin_model a owl:Class ;
+                    rdfs:subClassOf osmo:pe_type_atomistic ;
+                    …has_pe_type_id "A.5"
+              而且它是 osmo:pe_type_atomistic 那条**六路 owl:disjointUnionOf** 的成员。
+              owl:disjointUnionOf 的成员必须是类。
+            · **RoMM 自己就给了它两个具名子种**（2.4.1 / 2.4.2）。一个已经有子种的东西
+              不能是个体 —— 做成个体就写不出 LangevinSpinDynamics ⊑ AtomisticSpinModel。
+            · ABox 那条线照旧在「具名的标准化零件」上：对应本类的个体应该是某一组具体的
+              交换积分参数集、某篇论文那份具体的哈密顿量写法，不是「原子自旋模型」这个族。
+            ⚠ osmo:INDIVIDUAL_OF_PE_TYPE_A.5 仍然只是受控词表的取值条目，与 DFT 那次
+              是同一个例外模式。
+
+          ⚠⚠ **两处版次与轴向的坑，用 OSMO 的编号之前必须知道：**
+            (1) **编号对不上。** OSMO 给 A.5 的注释写「RoMM model vocabulary category 2.5」，
+                而我们缓存的 2017 版（KI-04-17-104）里自旋模型在 **2.4**；OSMO 的 A.6 还写着
+                「RoMM categories 2.6 **and 2.7**」，可 2017 版第 2 章到 2.6 就结束了。
+                这是版次差 —— 与本文件 MaterialsModel 那一节已记的那条一致
+                （我们缓存 2017 版，EMMO 引 KI-06-16-197 2016 版）。**引 RoMM 编号要说版次。**
+            (2) **OSMO 分的是 PE，不是 Model。** osmo:pe_type_* 整支是 physical_equation_type，
+                也就是 RoMM 里 Model = PE + MR 的前一半；emmo:AtomisticModel 分的是整个模型。
+                本类按 EMMO/RoMM 的**模型轴**挂，与上面的 DFT 一致，不走 OSMO 那条 PE 轴。
+                要接 OSMO 那条轴得另铸一个 ⊑ emmo:PhysicsEquation 的类，两者不冲突。
+
+          ⚠ **磁学侧没有先例可依。** MaMMoS（reference/mammos/magnetic-materials.ttl）里
+            **一个模型类都没有** —— 跟自旋沾边的只有 ExchangeStiffnessConstant，那是属性。
+            本类是这一格上第一个。
+
+          HermiT 实测（加本类前后各跑一次，非探针不可满足类**两边都是 0**）：
+
+          **零新增蕴涵**，与 DFT 那条数字完全对称：
+            本类祖先 26（不含自身）；一个本类个体推出 **27** 个类，
+            对照裸 emmo:AtomisticModel 个体的 **26** 个 —— 多的正好是本类自己。
+
+          **继承来的三件事，同样一个字没写：**
+            (1) ⊑ emmo:MaterialsModel 成立，可直接填 commagmo:hasMaterialsModel 的宾语位。
+                探针 `MaterialSimulation ⊓ ∃hasMaterialsModel.AtomisticSpinModel` **可满足**。
+            (2) **与另外三档互斥是硬的**：`ASM ⊓ emmo:MesoscopicModel`、
+                `ASM ⊓ emmo:ContinuumModel` 都是 **⊥**。
+                ⚠⚠ **并且 `ASM ⊓ commagmo:DensityFunctionalTheory` 也是 ⊥** ——
+                本文件这两个自铸类之间的互斥**不是本文件写的**，是 emmo:MaterialsModel 上
+                那条 owl:disjointUnionOf 顺着两条 ⊑ 传下来的。一条边都不用画。
+                ⚠ 这条互斥读起来要小心：它说的是**没有任何东西同时是这两个模型**，
+                  不是「一次模拟不能同时用这两个模型」。后者完全合法（多尺度耦合就是这样），
+                  走的是 MaterialSimulation 上那条 ∃hasMaterialsModel 的多重填充，
+                  与本条互斥不矛盾。
+            (3) 「必有空间部分」的义务：`ASM ⊓ (≤0 hasSpatialPart.⊤)` **⊥**。
+                PE 与 MR 两半都落到本类身上，那个无穷回归也一并继承（见 DFT 那一节的记账，
+                机制相同，本节不重复）。
+
+          ⚠ **没铸的**：RoMM 2.4.1 / 2.4.2 那两个子种（确定性自旋模型、自旋系统的
+            Langevin 动力学），以及交换积分那一支。本轮只铸属这一层，与 DFT 同一口径。
+      ################################################################
+  MicromagneticModel:
+    label: MicromagneticModel
+    definition: A mesoscopic model whose physics equation describes the magnetisation as a continuous vector field over discretisation cells, each cell being treated as internally uniform.
+    parents:
+    - emmo:MesoscopicModel
+    restrictions:
+    - hasEquationForm some MicromagneticEnergyTerms
+    - hasModelParameter some ModelParameter
+    rationale: |-
+      ################################################################
+          commagmo:MicromagneticModel —— 介观档下面的第一个具体模型。
+          2026-08-22 自铸。**这是本仓库离题最近的一个类**（commagmo = 计算磁材本体），
+          所以底下那条 ⚠ 冲突必须读完再用。
+
+          **落在 emmo:MesoscopicModel，三条独立证据：**
+            (1) RoMM 2017 目录：第 3 章 "Mesoscopic (particle) models" 下 **§3.4
+                Micromagnetic models**。
+            (2) RoMM 正文（第 1762 行）原话："It was first introduced to model temperature
+                dependent properties in **the mesoscopic formalism (micromagnetics see
+                Ch 3.4)**" —— 不是靠目录位置推的，正文用词就是介观。
+            (3) OSMO：osmo:pe_type_mesoscopic_micromagnetism a owl:Class
+                ⊑ osmo:pe_type_mesoscopic，"PE type M.5: Micromagnetism model"，
+                在介观那条六路 owl:disjointUnionOf 里。
+            ⚠ **这次编号没有版次疑问**：第 3 章 OSMO↔RoMM 严丝合缝
+              （M.1↔3.1、M.3↔3.2、M.4↔3.3、M.5↔3.4、M.6↔3.5）。
+              上面 AtomisticSpinModel 那节记的偏移只出在第 2 章。
+            ⚠ 本文件 emmo:MesoscopicModel 那个引用节点起版时就写着「micromagnetism
+              落在这一档」，当时的佐证是 OSMO 的嵌套 disjointUnionOf；(2) 是新补的第三条。
+
+          ⚠⚠ **一处真冲突，用之前必须知道。**
+            MaMMoS 给 ExchangeStiffnessConstant 的释义原话是
+            "Exchange constant, A, in the **continuum theory** of micromagnetism"
+            （reference/mammos/magnetic-materials.ttl:1138）。物理文献里微磁学确实叫
+            连续介质理论 —— 它把原子自旋换成连续磁化场 M(r)。
+            **但文献里的 "continuum" 与 EMMO 的 ContinuumModel 那一档不是一回事。**
+            RoMM 的分档判据是「实体内部解不解析」，微磁学的实体是那个离散化单元，
+            所以落介观。本类照 RoMM 走。
+            ⚠ **挂错不可撤销**：实测 `MicromagneticModel ⊓ emmo:ContinuumModel` 是 **⊥**
+              （disjointUnionOf 顶的），改主意就只能改这个类的位置。
+
+          HermiT 实测（加本类前后各跑一次，非探针不可满足类**两边都是 0**）：
+            **零新增蕴涵**：祖先 26（不含自身）；本类个体推出 **27** 个类，
+            对照裸 emmo:MesoscopicModel 个体的 **26** 个 —— 多的正好是本类自己。
+            ⊑ emmo:MaterialsModel 成立，可直接填 commagmo:hasMaterialsModel 的宾语位
+            （探针 `MaterialSimulation ⊓ ∃hasMaterialsModel.MicromagneticModel` 可满足）。
+            「必有空间部分」的义务照常继承（`MM ⊓ (≤0 hasSpatialPart.⊤)` 为 ⊥）。
+
+          ⚠ **没铸的**：LLG 那一支（RoMM 2.4.1/2.4.2 把 LLG 归在原子自旋那一章，
+            而 LLG 同样是微磁学的运动方程 —— 同一个方程横跨两档，这不是矛盾，
+            是同一个 PE 在两个粒度上各有一套模型）。留作待决。
+      ################################################################
+  PhaseFieldModel:
+    label: PhaseFieldModel
+    definition: A continuum model whose physics equation describes microstructure evolution through one or more continuous order parameters representing the local presence of each phase.
+    parents:
+    - emmo:ContinuumModel
+    restrictions:
+    - hasEquationForm some FreeEnergyFunctional
+    - hasModelParameter some ModelParameter
+    rationale: |-
+      ################################################################
+          commagmo:PhaseFieldModel —— 连续档下面的第一个具体模型。
+          2026-08-22 自铸。
+
+          **落在 emmo:ContinuumModel：**
+            (1) RoMM 2017 目录：第 4 章 "Continuum modelling of materials" 下
+                **§4.4.2 Phase Field models**（4.4 是 "Continuum Thermodynamics and
+                Phase Field models"，4.4.1 是热力学）。
+            (2) OSMO：osmo:pe_type_continuum_phase_field a owl:Class ⊑ osmo:pe_type_continuum，
+                "PE type CO.4: Phase field model **or continuum density gradient theory**"，
+                注释明写 "RoMM model vocabulary category 4.4.2"。第 4 章的
+                OSMO↔RoMM 映射同样严丝合缝，没有版次偏移。
+
+          ⚠ **RoMM 正文里有一处会让人误判成介观，它自己解释掉了，记下来免得再议。**
+            §4.4.2 原话："Numerically this is described for **the continuum material** in
+            finite volume/elements also called **"cells" (the entities)**."
+            读到 cells / entities 很容易以为该归介观 —— **但那些 cell 是数值离散化，
+            不是模型里的介观实体**；被建模的材料本身按连续体处理。判据落在后者。
+            ⚠ 与上面 MicromagneticModel 那条正好是镜像的一对：微磁学的 cell **是**
+              模型实体（所以介观），相场的 cell **只是网格**（所以连续）。
+              两者都出现 "cell" 这个词，含义相反。
+
+          HermiT 实测（同一轮，非探针不可满足类 0）：
+            **零新增蕴涵**：祖先 26（不含自身）；本类个体推出 **27** 个类，
+            对照裸 emmo:ContinuumModel 个体的 **26** 个 —— 多的正好是本类自己。
+            ⊑ emmo:MaterialsModel 成立。「必有空间部分」的义务照常继承。
+
+          ⚠ **没铸的**：多相场模型（multi-phase field，RoMM 说是上世纪末的扩展）、
+            以及 **相场晶体模型**（phase field crystal）。后者 RoMM 明说它「既可看作相场
+            方程的高阶展开，也可看作 DFT 模型的均匀化解」，**横跨原子与微观组织两个尺度** ——
+            挂进四档的任何一档都会说一句比它本身强的话。真要铸得先解决这个，留作待决。
+      ################################################################
+  DFTSimulation:
+    label: DFTSimulation
+    definition: A material simulation that solves a density functional theory model.
+    restrictions:
+    - hasDiscretisation some KPointMesh
+    - hasDiscretisation some BasisSet
+    - hasSolver some SolverForDFT
+    - hasInitialCondition some InitialChargeDensity
+    equivalent: MaterialSimulation and (hasMaterialsModel some DensityFunctionalTheory)
+    rationale:
+    - |-
+      ################################################################
+          四个 XxxSimulation —— 八档跑法的挂点。2026-08-26 起版。
+
+          **为什么挂 Simulation 不挂 Model**(spec §2 的四条，择要)：
+            (1) EMMO 里模型就是方程:emmo:MaterialsModel = one Physics Equation +
+                one or more Materials Relations。写「每个 DFT 方程必有一个求解器」是假话。
+            (2) commagmo:MaterialSimulation **已经是 emmo:Process** —— 现有那条
+                ∃emmo:hasParticipant.MaterialSimulationSoftware 的 rdfs:domain 是
+                emmo:Process，早把它推成过程了。过程才有跑法，方程没有。
+            (3) 本文件自己做过这个选择:hasSimulationSetting 是唯一写了 domain 的谓词，
+                domain = MaterialSimulation。
+            (4) HB.txt 的复刻下限逐项都是跑法。
+
+          **做成定义类(owl:equivalentClass)，三个后果，一条本轮订正**：
+            · ⚠⚠ **「推理器自动归类」不能只看 ABox 那一条边——2026-08-26 订正，
+              原文实测是假话。** `commagmo:hasMaterialsModel` 按本仓库口径刻意没有
+              `rdfs:domain`（见该谓词声明处的记账），所以单写
+              `run1 hasMaterialsModel dft-pbe` **不会**让 `run1` 进入
+              `MaterialSimulation ⊓ ∃hasMaterialsModel.…` 这条 `owl:intersectionOf`
+              的左合取项，推不出任何 commagmo 类型。实测（HermiT）：这样写的 `run1`
+              仍然只是 `owl:Thing`，一个 commagmo 类型都没有。要让归类真的发生，
+              ABox 还得**另外**给出 `run1 a commagmo:MaterialSimulation`（或者写一条
+              `hasSimulationSetting` 的子谓词——那一支**有** domain，会连带把 `run1`
+              推成 `MaterialSimulation`）；两者之一到位，`run1` 才会经
+              `owl:equivalentClass` 落成 `DFTSimulation`，八档跟着落到它头上。
+              回归测试 `test_dft_simulation_classifies_from_abox` 用 HermiT 验证了
+              订正后的说法——先前只测过「这句 owl:Restriction 写进了 ttl」，
+              没有拿推理器真的跑过一次归类。
+            · 多尺度耦合自然落位:一次 DFT＋微磁耦合的运行**同时**是两个类，
+              走的是 hasMaterialsModel 的多重填充（同样需要先满足上一条前提）。
+            · ⚠ **四个 Simulation 类彼此不互斥**，与四个 Model 类的六对 ⊥ **正相反**。
+              这个非对称有内容:「没有东西同时是 DFT 方程和微磁方程」为真，
+              「一次运行可以同时解这两个」也为真。本文件四个模型类那一节
+              「这条互斥说的是什么，不是什么」已经写清这个区分，这里把它落实成公理。
+              **回归测试 test_simulation_subclasses_are_not_disjoint 守这一条。**
+
+          ⚠ **没有基数约束** —— 「这次模拟解了几个模型」在类级仍然说不出来。
+            要说得用 ≥2 hasMaterialsModel，HB.txt 已挂，本轮不做。
+      ################################################################
+    - |-
+      ################################################################
+          四条窄化 —— 每一支各挂自己那一种离散化。
+      ################################################################
+    - |-
+      ################################################################
+          四条窄化。谓词用本文件已有的 commagmo:hasSolver（⊑ emmo:hasModel，无 domain）。
+      ################################################################
+    - |-
+      ################################################################
+          S5 的四条窄化。S6 只有一条通用的（见上面的 ⚠）。
+      ################################################################
+  AtomisticSpinSimulation:
+    label: AtomisticSpinSimulation
+    definition: A material simulation that solves an atomistic spin model.
+    restrictions:
+    - hasDiscretisation some AtomicConfiguration
+    - hasSolver some SolverForAtomisticSpin
+    - hasInitialCondition some InitialSpinConfiguration
+    - hasRandomSeed some RandomSeed
+    equivalent: MaterialSimulation and (hasMaterialsModel some AtomisticSpinModel)
+  MicromagneticSimulation:
+    label: MicromagneticSimulation
+    definition: A material simulation that solves a micromagnetic model.
+    restrictions:
+    - hasDiscretisation some FiniteDifferenceGrid
+    - hasSolver some SolverForMicromagnetics
+    - hasInitialCondition some InitialMagnetisationState
+    equivalent: MaterialSimulation and (hasMaterialsModel some MicromagneticModel)
+  PhaseFieldSimulation:
+    label: PhaseFieldSimulation
+    definition: A material simulation that solves a phase field model.
+    restrictions:
+    - hasDiscretisation some FiniteElementMesh
+    - hasSolver some SolverForPhaseField
+    - hasInitialCondition some InitialOrderParameterField
+    - hasRandomSeed some RandomSeed
+    equivalent: MaterialSimulation and (hasMaterialsModel some PhaseFieldModel)
+  Solver:
+    label: Solver
+    definition: A mathematical construct that provides a procedure for numerically solving the equations of a model, as distinct from the model itself.
+    parents:
+    - emmo:MathematicalModel
+    rationale: |-
+      ################################################################
+          求解器侧起版（2026-08-22）—— RoMM 的 Model / Solver 二分第一次在本体里立起来。
+
+          ⚠⚠ **这是给一个 EMMO 完全没有的概念开新格，不是重述上游。**
+            实查 EMMO 1.0.4：skos:prefLabel 里含 "solver" 的类**命中 0 条**。
+            整个上游没有求解器这个概念。
+
+          **判据来自 RoMM §5.1 开篇，原话：**
+            "Solvers are used to solve the physics equation. **In this Review there is a
+             strict separation between the two concepts \"solver\" and \"model\".**"
+            —— 不是暗示，是「严格分离」。第 5 章还把 FE/FV/FD/SEM/BEM 一并列为
+            离散化求解方法（§5.1「Discretisation (FV and FE)」），并在第 687 行写明
+            "Finite Elements Method is a solver technique … **and not a model**"。
+
+          **为什么父类取 emmo:MathematicalModel，而不是那三个看起来更顺的落点。**
+
+          (a) **不能挂 emmo:MaterialsModel** —— 除了 RoMM 明说严格分离，实测两条硬后果：
+                · MaterialsModel 上那条 owl:disjointUnionOf 会**强行把求解器塞进
+                  电子／原子／介观／连续四档之一**。探针：一个 ⊑ MaterialsModel 的类
+                  与「不属于四档任何一档」求交 → **⊥**。可 FEM 不是一个粒度层次，
+                  它在连续、介观、原子模型上都用得着，这个问题没有答案。
+                · 会继承 ∃hasSpatialPart.PhysicsEquation ⊓ ∃hasSpatialPart.MaterialRelation。
+                  探针：那个类与「没有空间部分」求交 → **⊥**。
+                  「FEM 有一个物理方程作为它的空间部分」是假话 —— 它是**解**方程的，
+                  不是**含有**方程。
+
+          (b) **不能挂 emmo:SimulationSoftware** —— 方向反了。OSMO 写的是
+                osmo:has_solver_software，**rdfs:domain = solver，range = solver_software**：
+                软件是求解器的一个**方面**，不是它的父类。而且是多对多：一个 FEM 被
+                COMSOL／Abaqus／FEniCS 各自实现，一个 VASP 里装着好几种对角化求解器，
+                子类关系两个方向都错。本文件 emmo:SimulationSoftware 那一节已经记过
+                它的 21 个祖先全在「一段编码信息／应用程序」那一侧 —— 方法不是程序。
+                ⚠ 软件那一格**本来就已经解决了**：commagmo:MaterialSimulationSoftware。
+
+          (c) **不能挂 emmo:Simulation** —— Simulation 是过程，求解方法不是过程。
+                「解方程那一步」确实是过程，但那是一次模拟的**部分**，不是一种模拟。
+
+          (d) **emmo:MathematicalModel 那一格是空的，而且形状正合适。**
+                实查：它的**直接子类只有 emmo:PhysicsBasedModel 一个**。
+                RoMM 说的「strict separation between solver and model」在 EMMO 树上
+                正好有个现成位置来表达 —— 两者都是数学构件（记号侧），但**并列，不同支**：
+                    emmo:MathematicalModel
+                      ├ emmo:PhysicsBasedModel → … → MaterialsModel   （解什么）
+                      └ commagmo:Solver                                （怎么解）
+                上游给 MathematicalModel 的位置是 ⊑ AnalogicalIcon ⊓ Mathematical ⊓ Information。
+
+          HermiT 实测（加本节前后各跑一次，非探针不可满足类**两边都是 0**）：
+            **零新增蕴涵**：commagmo:Solver 祖先 21（不含自身）；本类个体推出 **22** 个类，
+            对照裸 emmo:MathematicalModel 个体的 **21** 个 —— 多的正好是本类自己。
+            **不背 PE/MR 的债**：探针 `Solver ⊓ (≤0 hasSpatialPart.⊤)` **可满足**
+            （对照 (a) 里那个挂 MaterialsModel 的版本是 ⊥）。这正是分开挂的收益。
+            **不落进四档**：Solver 的祖先里没有 emmo:MaterialsModel。
+
+          ⚠ **没被拦住的两件事，说清楚。**
+            · 探针 `Solver ⊓ emmo:MaterialsModel` **可满足** —— 两者只是没关系，
+              **不是互斥**。RoMM 说的「严格分离」在本文件里只体现为「不在同一支」，
+              没有体现为 owl:disjointWith。要把它变硬得自己写一条，本轮不写
+              （写之前要先确定「严格分离」是不是真到互斥那一步）。
+            · 同理 `Solver ⊓ commagmo:DensityFunctionalTheory` 也**可满足**。
+      ################################################################
+  SimulationSetting:
+    label: SimulationSetting
+    definition: 'Procedural data that configures how a simulation run is carried out. Diagnostic: it never enters any equation, and it is fixed by whoever sets up the run rather than by the physics — typically it either has a convergence limit or is purely technical.'
+    parents:
+    - emmo:ProceduralData
+    rationale: |-
+      ################################################################
+          commagmo:SimulationSetting —— 跑一次算例要填的设置项。
+          2026-08-26 起版。**由 SimulationParameter 改名而来，并且换了父类。**
+
+          ⚠ **为什么不留在 emmo:Parameter 下**（改名的全部理由）：
+            emmo:Parameter <https://w3id.org/emmo#EMMO_d1d436e7_72fc_49cd_863b_7bfb4ba5276a>
+            的 rdfs:comment 原话是 "A variable whose value is assumed to be known
+            independently from the equation, but whose value is not explicitated in
+            the equation."，skos:example 是 **"Viscosity in the Navier-Stokes equation"**。
+            它 ⊑ NumericalVariable ⊑ Variable ⊑ Mathematical ⊑ Language ⊑ Symbolic,
+            兄弟是 Constant 与 Unknown —— **这是方程的经典三分，是模型侧的词**。
+            k 点网格、截断能、随机种子**不在任何方程里**，挂进去是断言式的。
+            HB.txt 早记过这个坑，本轮把它修掉。
+
+          **落点 emmo:ProceduralData 是实测出来的，不是凑的：**
+            elucidation "Data that is encoded and/or decoded by a procedural agent
+            following a procedure."（子类 0 个，上游没往下铸过，我们是第一个）
+            而 reference/emmo/modules-1.0.4/reference/workflow.ttl 第 138–148 行:
+              emmo:Procedure ⊑ ∃emmo:isRepresentedBy.emmo:ProceduralData
+            加上实测祖先链 emmo:Simulation ⊑ emmo:Computation ⊑ emmo:Procedure ——
+            **commagmo:MaterialSimulation 早已继承「必有一份 procedural data」这条义务**，
+            本仓库只是到现在才给那个位置起名字。
+
+          ⚠ **落选的候选，记下免得再议**：
+            emmo:SymbolicData —— 那是「一个字面值用什么格式编码」(Float/String/Array),
+              `12x12x12` 这个**值**落在那，「k 点网格」这个**设置**不落在那。
+            emmo:Datum ⊑ DataByStructure —— 例子是「一个字符、一个 bit、CD 里的一首歌」，
+              结构维度不是用途维度。
+            Input / Setting / Configuration 类 —— **EMMO 1.0.4 里根本没有**，全类名扫过。
+
+          ⚠⚠ **definition 的判据 2026-08-26 订正过一次——原句被自家子类证伪。**
+            起版时判据是「换求解器就作废」，但这句话在直接子类里站不住:
+            `InitialMagnetisationState`（换求解器不会让初始磁化态作废）、
+            `PeriodicBoundaryCondition`（周期性是物理设定，换求解器照样成立）、
+            `PostProcessingMethod`（后处理方法与求解器无关）都是反例——六个子类
+            家族里只有 `Discretisation` 与 `RandomSeed` 满足这句话。现在收窄到
+            两条都普适的判据：**不进任何方程**（与 ModelParameter 互补）、
+            **由谁架起这次运行来定，不是物理本身定的**——「换求解器就作废」降级成
+            典型例（原文措辞见下面 definition，只是不再当必要条件）。
+      ################################################################
+  ModelParameter:
+    label: ModelParameter
+    definition: 'A parameter appearing in the physics equation of a materials model, whose value is known independently of the equation. Diagnostic: it carries a physical dimension, has a provenance, and has no convergence limit.'
+    parents:
+    - emmo:Parameter
+    rationale: |-
+      ################################################################
+          commagmo:ModelParameter —— 方程里已知但不写出来的那个符号。
+          2026-08-26 起版。与上面的 SimulationSetting 是刻意分开的一对。
+
+          父类取 emmo:Parameter —— **这是它的原意**，不是借用。
+          典型:Jij(交换积分)、A(交换刚度)、Ku(各向异性常数)、Ms、Hubbard U、阻尼 α。
+
+          ⚠ **本轮不对齐 MaMMoS**（spec D4）。reference/mammos/ 缓存着
+            SaturationMagnetization / MagnetocrystallineAnisotropy / ExchangeStiffness,
+            但那份对齐的是 EMMO 1.0.3，逐条按 IRI 核的成本这一版不付。留作待决。
+
+          ⚠ **没铸的**:具体的量(Jij / A / Ku 各自的类)。本轮只铸属这一层，
+            与四个模型类同一口径。
+      ################################################################
+  MaterialSimulationSoftware:
+    label: MaterialSimulationSoftware
+    definition: An application program aimed to functionally reproduce the behaviour of a material.
+    parents:
+    - emmo:SimulationSoftware
+    rationale: |-
+      ################################################################
+          commagmo:MaterialSimulationSoftware —— 跑材料模拟的那套软件。
+          与 commagmo:MaterialSimulation 同一条分法：按「模拟的是什么」分，
+          而不是按上游那三个兄弟的「靠什么预测」分。断言式，推理器不做归类。
+      ################################################################
+  SimulatedProperty:
+    label: SimulatedProperty
+    definition: A modelled property whose value is obtained from a simulation.
+    parents:
+    - emmo:ModelledProperty
+    restrictions:
+    - emmo:isOutputOf some MaterialSimulation
+    rationale:
+    - |-
+      ################################################################
+          commagmo:SimulatedProperty —— 由一次模拟算出来的那一档建模属性。
+
+          断言式，推理器不做归类：上游 emmo:ModelledProperty 底下**一个后代都没有**，
+          「modelling procedure」是不是一次模拟，公理里没有任何东西能区分。
+
+          HermiT 实测：**零新增蕴涵。**
+            本类祖先 21（不含自身），与上游 emmo:ModelledProperty 的祖先集逐个相同。
+            ABox 探针：一个 commagmo:SimulatedProperty 个体推出 **22** 个类，
+            对照一个裸 emmo:ModelledProperty 个体推出 **21** 个 —— **多的正好是本类自己**。
+            祖先集：Quantity、Objective、ObjectiveProperty、QuantityBySubjectivity、
+            ModelledProperty、Property、Coded、CodedByStructure、CodedBySubjectivity、
+            Conventional、Sign、SignByReferent、Referent、SemioticEntity、Semiotics、
+            Perspective、CausalStructure、Item、Fusion、EMMO、owl:Thing。
+
+          ⚠ **2026-08-22 本类与 commagmo:MaterialSimulation 之间的边，来回改过两次，如实记。**
+            起版时一条边都没有，本类在图上是孤岛；同日铸了
+            commagmo:hasOutputCalculatedProperty（⊑ emmo:hasOutput）并在 MaterialSimulation
+            上写了 ⊑ ∃hasOutputCalculatedProperty.SimulatedProperty；同日又把那条 ∃ 删了。
+
+            **现在的状态**：谓词还在（签名完整，ABox 里照写不误，宾语照样被推成本类），
+            但**类级没有公理**，两者之间只剩一条 owl:AnnotationProperty 的文档边
+            ⚠⚠ **「类级没有公理」这句 2026-08-28 起不再成立** —— 反向那条 ∃ 已经落了，
+              见本节末尾那块新账。下面这段描述的是它落地之前的状态，原样留着。
+            （commagmo:mayHaveOutputCalculatedProperty，零蕴涵，默认不出图）。
+            也就是说本类**在默认出的概念图上仍然是孤岛**，只是这次是故意的：
+            「每次模拟必然算出一个属性」对一次刚提交的模拟为假。
+
+            ⚠ **这一条的反例是时态的，与另外两条不同** —— 算完就有了。它本该用拆类解决
+              （commagmo:CompletedMaterialSimulation ⊑ MaterialSimulation
+               ⊓ ∃hasOutputCalculatedProperty.SimulatedProperty），那样两句话都真，
+              而且那个类在查询「哪些模拟出了结果」时本来就用得上。**留作待决。**
+            ⚠ 更早那个前置问题**仍然没有被解决**，只是被选了一边：
+              「模拟的输出是属性本身，还是承载属性的数据」—— 本轮选了属性本身。
+      ################################################################
+    - |-
+      ################################################################
+          commagmo:SimulatedProperty ⊑ ∃emmo:isOutputOf.commagmo:MaterialSimulation
+          —— 公理写在上面那个节点里，账记在这里。2026-08-28 落。
+
+          ⚠⚠ **方向是反的，这正是要点。** 2026-08-22 铸完当天删掉的是**正向**那条
+            （MaterialSimulation ⊑ ∃hasOutputCalculatedProperty.SimulatedProperty），
+            删除理由是「一次刚提交、还没算完的模拟没有输出属性」。
+            **那个反例只打正向**：它说的是「有些模拟还没有输出」，说不出「有些被算出来的
+            属性不来自模拟」。反向永远为真 —— 本类的释义逐字就是 "obtained from a
+            simulation"，一个不来自模拟的 SimulatedProperty 是自相矛盾。
+            所以这不是把删掉的那条改回来，是**换了个主语重写一遍**，两句话都真。
+          ⚠ 而且反向的主语是本地类，不违反「主语收在本地类」那条统筹原则；
+            正向那条的主语也是本地类，但它的问题从来不是主语，是时态。
+
+          ⚠ **不铸本地逆谓词，直接用上游的 emmo:isOutputOf。** 理由不是省事：
+            上游自己声明了 emmo:isOutputOf owl:inverseOf emmo:hasOutput，而本地
+            commagmo:hasOutputCalculatedProperty ⊑ emmo:hasOutput —— 于是 ABox 里写
+            `run hasOutputCalculatedProperty p` **已经**蕴涵 `p emmo:isOutputOf run`，
+            两条边在逻辑上本来就是连着的，本条 ∃ 会被那样的断言满足。
+            再铸一条本地逆谓词只会多一个零件，而且本文件至今一条 owl:inverseOf 都没写过。
+
+          HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl；
+          不可满足类 **0**）：**两侧都零成本，全库祖先集一个类都没变。**
+            commagmo:SimulatedProperty 的类级祖先加本条前后**都是 20**（不含 owl:Thing），
+            自有类仍为 67，且 `.baseline-ancestors.json` 逐类比对**零差异** —— 本条不用重冻结快照。
+            · 主语侧：emmo:isOutputOf **没有 rdfs:domain**（祖谓词链上也没有），不开闸门。
+            · 宾语侧：它的 rdfs:range 是 emmo:Process，而 commagmo:MaterialSimulation
+              的祖先里本来就有 Process（连同 Computation、Simulation），**同样零成本**。
+          ⚠ 探针实测：`SimulatedProperty ⊓ (≤0 isOutputOf.MaterialSimulation)` —— 实测 **⊥**。
+            用的是**限定**基数；未限定的那一种在 EMMO 之下对部分论谓词恒 ⊥
+            （emmo:EMMO ⊑ ∃hasPart.Quantum，而 isOutputOf ⊑ … ⊑ overlaps 正在那条链上），
+            按 material.ttl 里立的规矩配了负对照：
+            `SimulationSetting ⊓ (≤0 isOutputOf.MaterialSimulation)` —— 实测 **可满足**，
+            所以上面那个 ⊥ 确实来自本条 ∃，不是别的机制。
+            两条都钉在 scripts/tests/test_baseline_v11.py 里
+            （test_simulated_property_without_a_simulation_is_unsatisfiable 与
+              test_simulation_setting_without_a_simulation_is_satisfiable）。
+
+          ⚠ **本轮没做的那半件事，留档**：HB 的动作里还有「拆
+            commagmo:CompletedMaterialSimulation ⊑ MaterialSimulation
+            ⊓ ∃hasOutputCalculatedProperty.SimulatedProperty」。**本轮按指示不拆**，
+            所以「哪些模拟出了结果」这个查询仍然没有类可查，正向那条义务仍然写不出来。
+            ⚠ 真要拆，本文件已有现成花样：四个 XxxSimulation 都是 owl:equivalentClass
+              的定义类，推理器会把带那条边的 run 自动归进去 —— 拆类时该照那个形状，
+              而不是写成断言式的 rdfs:subClassOf。
+
+          ⚠ **不混进来的那一格**：emmo:hasModelledProperty。它的主语该是**被模拟的那个
+            对象**（那块材料），不是模拟本身；本文件缺「被模拟对象」那个类，
+            所以那一格仍然空着，是待决，不是本条的近亲。
+      ################################################################
+  Discretisation:
+    label: Discretisation
+    definition: A simulation setting that specifies how the continuous problem is sampled onto a finite set of points, cells or entities.
+    parents:
+    - SimulationSetting
+    rationale: |-
+      ################################################################
+          S3 离散化 —— 十档里**最该分档的一档**。2026-08-26 起版。
+
+          **为什么这一档四家必须各有一个类**:四个不是同一种东西 ——
+            KPointMesh            倒空间的采样点
+            AtomicConfiguration   原子表本身就是离散化(原子档没有另外的网格)
+            FiniteDifferenceGrid  实空间的规则 cell
+            FiniteElementMesh     实空间的非规则单元
+          别的档(收敛判据、软件)四家只是换个名字，所以共用;这一档不是。
+
+          ⚠ **不写 ∀，所以管不住串支**:DFTSimulation ⊑ ∃hasDiscretisation.KPointMesh
+            **不禁止**一次 DFT 运行同时挂一个 FiniteElementMesh。要拦需要 ∀ 或
+            disjoint 或 SHACL，spec §7 已记为已知代价，本轮不拦。
+      ################################################################
+  KPointMesh:
+    label: KPointMesh
+    definition: A discretisation that samples reciprocal space on a grid of k points.
+    parents:
+    - Discretisation
+  AtomicConfiguration:
+    label: AtomicConfiguration
+    definition: A discretisation given by the set of atomic sites themselves, as used by atomistic models where no further mesh is introduced.
+    parents:
+    - Discretisation
+  FiniteDifferenceGrid:
+    label: FiniteDifferenceGrid
+    definition: A discretisation that divides real space into regular cells on which finite differences are evaluated.
+    parents:
+    - Discretisation
+  FiniteElementMesh:
+    label: FiniteElementMesh
+    definition: A discretisation that divides real space into irregular elements on which basis functions are defined.
+    parents:
+    - Discretisation
+  BasisSet:
+    label: BasisSet
+    definition: A discretisation that fixes the finite set of functions in which the single particle wavefunctions are expanded, together with the cutoff that limits how many of them are kept.
+    parents:
+    - Discretisation
+    rationale: |-
+      ################################################################
+          S3 补一块 —— 基组。2026-08-28 起版。**⊑ Discretisation，零新谓词。**
+
+          ⚠ **父类是 Discretisation 不是 SimulationSetting 直属** —— 截图那张
+            《十二个可晋升的组件》把它排成 Discretisation 的**兄弟**，本轮改判。
+            Discretisation 的 definition 是 "specifies how the continuous problem is
+            sampled onto a finite set of points, cells or entities"，平面波／LCAO／
+            实空间网格逐字落在这句话里。排成兄弟会得到两条平行的「怎么离散」轴，
+            而它们是同一条。
+            ⚠ 旁证就在上面一行:`FiniteElementMesh` 的 definition 自己写着
+              "irregular elements on which **basis functions** are defined" ——
+              基函数这个词本文件早就用在这一档里了，把 BasisSet 排到档外会与它打架。
+
+          ⚠ **与 KPointMesh 不重叠**:一个定「取哪些 k」（倒空间的采样点），一个定
+            「在每个 k 上用什么展开 ψ」（波函数的表示）。平面波基组虽然也写在倒空间，
+            与「取哪些 k」仍是两件事。于是 DFT 支有**两条** ∃hasDiscretisation，
+            这是有内容的，不是重复。回归测试 test_dft_has_two_discretisations 守这条。
+            ⚠ 已知代价，不是本轮引入的:本档上面记过「不写 ∀，管不住串支」——
+              两条 ∃ 同样拦不住一次 DFT 运行再挂一个 FiniteElementMesh。
+              第二条 ∃ 不加重这个代价，也不减轻。
+
+          ⚠ **判据 S-a 过得去，但是「勉强」，照抄报告 44 的措辞。**
+            `ENCUT`(8/9 份预设) 那一行报告 44 判的是「S-a ✓ S-b ✓（**勉强**）」，
+            备注「无子类（基组截断）」—— 勉强在于截断能确实决定了展开到第几个平面波，
+            离「进方程」只差一步。判它进跑法侧的是 S-b（由架起这次运行的人定）与
+            **收敛极限**:ENCUT 有收敛极限（加大到结果不变为止），而方程里的参数没有。
+            这正是 ModelParameter 的诊断 M3 反过来用。
+
+          ⚠ **只铸属层，具体的走个体**:plane wave / LCAO(NAO, Gaussian, Slater) /
+            APW+lo / real space grid。个体那一层与 reference/atomistic/ 缓存的
+            `:aug-cc-pVDZ`（那份文件自己就把它做成 BasisSet 的个体）对得上 ——
+            本文件前面记过那条「方法族是类，具名的标准化零件是个体」的线。
+
+          ⚠ **另外三支不加这条 ∃**:ASM／微磁／相场没有波函数要展开。
+            这一档的不齐与 RandomSeed 同一种，是「每档一套平行类」这个骨架的收益。
+      ################################################################
+  SolverForDFT:
+    label: SolverForDFT
+    definition: A solver that numerically finds the self-consistent solution of the Kohn-Sham equations.
+    parents:
+    - Solver
+    rationale: |-
+      ################################################################
+          S1 求解器 —— 四家真不同，所以分档。2026-08-26 起版。
+          根复用本文件已有的 commagmo:Solver（⊑ emmo:MathematicalModel）。
+
+          ⚠ **细分到什么程度是待决的**:RoMM 五种(FD/FV/FE/SEM/BEM)与 OSMO 四条对不上，
+            HB.txt 已挂。本轮只按**四支各一个**铸，不进 RoMM/OSMO 那一层。
+
+          ⚠ **上游 Onto-MS 的教训，记在这里**:reference/ontoms/ 六支里有两支的求解器
+            **不带支名**(ResistorNetwork 用 KitGran、P3D 用 BDF+PARDISO+Automatic),
+            于是按名字比会误判成「这两支没有求解器」。本仓库按支命名，
+            具体的求解器产品(VASP 的 Davidson、mumax3 的 RK45)走**个体**，不进类层。
+      ################################################################
+  SolverForAtomisticSpin:
+    label: SolverForAtomisticSpin
+    definition: A solver that numerically evolves or samples a system of localised atomic magnetic moments, for example by Langevin dynamics or Monte Carlo.
+    parents:
+    - Solver
+  SolverForMicromagnetics:
+    label: SolverForMicromagnetics
+    definition: A solver that numerically integrates the Landau-Lifshitz-Gilbert equation over a discretised magnetisation field.
+    parents:
+    - Solver
+  SolverForPhaseField:
+    label: SolverForPhaseField
+    definition: A solver that numerically integrates the evolution equations of one or more continuous order parameters.
+    parents:
+    - Solver
+  InitialCondition:
+    label: InitialCondition
+    definition: A simulation setting that fixes the state of the discretised system before the solver starts.
+    parents:
+    - SimulationSetting
+    rationale: |-
+      ################################################################
+          S5 初始条件 —— **分档**，因为四家初始化的是不同的场。2026-08-26 起版。
+      ################################################################
+  InitialChargeDensity:
+    label: InitialChargeDensity
+    definition: An initial condition that fixes the electron density from which the self-consistent cycle starts.
+    parents:
+    - InitialCondition
+  InitialSpinConfiguration:
+    label: InitialSpinConfiguration
+    definition: An initial condition that fixes the orientation of every atomic magnetic moment before the run starts.
+    parents:
+    - InitialCondition
+  InitialMagnetisationState:
+    label: InitialMagnetisationState
+    definition: An initial condition that fixes the magnetisation vector field over the discretisation cells before the run starts.
+    parents:
+    - InitialCondition
+  InitialOrderParameterField:
+    label: InitialOrderParameterField
+    definition: An initial condition that fixes the value of every order parameter over the domain before the run starts.
+    parents:
+    - InitialCondition
+  BoundaryCondition:
+    label: BoundaryCondition
+    definition: A simulation setting that fixes how the discretised domain behaves at its boundary.
+    parents:
+    - SimulationSetting
+    rationale: |-
+      ################################################################
+          S6 边界条件 —— **按类型分，不按支分**。
+
+          ⚠ **这是本设计刻意偏离 Onto-MS 的一处**。上游 reference/ontoms/ 给六支各铸了
+            一个 XxxBoundaryCondition，六个都是空叶子;而边界条件的类型
+            (周期/Dirichlet/Neumann/开放)是**跨档共用的词表**，四家都从里面挑。
+            按支分会得到四个内容为零的类，按类型分才有内容。
+            回归测试 test_boundary_conditions_are_by_type_not_by_branch 守这条口径。
+
+          ⚠ 因此本档**不写四条窄化** —— 只在 MaterialSimulation 上写一条通用的:
+            任何一次模拟都有某种边界条件。具体是哪种，落在 ABox。
+      ################################################################
+  PeriodicBoundaryCondition:
+    label: PeriodicBoundaryCondition
+    definition: A boundary condition in which the domain repeats itself, so that a quantity leaving one face re-enters at the opposite one.
+    parents:
+    - BoundaryCondition
+  DirichletBoundaryCondition:
+    label: DirichletBoundaryCondition
+    definition: A boundary condition that fixes the value of the field on the boundary.
+    parents:
+    - BoundaryCondition
+  NeumannBoundaryCondition:
+    label: NeumannBoundaryCondition
+    definition: A boundary condition that fixes the normal derivative of the field on the boundary.
+    parents:
+    - BoundaryCondition
+  OpenBoundaryCondition:
+    label: OpenBoundaryCondition
+    definition: A boundary condition in which the domain is treated as isolated, with the field decaying towards infinity.
+    parents:
+    - BoundaryCondition
+  ConvergenceCriterion:
+    label: ConvergenceCriterion
+    definition: A simulation setting that states the quantity and the threshold by which the solver decides that the run has converged.
+    parents:
+    - SimulationSetting
+    rationale: |-
+      ################################################################
+          S4 收敛判据 —— **四家共用**。2026-08-26 起版。
+          分档没有内容:能量差/力/torque/残差只是阈值不同，结构一样。
+
+          ⚠ **判据要按什么量判是关键，而且常常不是总量。**
+            样板故事一(research/cq/cq-story-driven.md)记过:K1 是两个磁化方向的总能之差，
+            比总能小好几个量级，收敛必须按**差**判不按总能判。这句话本轮落在 ABox，
+            类级只提供位置。
+      ################################################################
+  RandomSeed:
+    label: RandomSeed
+    definition: A simulation setting that fixes the starting state of the pseudo-random number generator, so that a stochastic run can be repeated exactly.
+    parents:
+    - SimulationSetting
+    rationale: |-
+      ################################################################
+          S7 随机种子 —— **共用一个类，但只挂随机方法**。
+
+          ⚠ **这一档四支不齐，而且这是有内容的不齐**:
+            有的:AtomisticSpinSimulation（Langevin 动力学与 Monte Carlo）、
+                 PhaseFieldSimulation（涨落/噪声项）
+            没有:DFTSimulation、MicromagneticSimulation（确定性 LLG 积分）
+            **能表达这种不齐，正是「四个 XxxSimulation 各自窄化」这个骨架的收益** ——
+            走通用谓词(MaterialSimulation ⊑ ∃hasRandomSeed.…)会把假话说给全部四支。
+            回归测试 test_random_seed_is_not_on_every_simulation 守这条。
+
+          ⚠ 微磁若用随机 LLG（有限温度）同样需要种子。那是 MicromagneticModel 底下
+            另一个子种的事，本轮不铸，留作待决。
+      ################################################################
+  NumericalPrecision:
+    label: NumericalPrecision
+    definition: A simulation setting that fixes the accuracy of the numerical machinery of the run - grid densities, projection scheme and the like - without changing the physics being solved.
+    parents:
+    - SimulationSetting
+    rationale: |-
+      ################################################################
+          S8 补三块跑法设置 —— 数值精度、混合方案、弛豫自由度。2026-08-28 起版。
+          三个都是 SimulationSetting 的**零边叶子**，与四个 XxxBoundaryCondition 同形。
+
+          ⚠ **为什么不各开一条 has* 谓词**（本文件其余六族都开了）:
+            开谓词的收益是给 range 一个更窄的类型，而这三族在 ABox 里的用法是
+            「一次运行挂若干个设置项」，走通用的 hasSimulationSetting 已经够。
+            家族根 SimulationSetting 已经被 hasSimulationSetting 的 rdfs:range 指着，
+            叶子经根可达。**三条只在类型上更窄、在问句上不新增任何东西的谓词，
+            不值得三条谓词的账。** 回归测试 test_no_new_predicates_this_round 守这条
+            （本轮硬约束:本文件的本地对象谓词数从头到尾是 15）。
+
+          ⚠ **也因此三个都不写 ∃**，闸门④ 判别式下它们落进「豁免」（填充位 0 且 ∃ 0）。
+            这与四个 XxxBoundaryCondition 现在的状态一致（闸门④ 首跑那 18 个豁免类里
+            就有它们四个）。**豁免不是免责，是判别式说这一档还问不出问句。**
+
+          ⚠ **三个都指不出一条 CQ**，所以本节不写 commagmo:motivatedBy。
+            查过对面仓库 cq.md 的 58 个编号:相关的只有 F-04（这次计算设了哪些输入
+            参数），而那一行的备注写着「具体参数清单见挂起」，挂起块原话是
+            「要判这一档，得对 docling_json/ 做一轮全文检索，单立一轮」。
+            **CQ 侧自己把这一档挂起了，这边不能替它认领编号。**
+
+          ── NumericalPrecision 的账 ──────────────────────────────
+            证据:`PREC` **9/9 份预设**、`LREAL` **9/9 份**、`PRECFOCK` 1 份。
+              `PREC` 与 `LREAL` 是报告 44 那 43 行里出现份数最高的一档
+              （与 ALGO / ISMEAR / ISPIN / LWAVE / NELM 并列 9）。
+            三条判据全过:不进方程 ✓、由架起运行的人定 ✓、有收敛极限（提高精度档
+              到结果不变为止）✓。**截图那 12 行里唯一原样可落的一行。**
+            ⚠ **一处与报告 44 的出入**:报告 44 把 `PRECFOCK` 归在「无子类（求解器
+              配置）」，本轮归 NumericalPrecision —— 它字面就是 Fock 交换那一段的
+              精度档，与 `PREC` 同形。**这是本轮改的判，不是报告 44 的原话。**
+
+          ── MixingScheme 的账 ────────────────────────────────────
+            证据:`LMIXTAU` 3 份、`LMAXMIX` 2 份（报告 44 都标「无子类（求解器配置）」）。
+            个体:linear / Broyden / Pulay(DIIS) / Kerker。
+            ⚠ **与 SolverForDFT 的界，有实据不是凭感觉**:VASP 把这两组做成**两组
+              独立的键** —— `ALGO`（求解器，9/9 份都设）与 `AMIX`/`BMIX`（混合，
+              **9 份预设一份都不设，全用默认**，键本身在 383 键校验集里）。
+              求解器是「解 KS 方程用哪套数值方法」，混合方案是「两次迭代之间怎么把
+              密度掺起来」。
+            判据:不进方程 ✓（混合只改到达自洽解的**路径**，不改**解**）、
+              由架起运行的人定 ✓。
+            ⚠ 它接的是截图第 7 行 `hasSelfConsistencyScheme` 拆完之后**唯一剩下的
+              那一块**;同行的 EnergyThreshold／MaxIterations 归已有的
+              ConvergenceCriterion（报告 44 已把 `EDIFF`/`EDIFFG` 判进去）。
+
+          ── RelaxationFreedom 的账 ───────────────────────────────
+            证据:`ISIF` **6 份**（报告 44 标「过程语义丢失」）。
+            个体/取值:fixed / ions only / ions and cell shape / ions and cell volume。
+            ⚠ **只接 `ISIF` 一条，同行另外两条明确不接**:`IBRION`(8 份) 是优化器
+              → SolverForDFT 走个体;`NSW`(7 份) 是迭代上限 → 与 `NELM`/`NELMIN`
+              同族，**本轮不铸**。
+            ⚠⚠ **报告 44 说的「过程语义丢失」本类只修了一半，另一半留着。**
+              「这次跑的是弛豫还是静态」是**这次运行是什么**，要在 DFTSimulation
+              底下拆过程子类才说得出来，比一个设置项大。本轮不做，记在待决。
+      ################################################################
+  MixingScheme:
+    label: MixingScheme
+    definition: A simulation setting that states how the input and output densities of successive self consistent iterations are combined in order to reach the self consistent solution.
+    parents:
+    - SimulationSetting
+  RelaxationFreedom:
+    label: RelaxationFreedom
+    definition: A simulation setting that states which degrees of freedom of the simulated structure are allowed to change during the run - none, the ionic positions only, or the cell shape or volume as well.
+    parents:
+    - SimulationSetting
+  ExchangeCorrelationFunctional:
+    label: ExchangeCorrelationFunctional
+    definition: A functional of the electron density that supplies the exchange and correlation contribution to the total energy in a density functional theory model.
+    parents:
+    - emmo:PhysicsEquation
+    rationale: |-
+      ################################################################
+          M1 方程形式 —— 定义「这是哪一套方程」的那一档，**挂模型不挂模拟**。
+          2026-08-26 起版。
+
+          父类取 emmo:PhysicsEquation
+          <https://w3id.org/emmo#EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3>。
+          ⚠ **代价一条，是继承来的那个环**:本文件 emmo:PhysicsEquation 那一节记过
+            PhysicsEquation ⊑ PhysicsBasedModel ⊑ ∃hasSpatialPart.PhysicsEquation
+            是一个无穷回归，类可满足但有穷 ABox 填不完。这四个类落在其下时**再承受一次**。
+            不是本轮引入的，本轮只是多了四个承受者。要在 ABox 里查这件事得靠 SHACL。
+
+          ⚠ **只铸占位类，具体的走个体**:PBE / B3LYP / LDA / meta-GGA 这些是**个体**，
+            不是子类 —— reference/atomistic/ 已划好这条线，照抄。
+            本轮与四个模型类同一口径:只铸属这一层。
+      ################################################################
+  SpinHamiltonian:
+    label: SpinHamiltonian
+    definition: An energy expression of an atomistic spin model, written as a sum of terms over the magnetic moments localised on atomic sites.
+    parents:
+    - emmo:PhysicsEquation
+  MicromagneticEnergyTerms:
+    label: MicromagneticEnergyTerms
+    definition: A set of energy contributions - exchange, anisotropy, demagnetising and Zeeman - whose sum a micromagnetic model minimises or evolves.
+    parents:
+    - emmo:PhysicsEquation
+  FreeEnergyFunctional:
+    label: FreeEnergyFunctional
+    definition: A functional of one or more order parameters whose variational derivative drives the evolution equations of a phase field model.
+    parents:
+    - emmo:PhysicsEquation
+  CoreElectronTreatment:
+    label: CoreElectronTreatment
+    definition: The part of a density functional theory model that states how the core electrons and the nuclear potential are represented in the Kohn-Sham Hamiltonian, either explicitly for all electrons or through an effective potential replacing the core region.
+    parents:
+    - emmo:PhysicsEquation
+    rationale: |-
+      ################################################################
+          M1 补两块 —— 核区处理与修正项。2026-08-28 起版。
+          父类同上面四个:emmo:PhysicsEquation。挂法同上面四个:走 hasEquationForm。
+          **零新谓词** —— 落点判对了就不需要新谓词，需要新谓词说明判错了。
+
+          ⚠ **为什么在方程侧不在跑法侧（这是本轮最主要的一个判断）。**
+            截图那张《十二个可晋升的组件》把它们排在 SimulationSetting 那一列。但
+            SimulationSetting 的 definition 写死了判据 S-a **「never enters any
+            equation」** —— 赝势替换的是 KS 哈密顿量里的 V_ext，Hubbard 项是能量
+            表达式里多出来的一项，两个都进方程，S-a 不过。
+            报告 44 对这一族（`LDAU` / `LDAUTYPE` / `LASPH`）给的判词是
+            **「两侧都不合 · 类型层抉择」**，原文:「它们决定方程长什么样」。
+            那份报告声明不提改法；本节就是那个改法 —— **第三侧一直都在，
+            就是 hasEquationForm 这一档**，只是此前只放了「主方程是哪一套」，
+            没放过「这套方程里还有哪些项」。
+
+          ⚠⚠ **CorrectiveTerm 与 ModelParameter 的界，必须写清楚，否则两边都会往里塞。**
+              CorrectiveTerm  ＝ 那一**项**（Hubbard 项本身）→ 方程侧，本节
+              ModelParameter  ＝ 那一项里的**系数**（U 与 J 的数值）→ emmo:Parameter 侧
+            实据是报告 44 那张表里同族字段判成了两类:
+              `LDAU`(4 份) / `LDAUTYPE`(4 份) / `LDAUL`(4 份) → 两侧都不合 → 本节接住
+              `LDAUU`(4 份) / `LDAUJ`(4 份)                  → M1M2M3 全过 → ModelParameter
+            ⚠ `ModelParameter` 那节的典型例里写着「Hubbard U」——**那句话没错**，
+              它说的是 U 这个**值**。本节接的是「有没有 Hubbard 这一项」，不冲突。
+            ⚠ `LDAUL`(l 量子数) 报告 44 判「M-定义句 ✓ 但 M1 ✗」（是索引不是量，无量纲），
+              所以它不是 ModelParameter；它是**这一项作用在哪个子空间**，属于项的构成，
+              落本节。这一条是本轮对报告 44 那一行的处置，报告本身不提改法。
+
+          ⚠ **只铸属层，具体的走个体** —— 与四个模型类、四个求解器同一口径:
+            CoreElectronTreatment 的个体:all-electron / norm-conserving / ultrasoft /
+              PAW / ECP
+            CorrectiveTerm 的个体:Hubbard-U / D2 / D3 / D3(BJ) / TS / MBD / vdW-DF / SIC
+            ⚠ 色散那一支**本轮没有预设证据**:`IVDW` 只出现在
+              research/evidence/io-artifacts/dft/C-pymatgen-vdW_parameters.yaml，而报告 44 已把
+              那份判为「查表，不算预设」（9 份真预设里 0 份设 `IVDW`）。
+              本类靠 Hubbard 那一族（4 份）立得住，色散只作释义里的例子，不作证据。
+
+          ⚠ **继承的那个环再承受两次**:PhysicsEquation ⊑ PhysicsBasedModel ⊑
+            ∃hasSpatialPart.PhysicsEquation 是无穷回归，类可满足但有穷 ABox 填不完
+            （本文件上面那节记的账）。本节两个类落在其下时再承受一次，不是本轮引入的。
+
+          ⚠ **CoreElectronTreatment 的证据不在报告 44 那 43 行里。**
+            那 43 行只是 INCAR，而赝势的选择根本不是 INCAR 键 —— 它在 POTCAR。
+            在手的缓存是 research/evidence/io-artifacts/dft/C-pymatgen-*.yaml 里的
+            `POTCAR_FUNCTIONAL`（**9 份文件都有**，如 PBE54Base 第 3 行 `PBE_54`）
+            加一张逐元素的 POTCAR 标签表。43 行里沾边的只有 `LASPH`（PAW 球内的
+            非球形项，报告 44 判「两侧都不合」）。**这两笔证据分属两个来源，不要合并计数。**
+
+          ⚠ **两条 ∃ 只写一条**:DFT 模型必有核区处理（全电子也是一种处理，与
+            OpenBoundaryCondition「孤立也是一种边界条件」同一种论证），但**不是**
+            必有修正项 —— 纯 PBE 算例一个修正项都没有。回归测试
+            test_corrective_term_is_not_forced_on_dft 守这条不齐。
+      ################################################################
+  CorrectiveTerm:
+    label: CorrectiveTerm
+    definition: An additional term added to the energy expression of a density functional theory model in order to repair a known deficiency of the chosen exchange correlation functional, such as the underestimated on-site Coulomb repulsion of localised states or the absence of long range dispersion.
+    parents:
+    - emmo:PhysicsEquation
+  PostProcessing:
+    label: PostProcessing
+    definition: A data processing that turns the raw output of a simulation run into the target quantity.
+    parents:
+    - emmo:DataProcessing
+    restrictions:
+    - emmo:hasOutput some SimulatedProperty
+    - emmo:isRepresentedBy some PostProcessingMethod
+    rationale: |-
+      ################################################################
+          后处理 —— 从原始输出到目标量的那一步。2026-08-26 起版。**共用，不分档。**
+
+          父类 emmo:DataProcessing
+          <https://w3id.org/emmo#EMMO_1c7f2dfe_0db4_4bf6_a0f6_853054a34ead>（⊑ Computation
+          ⊑ Procedure）。**它自带三条义务，白捡的，正好是要的**（1.0.4 实测）：
+            ⊑ ∃hasInput.DiscreteData
+            ⊑ ∃hasOutput.DiscreteData
+            ⊑ ∃hasParticipant.DataProcessingSoftware
+
+          ⚠ **下面那条 ∃hasOutput.SimulatedProperty 不是对继承义务的收窄，
+            是第二条独立义务。** 实测:SimulatedProperty ⊑ emmo:ModelledProperty 的祖先
+            闭包是 ObjectiveProperty → Quantity → {Referent, Property} → Sign,
+            **里面没有 DiscreteData** —— 它落在指代/性质那一侧，不在数据侧。
+            后果:一个 PostProcessing 个体**同时欠两个输出**(一份结果文件 ＋ 一个目标量)。
+            读起来是对的(脚本既写文件又给出数值)，但必须记账，不能当成一条。
+
+          ⚠ **铸的是「方法」不是「工具」。** 上游 Onto-MS 只有 PostProcessorForDFT 这个
+            工具类，于是「目标量怎么提出来的」答不了(research/reports/38-input-vs-parameter/
+            已量过这个洞)。工具本身不用新类 —— 后处理脚本就是软件，
+            复用 commagmo:MaterialSimulationSoftware。
+
+          ⚠ **与 HB.txt 第 3 条的关系**:那边计划写
+            SimulatedProperty ⊑ ∃isOutputOf.MaterialSimulation。**两条都要，含义不同** ——
+            模拟产出原始数据，后处理产出目标量。拆不拆 RawSimulationOutput 是待决，
+            本轮**不拆**（复刻不需要它）。
+      ################################################################
+  PostProcessingMethod:
+    label: PostProcessingMethod
+    definition: A simulation setting that states how the target quantity is extracted from the raw output, for example by fitting, integration, or reading a peak.
+    parents:
+    - SimulationSetting
+  ModelValidation:
+    label: ModelValidation
+    definition: A procedure that compares a simulated property against a reference value, which may be measured, taken from the literature, or computed by another method.
+    parents:
+    - emmo:Procedure
+    restrictions:
+    - comparesSimulated some SimulatedProperty
+    - comparesReference some emmo:ObjectiveProperty
+    rationale: |-
+      ################################################################
+          验证 —— 一次两侧比对。2026-08-26 起版。**共用，不分档。**
+
+          ⚠ **父类取 emmo:Procedure 而不是 emmo:DataProcessing。**
+            DataProcessing ⊑ ∃hasParticipant.DataProcessingSoftware —— 挂在它下面等于说
+            **「每一次验证都必有一份数据处理软件」**，而「拿实测值扫一眼看数量级对不对」
+            是没有软件的验证，这条义务是假的。emmo:Procedure 只要求
+            ∃isRepresentedBy.ProceduralData（验证方案）与 ∃…ProceduralAgent（做这件事的
+            人或脚本），两条都为真。**与上面的 PostProcessing 不同** —— 后处理确实必然
+            有脚本，那条义务对它是真的。
+            回归测试 test_model_validation_is_procedure_not_data_processing 守这条。
+
+          ⚠ **EMMO 1.0.4 里没有 Validation / Comparison / Verification / Calibration 类**
+            （全部类名扫过），所以这个类必须自铸;但两侧的落点现成，而且是亲兄弟：
+              emmo:ObjectiveProperty
+              ├ emmo:ModelledProperty  → commagmo:SimulatedProperty
+              └ emmo:MeasuredProperty
+
+          ⚠ **两条边是最低限度而非可选。** 一个验证**就是**一次两侧比对;零条边等于
+            只说「有验证这回事」—— 上游 Onto-MS 六个 XxxModelValidation 加起来零条边，
+            那是空壳，本仓库不抄。
+
+          ⚠ comparesReference 的 range 取 emmo:ObjectiveProperty 而不是 MeasuredProperty:
+            **参照物不一定是实验值**，也可能是另一组、另一个方法的计算结果。刻意放宽。
+
+          ⚠ **不分档**:DFT 的验证与微磁的验证结构完全一样，四家无语义差别;
+            分了就是四个空壳。与 S3 离散化正相反。
+      ################################################################
+properties:
+  mayHaveInputProperty:
+    kind: annotation
+    label: mayHaveInputProperty
+    comment:
+      text: 注解，非公理：主语类的实例**可以**由 commagmo:hasInputProperty 关联到宾语类的实例。零蕴涵。
+      lang: zh
+    rationale: |-
+      ################################################################
+          「可以有」那三条 —— 注解，不是公理（2026-08-22）。
+
+          **本仓库第一处 doc-edge。** 下面三条三元组的谓词是 owl:AnnotationProperty，
+          推理器完全无视：不产生任何蕴涵，不给任何个体断言任何事。
+          它们存在的理由是 gen_module_maps 文档字符串里那句话 ——
+          **有些真话在类级没有 OWL 写法。**
+
+          这三条想说的是「一次材料模拟**可以**有输入属性 / 输出属性 / 求解器」。
+          三种写法都试过，量过，只有这一种说的是真话：
+
+            写法              说的话真吗   推理器拿到什么          图上可见   参考里的先例
+            ─────────────────────────────────────────────────────────────────────────
+            ∃                 **假**       强制义务                 ✅        EMMO 最多 5 条／类
+            ≥0                真但空       **实测：什么都没有**      ✅ 但骗人  **只有 MaMMoS，46 条**
+            什么都不写         真          range/subPropertyOf 照常  ❌ 隐形    到处都是
+            不写 ∃ ＋ 本节     真          同上                     ✅ (doc)   仓库自己设计的
+
+          **⚠ `≥0` 那一行是实测不是推断。** 三个变体各跑一次 HermiT，逐类比对 3524 个类：
+            「换成 ≥0」与「什么都不写」的祖先集**差异 0 个类**，一条不差。
+            `≥0 p.C` 是重言式，等价于 owl:Thing。仓库先前就记过这一条
+            （gen_module_maps 文档字符串：「写 ≥0 什么都不说却长得像公理」），
+            本轮把 mammos 那个数查实了：**46 条**，而 EMMO / chameo / OSMO /
+            atomistic / microstructure / battinfo **六家全是 0**。
+
+          **删掉的那三条 ∃ 各自的反例，原样留在这里当删除理由：**
+            ∃hasInputProperty            —— 一次纯几何弛豫没有输入属性。**结构性反例**，
+                                           不是「还没做完」，永远不会有。
+            ∃hasSolver                   —— 一次纯解析求解、或只做后处理的模拟没有数值求解器。
+                                           同样是结构性反例。
+            ∃hasOutputCalculatedProperty —— 一次刚提交、还没算完的模拟没有输出属性。
+                                           ⚠ **这一条的反例是时态的，性质与上两条不同**：
+                                             算完就有了。它本该用拆类解决
+                                             （commagmo:CompletedMaterialSimulation
+                                              ⊑ MaterialSimulation ⊓ ∃hasOutputCalculatedProperty.…），
+                                             那样两句话都真。**本轮按指示三条一起降级，
+                                             拆类留作待决** —— 记在这里免得当成已经了结。
+
+          **删掉之后没丢的东西**（实测，删三条 ∃ 之后照写 ABox）：
+            ex:run commagmo:hasSolver ex:s1 → ex:s1 推出 22 个类，**是 commagmo:Solver**。
+            ex:run commagmo:hasOutputCalculatedProperty ex:p1 → ex:p1 推出 22 个类，
+            **是 SimulatedProperty，也是 emmo:ModelledProperty**。
+            「如果有这条边，宾语就是那个类」这句话由谓词的 rdfs:range 承担，
+            **不需要类级 ∃**。丢掉的只有「必然有」，而那句本来是假的。
+
+          ⚠⚠ **这一节默认看不见。** `--show-doc-edges` 默认关闭，所以
+            ontology/maps/*-map.png 那几张图上没有这三条绿点线。要看得加那个开关：
+                python -m commagmo_tools.viz.gen_module_maps --render --no-title --parents-up \
+                    --show-doc-edges --input ontology/simulation.ttl
+            **本仓库出图的常规命令行没有这个开关**，这笔账记在这里。
+      ################################################################
+  mayHaveOutputCalculatedProperty:
+    kind: annotation
+    label: mayHaveOutputCalculatedProperty
+    comment:
+      text: 注解，非公理：主语类的实例**可以**由 commagmo:hasOutputCalculatedProperty 关联到宾语类的实例。零蕴涵。
+      lang: zh
+  mayHaveSolver:
+    kind: annotation
+    label: mayHaveSolver
+    comment:
+      text: 注解，非公理：主语类的实例**可以**由 commagmo:hasSolver 关联到宾语类的实例。零蕴涵。
+      lang: zh
+  motivatedBy:
+    kind: annotation
+    label: motivatedBy
+    comment:
+      text: 注解，非公理：主语类之所以铸出来，是因为宾语那个编号的 CQ 要它。值只认 cms-kg-schema/docs/requirements/cq.md 的 R-nn ／ F-nn。零蕴涵。
+      lang: zh
+    rationale: |-
+      ################################################################
+          commagmo:motivatedBy —— 闸门④（CQ 溯源）的注解，2026-08-24 立。
+
+          **本仓库第二处 doc-only 注解**，与上面那三条 mayHave* 同一个手法：
+          owl:AnnotationProperty，推理器完全无视，零蕴涵，不给任何个体断言任何事。
+
+          值是一个 CQ 编号的字面量，编号**只认另一个仓库**那张表 ——
+          projects/cms-kg-schema/docs/requirements/cq.md 的 R-nn ／ F-nn。
+          判据、达标线、豁免判别式全都住在那边（ADR-0011），本文件只放注解。
+
+          ⚠⚠ **判据与被判对象分居两个仓库，是让这条闸门判得动的结构条件，不是行政安排。**
+            两者同住一处时，铸类的人会顺手补一条 CQ，闸门永远绿 —— 那正是 permag v0
+            报「1,575/1,596 覆盖，98.7%」的那个恒等式（每个类的 prov:wasDerivedFrom
+            指向的正是生成它的 CQ id）。
+            ⚠ 因此**不要**改用 prov:wasDerivedFrom：那条谓词的方向是反的
+              （「这个类由哪条 CQ 生成」），本条记的是「哪条 CQ 要它」。
+
+          ⚠ **跨仓库引用没有机器在守。** 改 cq.md 删一行、改一个号，本文件这边不会有
+            任何征兆。唯一的缓解是脚本那一步：
+                python -m commagmo_tools.checks.motivation_gate \
+                    --input ontology/material.ttl ontology/simulation.ttl \
+                    --cq ../projects/cms-kg-schema/docs/requirements/cq.md
+            不给 --cq 就不查，脚本会明说这一点。
+
+          ⚠ **放在本文件是因为本文件现在占着根 IRI** …/commagmo（见 material.ttl 开头
+            那条注记）。等根模块文件出现，本条应当随根 IRI 一并迁过去 —— 它是跨模块的，
+            不属于模拟侧。
+
+          ⚠ **当前使用次数 0。** 首跑 0/15 判红，清单在 research/reports/35-gate4-first-run.md。
+            **清单是事实不是判决**，处置等综述那一轮的结论。
+      ################################################################
+  hasSimulatedMaterial:
+    kind: object
+    label: hasSimulatedMaterial
+    definition: Relates a simulation to the material that is simulated.
+    parents:
+    - emmo:hasSimulatedObject
+    range: emmo:Material
+    rationale: |-
+      ################################################################
+          commagmo:hasSimulatedMaterial —— 本地对象谓词。
+
+          父谓词 emmo:hasSimulatedObject
+          <https://w3id.org/emmo#EMMO_ad0bdf66_93c4_4a4d_8e1d_57ec850b1741>
+          rdfs:domain emmo:Simulation，⊑ emmo:hasReferent（rdfs:range emmo:Referent）。
+
+          不声明 rdfs:domain：从父谓词继承 emmo:Simulation，收窄靠类级公理而不靠签名
+          （rdfs:domain 在开放世界下推断类型而不是检查类型，会把用它的任何主语推成本地类）。
+          rdfs:range emmo:Material：落在宾语位的个体被推成 emmo:Material ⊓ emmo:Referent。
+          ⚠ range 同样是推断不是检查 —— 填一个编码物（超胞）进来不会报错，
+            它只会被一并推成一份普通物质。要把这种填法变成硬错误，需要一条
+            owl:disjointWith 把编码物那一支与 emmo:Material 隔开。
+      ################################################################
+  hasMaterialsModel:
+    kind: object
+    label: hasMaterialsModel
+    definition: Relates a simulation to the materials model that it solves.
+    parents:
+    - emmo:hasModel
+    range: emmo:MaterialsModel
+    rationale: |-
+      ################################################################
+          commagmo:hasMaterialsModel —— 本文件第二个本地对象谓词，
+          把模型那一支接到模拟那一支。上游这一格是空的：实测 EMMO 1.0.4 里
+          主语在 emmo:Simulation 之下、填充在模型之下的公理**命中 0 条**，
+          而 emmo:hasModel 声明了却被 owl:Restriction 引用 **0 次**。
+
+          父谓词 emmo:hasModel
+          <https://w3id.org/emmo#EMMO_24c71baf_6db6_48b9_86c8_8c70cf36db0c>
+          disciplines/models.ttl —— "A semiotic relation that connects a recognised
+          semiotic object to a mathematical model in a cognition process."
+          altLabel hasMathematicalModel。签名沿 subPropertyOf 一路继承：
+
+            hasModel        rdfs:range emmo:MathematicalModel（EMMO_f7ed665b…）
+              ⊑ hasIcon     rdfs:range emmo:Icon，owl:inverseOf emmo:isIconFor
+              ⊑ isRepresentedBy  rdfs:domain emmo:Referent，rdfs:range emmo:Sign，
+                                 owl:inverseOf emmo:standsFor
+              ⊑ semiotical
+
+          ⚠ **本条采用的读法**：这次模拟是被认知的符号对象，模型是代表它的那个像
+            （icon）。父谓词整条链都在符号学侧，不在过程侧 —— 它说的**不是**
+            「模型是这次运行的输入」。要说那件事得另铸一条 ⊑ emmo:hasInput 的谓词，
+            两者不冲突，可以并存。
+
+          实测成本，两侧都为零：
+            主语侧 —— 继承来的 rdfs:domain 是 emmo:Referent（写在 isRepresentedBy 上），
+                      而 emmo:Simulation ⊑ emmo:Computation ⊑ emmo:Procedure ⊑ emmo:Referent
+                      成立，零新增。HermiT 实测：MaterialSimulation 个体推出 28 个类，
+                      emmo:Referent 在内（按 IRI 查，不靠标签）。
+                      ⚠ 这条链是**推理得来的，不是断言的** —— 它在
+                      reference/emmo/emmo-inferred-1.0.4.ttl 里有，在
+                      reference/emmo/modules-1.0.4/ 的断言闭包里没有
+                      （Simulation 的 22 个断言祖先里不含 Referent）。
+                      本仓库一贯拿 inferred 当基线（src/commagmo_tools/core/reason.py 写死了它），
+                      所以按这个口径记零成本；换基线这笔账要重算。
+            宾语侧 —— 继承来的 range 是 MathematicalModel ⊓ Icon ⊓ Sign，而
+                      emmo:MaterialsModel ⊑ emmo:PhysicsBasedModel 三者全都在其下。
+                      ABox 探针：填一个 MaterialsModel 个体进宾语位，
+                      **多背 0 个类**（对照组裸个体推出 24 个类）。
+            对照 emmo:hasParticipant：同样一填，个体多背 4 个
+            （Object、ObjectByContext、Participant、Persistence）—— 所以没走那条。
+
+          不声明 rdfs:domain，理由同 commagmo:hasSimulatedMaterial：开放世界下它推断
+          类型而不是检查类型，会把用它的任何主语推成本地类。收窄靠类级公理。
+          rdfs:range 收窄到 emmo:MaterialsModel（比继承来的 MathematicalModel 紧）。
+          ⚠ range 同样是推断不是检查：填一个非模型的东西进来不报错，
+            只会被一并推成一个材料模型，进而被 disjointUnionOf 逼进四档之一。
+      ################################################################
+  hasSolver:
+    kind: object
+    label: hasSolver
+    definition: Relates a simulation to the solver used to solve the equations of its model.
+    parents:
+    - emmo:hasModel
+    range: Solver
+    rationale: |-
+      ################################################################
+          commagmo:hasSolver —— 本文件第六个本地对象谓词。
+
+          **父谓词取 emmo:hasModel**（EMMO_24c71baf_6db6_48b9_86c8_8c70cf36db0c），
+          与已有的 commagmo:hasMaterialsModel **是同一条父谓词** —— 两条谓词并列，
+          正如两个填充类在 MathematicalModel 底下并列。形制上下对称：
+
+              MaterialSimulation --hasMaterialsModel--> MaterialsModel   （解什么）
+                                 --hasSolver---------->  Solver          （怎么解）
+                                 --hasParticipant----->  MaterialSimulationSoftware（谁跑）
+
+          **宾语侧零成本，这就是取 hasModel 的理由**：它继承来的 rdfs:range 是
+          emmo:MathematicalModel（见 hasMaterialsModel 那一节抄的那条签名链），
+          而 commagmo:Solver 正在其下。收窄到 Solver 是严格收紧，不是第二条边。
+
+          **主语侧零成本**：继承来的 rdfs:domain 是 emmo:Referent（写在 isRepresentedBy 上），
+          而 emmo:Simulation ⊑ Computation ⊑ Procedure ⊑ Referent 成立 ——
+          这笔账 hasMaterialsModel 那一节已经算过，本条走同一条链，不重复。
+          实测：commagmo:MaterialSimulation 个体的类型数 **28 → 28**。
+
+          **不声明 rdfs:domain**，理由同 hasSimulatedMaterial / hasMaterialsModel：
+          开放世界下它推断类型而不是检查类型。
+
+          宾语侧实测：裸个体（对照组 1 个类）填进本谓词宾语位 → **22** 个类，
+          多背 21 个 —— 正好是 commagmo:Solver 的全部祖先。
+
+          ⚠⚠ **commagmo:MaterialSimulation 上那条 ∃hasSolver 写过又删了，同日，如实记。**
+            起版时按指示留白（Solver 在图上是孤岛）；同日按指示补上 ⊑ ∃hasSolver.Solver，
+            义务探针 `MaterialSimulation ⊓ (≤0 hasSolver.⊤)` 从可满足翻成 ⊥；
+            **同日再按指示删掉**，探针翻回可满足。
+
+            **删的理由不是它贵，是它假**：一次纯解析求解、或只做后处理的模拟没有数值
+            求解器。这是**结构性反例**，不是「还没做完」—— 那种模拟永远不会有求解器。
+            完整量测与另外两条一起记在 MaterialSimulation 节点后面
+            「『可以有』那三条」那一节，本节不重复。
+
+            ⚠ 三次改动里**类的位置一次都没动过**：commagmo:MaterialSimulation 的祖先
+              始终是 28，个体推出的类始终是 28。变的自始至终只有义务。
+
+            本条谓词现在只剩签名（⊑ emmo:hasModel ＋ rdfs:range commagmo:Solver），
+            上面记的两侧代价照旧有效。「这次模拟用了哪个求解器」在 ABox 里照写不误，
+            宾语个体照样被推成 commagmo:Solver —— 那是 rdfs:range 的功劳，不是 ∃ 的。
+
+          ⚠ **没铸的**：具体求解器（FiniteElementSolver、FiniteVolumeSolver、
+            ConjugateGradientSolver、MonteCarloSolver…）。RoMM §5.1 列了 FD/FV/FE/SEM/BEM
+            五种离散化方法，OSMO 的 solver_method_type 词表只枚举了四条
+            （EOS 单相／EOS 相平衡／分子动力学／蒙特卡洛，**FEM 不在其中**）。
+            两家的清单对不上，铸之前得先定按哪家分。留作待决。
+      ################################################################
+  hasSimulationSetting:
+    kind: object
+    label: hasSimulationSetting
+    definition: Relates a simulation run to one of its procedural settings.
+    parents:
+    - emmo:hasInput
+    domain: MaterialSimulation
+    range: SimulationSetting
+    rationale: |-
+      ################################################################
+          commagmo:hasSimulationSetting —— 由 hasSimulationParameter 改名。
+          ⚠ **签名一个字没动**:rdfs:domain 仍是 commagmo:MaterialSimulation,
+            ⊑ emmo:hasInput 仍在。改的只有名字与 range。
+            它是本文件唯一写了 domain 的谓词 —— 那是起版时就做出的选择
+            「设置归模拟不归模型」，本轮的 spec §2 只是把它推广到全部八档跑法。
+      ################################################################
+  hasModelParameter:
+    kind: object
+    label: hasModelParameter
+    definition: Relates a materials model to a parameter appearing in its physics equation.
+    parents:
+    - emmo:hasSpatialPart
+    range: ModelParameter
+    rationale: |-
+      ################################################################
+          commagmo:hasModelParameter —— 模型侧那一半。
+          ⚠ **不声明 rdfs:domain**，与本文件 hasSimulatedMaterial 同一理由:
+            开放世界下 domain 推断类型而不是检查类型，会把用它的任何主语推成本地类。
+            收窄靠类级公理(Task 8 给四个模型类各写一条)。
+
+          ⚠⚠ **父谓词取 emmo:hasSpatialPart，不取 emmo:hasInput —— 2026-08-26 改
+            (Task 8 复审时一并发现，补在这里而不是那一节，理由见下)。**
+            起版时抄了 emmo:hasInput(EMMO_36e69413_8c59_4799_946c_10b05d266e22,
+            与上面 hasSimulationSetting 同一个父谓词)。实测出错:**hasInput 的
+            rdfs:domain 是 emmo:Process。** `∃hasModelParameter.ModelParameter`
+            经这条 domain 蕴涵会把挂它的主语判成 Process——但一组方程参数不是一个
+            过程，这断言了假话，而且正撞上本文件反复强调的那句话
+            「过程才有跑法，方程没有」——模型类被判成 Process，分工论证自己就垮了。
+            改用 emmo:hasSpatialPart
+            <https://w3id.org/emmo#EMMO_dc57d998_23db_4d8e_b2cd_f346b195b846>:
+            参数是方程里的符号，是模型的**部件**，与 EMMO 自己的
+            emmo:PhysicsBasedModel ⊑ ∃hasSpatialPart.PhysicsEquation 同一种关系。
+            代价核过是零:四个模型类在 Task 8 之前就已经是 emmo:CausalSystem
+            了(hasSpatialPart 的 domain 正是 CausalSystem，继承自
+            MaterialsModel ⊑ ∃hasSpatialPart.MaterialRelation)，改父谓词只去掉
+            Referent/Process/Persistence 三个祖先，不带来任何新祖先。
+            ⚠ hasSimulationSetting 那条**没有**同一个问题，不动它:它的主语是
+            MaterialSimulation，本来就已经是 Process，domain 蕴涵不出新断言。
+      ################################################################
+  hasInputProperty:
+    kind: object
+    label: hasInputProperty
+    definition: Relates a simulation to a property given as an input to the run.
+    parents:
+    - emmo:hasInput
+    range: emmo:Property
+    rationale: |-
+      ################################################################
+          commagmo:hasInputProperty —— 本文件第四个本地对象谓词。
+          commagmo:hasOutputCalculatedProperty —— 第五个。
+          两条一起记账：它们是同一对镜像，代价的形状也一样。
+
+          **这一对补上的是本文件此前记着的那个洞。** SimulatedProperty 起版时
+          图上是个孤岛，那一节写着「要把它变成公理，缺的是一条从属性指回模拟的谓词，
+          或者一条 ⊑ ∃isOutputOf.MaterialSimulation。两条都得先决定『模拟的输出是
+          属性本身还是承载属性的数据』」。**本轮按指示选了「属性本身」**，
+          走 hasOutput 正向而不是 isOutputOf 逆向（主语收在 MaterialSimulation 上，
+          与本文件其余四条 ∃ 一致）。另一个选项没有被驳倒，只是没选，记在案。
+
+          **两条都不声明 rdfs:domain**，理由同 hasSimulatedMaterial / hasMaterialsModel：
+          开放世界下 rdfs:domain 推断类型而不是检查类型，会把用它的任何主语推成
+          commagmo:MaterialSimulation。收窄靠上面 MaterialSimulation 节点里那两条 ∃。
+          ⚠ 本文件里 hasSimulationSetting 是另一种做法（它声明了 rdfs:domain），
+            两种口径并存不是设计，是先后两轮的差异。这一对按多数那一种走。
+
+          **两条都声明 rdfs:range**，比继承来的 emmo:Item 紧得多：
+            hasInputProperty            → emmo:Property
+            hasOutputCalculatedProperty → commagmo:SimulatedProperty
+          ⚠ range 同样是推断不是检查：填一个别的东西进宾语位不会报错，
+            它只会被一并推成一个属性 / 一个被模拟出来的属性。
+
+          ⚠⚠ **2026-08-26 订正：非自反／非对称是继承来的，而且真的起作用。**
+            原文在这里说「owl:AsymmetricProperty 与 owl:IrreflexiveProperty 不沿
+            subPropertyOf 继承，本文件这两条子谓词默认都没有」——这与本文件
+            material.ttl:858-863（`emmo:hasSpatialPart` 那节）记的口径**互相矛盾**，
+            而且实测是 material.ttl 那边对。口径按那节改写，理由复述如下：
+            「特征标记不自动继承」说的是子谓词的**声明**上不会自动出现
+            `owl:AsymmetricProperty` / `owl:IrreflexiveProperty` 这两个类型三元组
+            （这句本身没错）；但父谓词的**约束**对子谓词的实例仍然成立——
+            `x hasInputProperty y` 蕴涵 `x hasInput y`，而 `hasInput` 是
+            `owl:AsymmetricProperty ⊓ owl:IrreflexiveProperty`，所以约束照样落到
+            `hasInputProperty` / `hasOutputCalculatedProperty` 头上，不需要在这两条
+            子谓词上另写一遍。
+            **自指探针复现过**：断言 `x commagmo:hasInputProperty x`（或
+            `x commagmo:hasOutputCalculatedProperty x`）喂给 HermiT，本体直接
+            **不一致**（`sync_reasoner_hermit` 抛 `OwlReadyInconsistentOntologyError`），
+            不是「可满足但代价高」，是真报错。与 material.ttl 858 行那条
+            `hasSpatialPart` 自指探针同一个机制，此处独立复现了一遍，不是照抄结论。
+
+          HermiT 实测（ontology/*.ttl ＋ emmo-inferred-1.0.4.ttl，加这一对前后
+          各跑一次，不可满足类**两边都是 0**）：
+
+          主语侧 —— **两条都零成本。**
+            hasInput / hasOutput 的 rdfs:domain 都是 emmo:Process，而
+            emmo:Simulation ⊑ … ⊑ emmo:Process 上游成立。
+            commagmo:MaterialSimulation 祖先 **28 → 28**，逐个比对一个不差；
+            一个 MaterialSimulation 个体推出的类同样 **28 → 28**。
+
+          宾语侧 —— 代价落在填进去的个体上，两条不一样，因为 range 收得不一样。
+            · 裸个体（对照组 **1** 个类）填进 hasInputProperty 宾语位 → **14** 个类，
+              多背 13 个：Property、Coded、CodedByStructure、Conventional、Sign、
+              SignByReferent、SemioticEntity、Semiotics、Perspective、CausalStructure、
+              Item、Fusion、EMMO。**与 emmo:hasProperty 宾语位那 13 个逐个相同** ——
+              两条边的 range 都收在 emmo:Property 上，代价当然一样。
+            · 裸个体填进 hasOutputCalculatedProperty 宾语位 → **22** 个类，多背 21 个：
+              上面那 13 个，加 SimulatedProperty 自己，再加 ModelledProperty、
+              ObjectiveProperty、QuantityBySubjectivity、Quantity、Objective、
+              CodedBySubjectivity、Referent。
+            · **已经是 emmo:Property 的个体填进 hasInputProperty，多背 0 个**
+              （14 → 14）。这条是零成本的那一档：宾语位要什么，它本来就是什么。
+
+          ⚠⚠ **义务那一节已作废（2026-08-22 同日）。**
+            这一对起版时在 commagmo:MaterialSimulation 上各写了一条 ∃，两个义务探针
+            当时都从可满足翻成 ⊥。**同日按指示把那两条 ∃ 连同 ∃hasSolver 一起删掉了**，
+            理由与完整量测见 MaterialSimulation 节点后面「『可以有』那三条」那一节。
+            现在这两条谓词只剩签名（subPropertyOf ＋ rdfs:range），
+            **上面记的主语侧／宾语侧代价全部照旧有效** —— 那些账在谓词身上，不在那条 ∃ 上。
+            两个义务探针现在都回到**可满足**：ABox 里写得出一次没有输入属性、
+            也没算出属性的材料模拟。这正是删除想要的结果（那两条 ∃ 说的是假话）。
+
+          ⚠ **一个没被拦住的东西，说清楚。** 探针
+            `commagmo:MaterialSimulation ⊓ emmo:Property` 加这一对之后仍然**可满足** ——
+            一次模拟同时是一个属性，推理器一声不吭。原因还是那条：EMMO 里
+            Perspective 之间不是排他分区，过程侧与记号侧同时挂着合法
+            （本仓库核过的 845 条互斥无序对里没有一条碰这一对）。
+            要拦住得自己写 owl:disjointWith，本轮不写。
+      ################################################################
+  hasOutputCalculatedProperty:
+    kind: object
+    label: hasOutputCalculatedProperty
+    definition: Relates a simulation to the property that it calculates as its output.
+    parents:
+    - emmo:hasOutput
+    range: SimulatedProperty
+  hasDiscretisation:
+    kind: object
+    label: hasDiscretisation
+    definition: Relates a simulation run to its discretisation.
+    parents:
+    - hasSimulationSetting
+    range: Discretisation
+    rationale: |-
+      ################################################################
+          commagmo:hasDiscretisation
+          ⚠⚠ **本条不是「不声明 rdfs:domain」——2026-08-26 订正，原文把它和
+            hasModelParameter 混为一谈了。** 本条 ⊑ commagmo:hasSimulationSetting，
+            后者**声明了** `rdfs:domain commagmo:MaterialSimulation`；domain 沿
+            subPropertyOf 生效，不需要本条另开一遍——账不是「零 domain」，
+            是「domain 继承自 hasSimulationSetting 的 MaterialSimulation」。
+            实测（HermiT）：裸个体 `thing1 hasDiscretisation mesh1`（`thing1` 事先
+            不带任何类型）被推成 `commagmo:MaterialSimulation`，外加 27 个 EMMO
+            祖先，并连带欠一份 `commagmo:hasSimulatedMaterial`（MaterialSimulation
+            那条 ∃ 的必要条件，开放世界下不会报错，只是留了一个没填的坑）。
+            这与 hasModelParameter 那条「不声明 domain」**不是同一件事**：那条继承的
+            是**上游的** emmo:CausalSystem，四个模型类早已在其下，代价实测为零；
+            本条继承的是**本地类** MaterialSimulation，代价不是零。这是设计要的
+            （S3 本来就该挂在 Simulation 上），不是意外，但两笔账不能记混。
+      ################################################################
+  hasInitialCondition:
+    kind: object
+    label: hasInitialCondition
+    definition: Relates a simulation run to its initial condition.
+    parents:
+    - hasSimulationSetting
+    range: InitialCondition
+    rationale: |-
+      ################################################################
+          两条谓词。⚠⚠ 同上面 hasDiscretisation 那节 2026-08-26 的订正：
+            **不是不声明 domain**——两条都 ⊑ commagmo:hasSimulationSetting，domain
+            沿 subPropertyOf 继承自它的 `rdfs:domain commagmo:MaterialSimulation`。
+            裸主语落进 MaterialSimulation ＋ 27 个 EMMO 祖先，并连带欠一份
+            hasSimulatedMaterial——这是设计要的，不是意外，见 hasDiscretisation
+            那节的完整记账，这里不重复。
+      ################################################################
+  hasBoundaryCondition:
+    kind: object
+    label: hasBoundaryCondition
+    definition: Relates a simulation run to its boundary condition.
+    parents:
+    - hasSimulationSetting
+    range: BoundaryCondition
+  hasConvergenceCriterion:
+    kind: object
+    label: hasConvergenceCriterion
+    definition: Relates a simulation run to the criterion by which it is judged converged.
+    parents:
+    - hasSimulationSetting
+    range: ConvergenceCriterion
+    rationale: |-
+      ################################################################
+          两条谓词。⚠⚠ 同上面 hasDiscretisation 那节 2026-08-26 的订正：
+            **不是不声明 domain**——两条都 ⊑ commagmo:hasSimulationSetting，domain
+            沿 subPropertyOf 继承自它的 `rdfs:domain commagmo:MaterialSimulation`。
+            裸主语落进 MaterialSimulation ＋ 27 个 EMMO 祖先，并连带欠一份
+            hasSimulatedMaterial——这是设计要的，不是意外，见 hasDiscretisation
+            那节的完整记账，这里不重复。
+      ################################################################
+  hasRandomSeed:
+    kind: object
+    label: hasRandomSeed
+    definition: Relates a stochastic simulation run to its random seed.
+    parents:
+    - hasSimulationSetting
+    range: RandomSeed
+  hasEquationForm:
+    kind: object
+    label: hasEquationForm
+    definition: Relates a materials model to the specific form of the physics equation it is built on.
+    parents:
+    - emmo:hasSpatialPart
+    range: emmo:PhysicsEquation
+    rationale: |-
+      ################################################################
+          commagmo:hasEquationForm
+          ⚠ 不声明 rdfs:domain，理由同 hasModelParameter。
+
+          ⚠⚠ **父谓词取 emmo:hasSpatialPart，不取 emmo:hasModel —— 2026-08-26 改。**
+            起版时抄了 emmo:hasModel（EMMO_24c71baf_6db6_48b9_86c8_8c70cf36db0c），
+            实测出两条错，逼着改：
+            (1) **方向反了。** hasModel ⊑ hasIcon ⊑ isRepresentedBy，语义是「宾语是
+                主语的图像/模型」。`DFT ⊑ ∃hasEquationForm.ExchangeCorrelationFunctional`
+                若挂在 hasModel 下面，读出来是「交换关联泛函是 DFT 的模型」——反了。
+                我们要说的是反过来:泛函是这个模型**的一部分**。
+            (2) **isRepresentedBy 声明了 rdfs:domain emmo:Referent。** 子属性链一路
+                continue 上去，`∃hasEquationForm.X` 会经 domain 蕴涵把主语判成
+                Referent，再经 Referent 既有的隐式父类背上 Process、Persistence——
+                与 X 是什么无关，纯粹是走错了子属性链。
+                这不是良性副作用:**整个设计的分工论证建立在
+                「MaterialSimulation 已经是 Process，过程才有跑法，方程没有」这句话上**，
+                模型类若也被判成 Process，这句话自己就垮了。
+            改用 emmo:hasSpatialPart
+            <https://w3id.org/emmo#EMMO_dc57d998_23db_4d8e_b2cd_f346b195b846>——
+            与 EMMO 自己的 emmo:PhysicsBasedModel ⊑ ∃hasSpatialPart.PhysicsEquation
+            同一种关系:方程形式是模型的**部件**。
+            代价核过是零:hasSpatialPart 的 rdfs:domain 是 emmo:CausalSystem，而四个
+            模型类在本节改动之前就已经是 CausalSystem 了(继承自
+            MaterialsModel ⊑ ∃hasSpatialPart.MaterialRelation，本文件前面记过这笔
+            「静默判成因果系统」的账)。改父谓词只去掉 Referent/Process/Persistence
+            三个祖先，不带来任何新祖先。
+      ################################################################
+  comparesSimulated:
+    kind: object
+    label: comparesSimulated
+    definition: Relates a model validation to the simulated property under test.
+    range: SimulatedProperty
+    rationale: |-
+      ################################################################
+          两条谓词 —— comparesSimulated / comparesReference。
+
+          ⚠⚠ **刻意不挂任何 rdfs:subPropertyOf，不是漏写。2026-08-26 由控制方裁定
+            维持「无父谓词」，记账补在这里。** 本文件其余 16 条本地谓词全部一路走到
+            emmo:EMMORelation；这两条是仅有的例外。
+
+          **为什么不挂 emmo:hasInput（评审建议过的候选）**：
+            `emmo:hasInput <https://w3id.org/emmo#EMMO_36e69413_8c59_4799_946c_10b05d266e22>`
+            ⊑ isIncomingOverlappedBy ⊑ …，整条祖链是**部分学／因果重叠**关系——
+            「输入品的非重叠部分引起过程」。而「一次比对引用两个量」不是
+            「一个量与一个过程发生部分重叠」，两者不是同一种关系。评审当时只算了
+            domain 侧的代价（`ModelValidation` 已经是 `emmo:Procedure`，domain 蕴涵
+            确实零成本，这一点复核属实），但没有论证语义合不合身——本文件上一轮
+            （Task 8）正是因为「读起来对」就把 hasEquationForm 挂上 hasModel、
+            hasModelParameter 挂上 hasInput，事后两条都判错、返工改挂
+            emmo:hasSpatialPart（见 hasModelParameter 那节）。这次不重蹈。
+
+          **代价，说清楚**：EMMO 1.0.4 里没有一个比对／验证关系挂得上——全部
+            Comparison / Validation / Verification 类名扫过命中 0——所以没有语义
+            合身的候选可挂。不挂父谓词的代价是：这两条不在 emmo:EMMORelation 之下，
+            任何按 EMMO 关系分类学做的遍历（例如统计「全部 EMMORelation 子谓词」）
+            都看不见它们，得单独枚举本地谓词才找得到。
+
+          **不声明 rdfs:domain**：与 hasInputProperty / hasOutputCalculatedProperty
+            同一手法——收窄靠 `ModelValidation` 节点上那两条 ∃（上面已写），不靠签名。
+
+          **留待专门一轮**（已并入 spec §8 待决）：要不要给 EMMO 提一个新的比对关系、
+            或者本地铸一个 commagmo:comparesWith 当两者共同的父谓词，本轮不决定。
+      ################################################################
+  comparesReference:
+    kind: object
+    label: comparesReference
+    definition: Relates a model validation to the reference value it is compared against.
+    range: emmo:ObjectiveProperty
+upstream:
+  emmo:Material:
+    label: Material
+    restrictions:
+    - emmo:hasProperty some emmo:Property
+    - emmo:hasChemicalComposition some emmo:ChemicalComposition
+    rationale:
+    - |2-
+          emmo:Material
+          <https://w3id.org/emmo#EMMO_4207e895_8b83_4318_996a_72cfb32acd94>
+          disciplines/materials.ttl —— "The class of individuals standing for
+          an amount of ordinary matter substance."
+          ⚠ 本文件末尾「属性侧」那一节给它写了一条公理，见那里。
+    - |-
+      ################################################################
+          emmo:Material ⊑ ∃emmo:hasProperty.emmo:Property
+
+          HermiT 实测（ontology/*.ttl ＋ emmo-inferred-1.0.4.ttl，加本条前后各跑一次，
+          非探针的不可满足类**两边都是 0**）：
+
+          主语侧 —— **本文件里由下面那条 ∃hasChemicalComposition 顶住闸门，本条零成本。**
+            emmo:hasProperty 的 rdfs:domain 是 emmo:Referent，而 emmo:Material 在**上游**
+            不是 Referent（只加载 emmo-inferred-1.0.4.ttl 跑一次：祖先 18，Referent 不在内）。
+            本条按理该把 Referent 闸门推开一次。**实测没有推**：
+              emmo:Material 祖先数 **22 → 22**，逐个比对一个不差。
+            理由是同节 ∃hasChemicalComposition 已经付过 —— 那条的父谓词 emmo:hasConvention
+            同样 rdfs:domain emmo:Referent，两条是亲兄弟，走同一个闸门。
+            ⚠ **先有哪一条，哪一条付账。** 两条谁也不比谁便宜，只是同一笔账不付两次。
+              单独留任何一条，emmo:Material 都会多背 4 个类：Referent、SemioticEntity、
+              Semiotics、Perspective。
+            ⚠ **2026-08-22 之前这个零是跨文件借来的** —— 当时本文件只有 ∃hasProperty，
+              闸门靠 material.ttl 那条顶着，而**单独加载本文件时那条并不存在**。
+              同步补齐（见下面那一节）之后本文件自己带着两条，不再借。
+
+          宾语侧 —— 落在填进去的个体上，不改类的位置。
+            拿一个裸个体（对照组推出 **1** 个类，只有 owl:Thing）填进 hasProperty 的宾语位，
+            推出 **14** 个类，**多背 13 个**：Property、Coded、CodedByStructure、
+            Conventional、Sign、SignByReferent、SemioticEntity、Semiotics、Perspective、
+            CausalStructure、Item、Fusion、EMMO。
+            一句话：**填进宾语位的东西被静默推成一个记号。** 与本文件记了一路的
+            Referent 闸门、CausalSystem 闸门同一个机制（rdfs:domain / rdfs:range 在开放
+            世界下推断类型而不是检查类型）。
+
+          **真正变的是义务，不是位置。** 探针
+            `emmo:Material ⊓ (≤0 emmo:hasProperty.⊤)`
+            加本条前 **可满足**，加本条后 **⊥**。
+            也就是说：**ABox 里从此写不出一份没有任何属性的材料了。**
+            这条义务落到 emmo:Material 的全部后代身上（上游 23 个后代，加本仓库
+            material.ttl 挂在其下的那几支），且任何 import 本文件的下游拿到的
+            emmo:Material 都比上游紧。
+
+          **退路（要退回本地口径就照这个做）**：铸一个 commagmo: 的材料类挂在
+            emmo:Material 之下，把这条 ∃ 移过去。蕴涵一条不差，主语收回本地类。
+            ⚠ v1.1 眼下**没有**本地材料类（material.ttl 24 个本地类里一个都不是），
+              所以这条退路要先补那个类 —— 与 v0.1.1 自铸 core:Material 是同一步棋。
+      ################################################################
+    - |-
+      ################################################################
+          emmo:Material ⊑ ∃emmo:hasChemicalComposition.emmo:ChemicalComposition
+          —— 公理写在上面那个节点里，账记在这里。
+
+          ⚠⚠ **2026-08-22 同步补齐：从 emmo:Material 出发的两条边，两个文件各写一份。**
+            在此之前是一边一条 —— material.ttl 只有 ∃hasChemicalComposition，
+            本文件只有 ∃hasProperty。合并加载时两条都在，看不出问题；
+            **单独加载任何一个文件，另一条就不存在**，而这两个文件各自都是一份
+            能独立加载的 ttl。实测过的不对称（HermiT，各自 ＋ emmo-inferred-1.0.4.ttl）：
+
+              加载              Material 祖先  Referent  无属性材料⊥  无组成材料⊥
+              ─────────────────────────────────────────────────────────────────
+              只有 EMMO              18          否          否          否
+              material.ttl 单独      22          是        **否**        是
+              simulation.ttl 单独    22          是          是        **否**
+              两个合并               22          是          是          是
+
+            补齐之后四行的后三列全部一致：每个文件单独加载，两条义务都在。
+            ⚠ **合并加载的那张图一个蕴涵都没变** —— 两处的 owl:Restriction 结构逐字
+              相同，合到一张图里是两个空白节点说同一句话，逻辑上冗余。
+              变的只有「单独加载一个文件时它说了什么」，以及两张概念图各自画出的边。
+            ⚠ 代价是**同一条公理有两份手写副本**，改一处必须改另一处，没有任何机器在守。
+
+          **本条自己的完整代价记在 material.ttl 那一节**（主语侧 +4 祖先、宾语侧 +6 类、
+          ABox 负担那一整条链），本文件不重复。本文件加它的增量代价是零：
+          Referent 闸门在本文件里已被上面那条 ∃hasProperty 推开，两条同一个闸门。
+      ################################################################
+  emmo:Object:
+    label: Object
+    rationale: |2-
+          emmo:Object
+          <https://w3id.org/emmo#EMMO_90ae56e4_d197_49b6_be1a_0049e4756606>
+          perspectives/persistence.ttl —— 持续论视角下的持续体（altLabel Continuant / Endurant）
+  emmo:Simulation:
+    label: Simulation
+    rationale: |2-
+          emmo:Simulation
+          <https://w3id.org/emmo#EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b>
+          disciplines/models.ttl —— "A estimation of a property using a functional icon."
+          ⊑ emmo:Estimation, emmo:Computation（上游断言，本文件不重述）
+  emmo:Document:
+    label: Document
+    rationale: |2-
+          emmo:Document
+          <https://w3id.org/emmo#EMMO_ccdc1a41_6e96_416b_92ec_efe67917434a>
+          disciplines/perceptual.ttl —— "A heterogeneous object made of different
+          graphical object parts."（⊑ emmo:Graphical）
+          **文献这一档零新类**：EMMO 1.0.4 里唯一相关的类就是它（全部类名扫过，
+          没有 Publication / Article / Paper / Reference），DOI 与引文走 EMMO 自己
+          声明的两条标注 bibo:doi 与 dcterms:bibliographicCitation。
+          ⚠ 记账：它的释义说的是**图形构成**，不是「一份出版记录」。这是现有词里最贴的
+            一个，但不完全贴。日后文献侧要做实，应当另找上游（prov-o / bibo），
+            **不要给 emmo:Document 加公理**。
+  emmo:MaterialsModel:
+    label: MaterialsModel
+    parents:
+    - emmo:PhysicsBasedModel
+    restrictions:
+    - emmo:hasSpatialPart some emmo:MaterialRelation
+    disjoint_union:
+    - emmo:ElectronicModel
+    - emmo:AtomisticModel
+    - emmo:MesoscopicModel
+    - emmo:ContinuumModel
+    rationale: |-
+      ################################################################
+          RoMM / CWA 17284 的模型骨架 —— emmo:MaterialsModel 与它的四个子类。
+          这一节 **全部是逐字重述上游，零新增蕴涵**：本文件不给这一支写任何上游没有的
+          公理，重述只为了让概念图画得出这棵树（因此仍是灰框，见 dot 图例）。
+
+          emmo:MaterialsModel
+          <https://w3id.org/emmo#EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5>
+          disciplines/models.ttl —— "A solvable set of one Physics Equation and one or
+          more Materials Relations."（rdfs:seeAlso 指向 RoMM 的 EU 出版页）
+
+          上游在本类身上一共三条公理，本文件三条全取：
+            ⊑ emmo:PhysicsBasedModel
+            owl:disjointUnionOf ( 四个子类 )
+            ⊑ ∃emmo:hasSpatialPart.emmo:MaterialRelation
+
+          第三条就是 elucidation 里 "one or more Materials Relations" 的那一半 ——
+          RoMM 的 Model = PE + MR，MR 这一侧从此在本文件里有载体。
+
+          ⚠ 这一条把上游的一处**静默副作用**一并抄了进来，记清楚。
+            emmo:hasSpatialPart <https://w3id.org/emmo#EMMO_dc57d998_23db_4d8e_b2cd_f346b195b846>
+            ⊑ emmo:hasNonTemporalPart，owl:inverseOf emmo:isSpatialPartOf，
+            **rdfs:domain emmo:CausalSystem**（EMMO_e7aac247…）。而 MaterialsModel 的
+            断言祖先里只有 CausalStructure（CausalSystem ⊑ CausalCluster ⊓ CausalStructure）。
+            所以这条公理**把模型静默判成一个因果系统**，上游没有任何文件说过这件事 ——
+            与本仓库记了一路的 Referent 闸门同一个机制（rdfs:domain 在开放世界下推断
+            类型而不是检查类型）。
+            **这是上游本来就有的后果，重述不新增**（并到 EMMO 里跑，MaterialsModel 的
+            祖先集一个不变）；但本文件既然抄了，这笔账就该在本文件里看得见。
+
+          PE 那一半挂在 emmo:PhysicsBasedModel 身上（见下），本文件也抄了。
+          两条合起来才是 RoMM 的 Model = PE + MR，缺一半就只是半句话。
+
+          ⚠ owl:disjointUnionOf 这一条顶三件事：四档两两互斥、并起来穷尽
+            MaterialsModel、且每个都是它的子类。四条 rdfs:subClassOf 因此在逻辑上
+            是冗余的 —— 照抄是因为 gen_module_maps 只画 subClassOf 与 Restriction，
+            **它看不见 disjointUnionOf**；不写这四条，图上就是四个孤立方框。
+            要看那条并集边本身，用 src/commagmo_tools/viz/gen_disjoint_union_maps.py。
+
+          ⚠ 四档在 EMMO 1.0.4 里后代数都是 0 —— 这一支下面所有具体模型都得本地铸。
+            版次警告：我们缓存的 RoMM 是 KI-04-17-104（2017），EMMO 引的是
+            KI-06-16-197（2016），不同版次。
+      ################################################################
+  emmo:MaterialRelation:
+    label: MaterialRelation
+    parents:
+    - emmo:Equation
+    rationale: |2-
+          emmo:MaterialRelation
+          <https://w3id.org/emmo#EMMO_e5438930_04e7_4d42_ade5_3700d4a52ab7>
+          disciplines/models.ttl —— "An 'equation' that stands for a physical assumption
+          specific to a material, and provides an expression for a 'physics_quantity'
+          (the dependent variable) as function of other variables, physics_quantity or
+          data (independent variables)."
+          skos:example: The Lennard-Jones potential / A force field / An Hamiltonian.
+          rdfs:comment: "A material_relation can e.g. return a predefined number, return a
+          database query, be an equation that depends on other physics_quantities."
+
+          ⊑ emmo:Equation 是它在 1.0.4 里的唯一公理，本文件逐字重述。
+  emmo:Equation:
+    label: Equation
+    rationale: |2-
+          emmo:Equation
+          <https://w3id.org/emmo#EMMO_e56ee3eb_7609_4ae1_8bed_51974f0960a6>
+          disciplines/math.ttl —— 上游 ⊑ MathematicalFormula ⊓ Proposition ⊓
+          ∃hasSpatialPart.Equality，三条本文件都不抄（纯引用节点）。
+          ⚠ emmo:PhysicsEquation 也在它之下（⊑ Equation ⊓ PhysicsBasedModel，见下），
+            所以 PE 与 MR 在上游是兄弟，都是方程 —— 但只有 PE 同时是模型。
+  emmo:PhysicsBasedModel:
+    label: PhysicsBasedModel
+    restrictions:
+    - emmo:hasSpatialPart some emmo:PhysicsEquation
+    rationale: |2-
+          emmo:PhysicsBasedModel
+          <https://w3id.org/emmo#EMMO_b29fd350_39aa_4af7_9459_3faa0544cba6>
+          disciplines/models.ttl —— "A mathematical entity based on a fundamental physics
+          theory which defines the relations between physics quantities of an entity."
+          rdfs:isDefinedBy 直接写着 CWA 17284。
+
+          上游两条公理，本文件取 ∃ 那一条（PE 这一半）：
+            ⊑ emmo:MathematicalModel（EMMO_f7ed665b…）      ← 不取，不再往上铺
+            ⊑ ∃emmo:hasSpatialPart.emmo:PhysicsEquation     ← 取
+
+          ⚠ CausalSystem 那笔账在这里再记一次：本类的断言祖先里同样只有 CausalStructure，
+            抄这条同样把「模型是因果系统」一并带进来。上游本来就有，重述不新增。
+  emmo:PhysicsEquation:
+    label: PhysicsEquation
+    parents:
+    - emmo:PhysicsBasedModel
+    - emmo:Equation
+    rationale: |2-
+          emmo:PhysicsEquation
+          <https://w3id.org/emmo#EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3>
+          disciplines/models.ttl —— "An 'equation' that stands for a 'physical_law' by
+          mathematically defining the relations between physics_quantities."
+          skos:example: The Newton's equation of motion / The Schrödinger equation /
+          The Navier-Stokes equation.
+
+          上游两条公理，本文件全取：
+            ⊑ emmo:PhysicsBasedModel
+            ⊑ emmo:Equation
+
+          ⚠⚠ **上游这里有一个环，抄进来就一并带进来了，记清楚。**
+            PhysicsEquation ⊑ PhysicsBasedModel ⊑ ∃hasSpatialPart.PhysicsEquation
+            —— 每个物理方程都必须有一个空间部分，而那个部分又是物理方程，无穷下去。
+            OWL 允许无穷模型，所以它**可满足**（实测不可满足类 0），但任何有穷的 ABox
+            都填不满这条 ∃：断言一个 KohnShamEquation 个体，推理器只会一路造匿名后继，
+            永远不会说「够了」。
+            根子在上游把 PE 同时放进「方程」和「模型」两个位置：RoMM 里 PE 是模型的
+            **一半**，EMMO 里它却又是模型**本身**。本文件不修，照抄并记账。
+            对照：emmo:MaterialRelation 只 ⊑ Equation，不在模型那一侧，**没有这个环**。
+  emmo:ElectronicModel:
+    label: ElectronicModel
+    parents:
+    - emmo:MaterialsModel
+    rationale: |2-
+          "A physics-based model based on a physics equation describing the behaviour
+          of electrons."（skos:example: Density functional theory / Hartree-Fock）
+  emmo:AtomisticModel:
+    label: AtomisticModel
+    parents:
+    - emmo:MaterialsModel
+    rationale: |2-
+          "A physics-based model based on a physics equation describing the behaviour
+          of atoms."
+  emmo:MesoscopicModel:
+    label: MesoscopicModel
+    parents:
+    - emmo:MaterialsModel
+    rationale: |2-
+          "A physics-based model based on a physics equation describing the behaviour of
+          mesoscopic entities, i.e. a set of bounded atoms like a molecule, bead or
+          nanoparticle." —— RoMM 第 3 章的真正判据是「实体内部不解析、被冻住」。
+          micromagnetism 落在这一档（OSMO 的嵌套 disjointUnionOf 是第二个独立佐证）。
+  emmo:ContinuumModel:
+    label: ContinuumModel
+    parents:
+    - emmo:MaterialsModel
+    rationale: |2-
+          "A physics-based model based on a physics equation describing the behaviour of
+          continuum volume."
+  emmo:Parameter:
+    label: Parameter
+    rationale: |-
+      ################################################################
+          emmo:Parameter
+          <https://w3id.org/emmo#EMMO_d1d436e7_72fc_49cd_863b_7bfb4ba5276a>
+          disciplines/math.ttl —— 上游**没有 elucidation**，只有一条 rdfs:comment：
+          "A variable whose value is assumed to be known independently from the
+          equation, but whose value is not explicitated in the equation."
+          skos:example "Viscosity in the Navier-Stokes equation"。
+          ⊑ emmo:NumericalVariable ⊑ Variable ⊑ … ⊑ Data ⊑ Item（本文件不重述）。
+
+          ⚠ 记清楚这个坑：上游的 Parameter 是**方程里的一个变量**，落在数学／符号侧
+            （祖先里有 Data、Symbolic、Language），**不是**「跑一次算例要填的设置项」。
+            本地子类接在它下面，等于把 k 点网格、截断能这类东西也读成方程的参数。
+            这一步是断言式的，推理器不做归类；要不要另立一支等计算侧开工时再议。
+      ################################################################
+  emmo:SimulationSoftware:
+    label: SimulationSoftware
+    rationale: |-
+      ################################################################
+          emmo:SimulationSoftware
+          <https://w3id.org/emmo#EMMO_8b66ada5_510c_44bd_a8d8_3c64d301a5e9>
+          disciplines/models.ttl —— "An application program aimed to functionally
+          reproduce an object."  altLabel SimulationApplication。
+          上游 ⊑ emmo:ApplicationProgram ⊓ emmo:FunctionalIcon（本文件不重述）。
+
+          ⚠ 它的 21 个祖先**全在描述／符号侧**：Software、Program、DigitalData、Data、
+            Information、Sign、Icon、SignByReferent、Semiotics、SemioticEntity…
+            **没有 Object，没有 Persistence，没有 Participant。** 在 EMMO 里一份软件
+            是一段编码信息，不是一个物。下面那条 ∃hasParticipant 的代价就出在这里。
+
+          上游同层还有三个兄弟，本文件都没铸：PhysicalBasedSimulationSoftware、
+          DataBasedSimulationSoftware、EmpiricalSimulationSoftware —— 它们按
+          「靠什么预测」分，与本地这一档按「模拟什么」分是两条轴，不冲突。
+      ################################################################
+  emmo:MultiSimulation:
+    label: MultiSimulation
+    parents:
+    - emmo:PhysicsBasedSimulation
+    rationale: |-
+      ################################################################
+          emmo:MultiSimulation
+          <https://w3id.org/emmo#EMMO_7d56ec24_499d_487a_af7d_a91aaa787bfe>
+          disciplines/models.ttl —— "A physics based simulation with multiple physics
+          based models."
+
+          直接引用，不本地重铸 —— 「多模型」这件事上游已经有名字了。
+          下面两条 ⊑ 都是逐字重述，零新增蕴涵，只为让它在概念图上有落点。
+
+          ⚠⚠ **拿到的是一个名字，不是一个判据，用之前想清楚。**
+            实测 emmo:Simulation 那一支七个后代**每一个都只有 1 条具名 ⊑、0 条匿名公理**
+            （Coupled 连 elucidation 都没有）。"multiple" / "sequentially" / "a single"
+            这些区分**全部只活在 elucidation 的英文句子里**，推理器一个字都看不见：
+            断言一次模拟有两个模型，它不会被推成 MultiSimulation；断言它是
+            MultiSimulation，也推不出它有两个模型。两个方向都不通。
+
+            要把这层意思变成公理，本文件已有的零件就够，不必新建任何东西：
+                ≡ commagmo:MaterialSimulation ⊓ ≥2 commagmo:hasMaterialsModel.emmo:MaterialsModel
+            前提已查实：**EMMO 1.0.4 里 owl:TransitiveProperty 共 0 条**，整个本体没有
+            一条传递谓词（连 hasPart 家族都不是），所以每条谓词都是 simple，
+            基数限制随便用，不会掉出 OWL 2 DL。本轮按指示只引用，不写这条。
+
+          ⚠ **本文件不写 MaterialSimulation 与本类之间的任何公理。**
+            上游 MultiSimulation ⊑ PhysicsBasedSimulation，而 commagmo:MaterialSimulation
+            的父类特意取的是 emmo:Simulation 而非 PhysicsBasedSimulation（理由见该节点：
+            材料模拟不必是物理基的）。硬接一条边等于顺带承认「多模型材料模拟必是物理基的」，
+            那句话本仓库没打算说。要接，得先在那个取舍上改主意。
+      ################################################################
+  emmo:PhysicsBasedSimulation:
+    label: PhysicsBasedSimulation
+    parents:
+    - emmo:Simulation
+    rationale: |2-
+          emmo:PhysicsBasedSimulation
+          <https://w3id.org/emmo#EMMO_e97af6ec_4371_4bbc_8936_34b76e33302f>
+          disciplines/models.ttl —— ⊑ emmo:Simulation 是它在 1.0.4 里的唯一公理，
+          本文件逐字重述（否则 MultiSimulation 在图上与模拟那一支断开）。
+          ⚠ 它与模型那一支之间上游**一条边都没有** —— 实测主语在 Simulation 之下、
+            填充在模型之下的公理全库命中 0 条。本文件的 commagmo:hasMaterialsModel
+            填的就是这一格。
+  emmo:Property:
+    label: Property
+    rationale: |-
+      ################################################################
+          emmo:Property
+          <https://w3id.org/emmo#EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba>
+          perspectives/semiotics.ttl —— "A coded that makes use of an atomic symbol with
+          respect to the code used to refer to the interaction."
+          skos:note: "A property is atomic in the sense that is aimed to deliver one and
+          one only aspect of the object according to one code, such as the color with one
+          sign (e.g., black) or a quantitiative property (e.g., 1.4 kg)."
+          skos:example 里拿 Hardness / Vickers hardness 举的例子。
+
+          上游唯一公理 ⊑ emmo:CodedByStructure（EMMO_38f31ba5…），本文件不重述。
+
+          ⚠ **它整支在记号侧，不在物侧**：Property ⊑ Coded ⊑ … ⊑ Conventional ⊑ Sign
+            ⊑ SignByReferent。所以下面那条 ∃ 是一条从物侧伸向记号侧的边 ——
+            与 material.ttl 那条 ∃hasChemicalComposition（伸向 Data 侧）走的是同一条
+            父谓词祖链（都 ⊑ emmo:hasConvention），但落在符号学的另一支上。
+      ################################################################
+  emmo:hasProperty:
+    label: hasProperty
+    rationale: |-
+      ################################################################
+          emmo:hasProperty
+          <https://w3id.org/emmo#EMMO_e1097637_70d2_4895_973f_2396f04fa204>
+          perspectives/semiotics.ttl —— "A semiotic relation that connects a semiotic
+          object to a property in a declaration process."
+          rdfs:domain emmo:Referent，rdfs:range emmo:Property，
+          ⊑ emmo:hasConvention ⊑ emmo:isRepresentedBy ⊑ emmo:semiotical。
+
+          ⚠ 同一条三元组 material.ttl 里也有一份（那边 emmo:Crystal 那条 ∃ 删除后的记账
+            仍然引着它）。两处内容逐字相同，合到一张图里是同一条三元组，不冲突。
+
+          ⚠ **释义里的「declaration process」是这条边最该被读懂的地方**：它说的不是
+            「这份材料客观上具有某个属性」，而是「有一个声明过程把某个属性连到了它身上」。
+            下面那条 ∃ 因此断言的是：**每一份材料都已经有一个被声明出来的属性。**
+            v0.1.1 驳过同款说法（原话：「一块没人测过、没人写下结构的晶体是反例」），
+            这里的对应反例是**一份刚被命名、还没人给它写下任何属性的材料**。
+            本轮按指示照写，这条反例记在案，它属于 shapes.ttl 的 sh:Warning 那一档。
+      ################################################################
+  emmo:ChemicalComposition:
+    label: ChemicalComposition
+    rationale: |-
+      ################################################################
+          emmo:ChemicalComposition
+          <https://w3id.org/emmo#EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3>
+          disciplines/chemistry.ttl —— "A language construct that provides information
+          about the consitutents of a substance and their fractions or amounts."
+          （consitutents 是上游的拼写，原样抄。）
+
+          ⚠ **它在符号侧，不在物侧** —— 18 个祖先没有一个是物（ChemicalSymbolicConstruct、
+            SymbolicConstruct、Symbolic、Language、Data、DiscreteData、Contrast…）。
+            material.ttl 那一节把这笔账逐条记过，本文件不重复。
+
+          ⚠ 同一条三元组 material.ttl 里也有一份，内容逐字相同。
+      ################################################################
+  emmo:hasChemicalComposition:
+    label: hasChemicalComposition
+    rationale: |-
+      ################################################################
+          emmo:hasChemicalComposition
+          <https://w3id.org/emmo#EMMO_51f426a6_af4a_4e91_a392_2b0bb635e2d5>
+          disciplines/chemistry.ttl —— "Relates a substance to chemical composition."
+          rdfs:domain emmo:Substance，rdfs:range emmo:ChemicalComposition，
+          ⊑ emmo:hasConvention ⊑ emmo:isRepresentedBy ⊑ emmo:semiotical。
+
+          ⚠ **它与 emmo:hasProperty 是亲兄弟**，同挂 hasConvention 之下（那一格共九条）。
+            EMMO 把「有属性」与「有组成」并列放在「有约定表示」之下，两者不是一支套一支。
+            上面那条主语侧的零成本就是这个兄弟关系的后果。
+
+          ⚠ 同一条三元组 material.ttl 里也有一份，内容逐字相同。
+      ################################################################
+  emmo:ModelledProperty:
+    label: ModelledProperty
+    rationale: |-
+      ################################################################
+          emmo:ModelledProperty
+          <https://w3id.org/emmo#EMMO_d0200cf1_e4f4_45ae_873f_b9359daea3cd>
+          disciplines/metrology.ttl —— "A quantity obtained from a well-defined
+          modelling procedure."
+          上游唯一公理 ⊑ emmo:ObjectiveProperty（EMMO_dd4a7f3e…），本文件不重述。
+
+          ⚠ **它所在的那一层是按「属性怎么连到对象上」分的，不是按属性本身分的。**
+            上游给 ObjectiveProperty 写的 rdfs:comment 原话：subclasses "classify objects
+            according to the type semiosis that is used to connect the property to the
+            object (e.g. by measurement, by convention, by modelling)"。
+            同层的兄弟：emmo:MeasuredProperty、emmo:ConventionalProperty（EMMO_d8aa8e1f…）。
+            所以「算出来的 / 测出来的 / 约定的」这个三分在上游是现成的，本文件不重铸。
+
+          ⚠ 对应的上游谓词是 emmo:hasModelledProperty <…#EMMO_b8f79e53…>
+            （⊑ hasObjectiveProperty ⊑ hasProperty，rdfs:range 收窄到本类，**没有自己的
+            rdfs:domain**）。**本文件不铸它的本地子谓词**：主语侧该是承载属性的那个对象，
+            而不是算出它的那次模拟 —— 模拟与属性之间的边走的是输出侧，不是 hasProperty 侧。
+            要接这一格，缺的是「被模拟的那个对象」那个类，v1.1 眼下没有。留作待决。
+      ################################################################
+  emmo:hasOutput:
+    label: hasOutput
+    rationale: |-
+      ################################################################
+          emmo:hasOutput
+          <https://w3id.org/emmo#EMMO_c4bace1d_4db0_4cd3_87e9_18122bae2840>
+          perspectives/persistence.ttl —— "The relation between a process P that proper
+          overlaps an item I, where the non-overlapping part of I is caused by P."
+          rdfs:domain emmo:Process，**自己没有 rdfs:range**，继承来的是 emmo:Item。
+          祖谓词链：⊑ isOutgoingOverlappedBy ⊑ isOvercrossedBy ⊑ overcrosses
+                    ⊑ overlaps ⊑ properOverlaps ⊑ mereological ⊑ EMMORelation。
+          上游标了 owl:AsymmetricProperty ⊓ owl:IrreflexiveProperty。
+          具名逆谓词 emmo:isOutputOf <…#EMMO_2bb50428_568d_46e8_b8bf_59a4c5656461>。
+
+          ⚠ **它与 emmo:hasInput 是镜像的一对**，唯一的差别在父谓词的方向
+            （isOutgoingOverlappedBy 对 isIncomingOverlappedBy），也就是因果的方向：
+            输入品的非重叠部分**引起**过程，过程**引起**输出品的非重叠部分。
+
+          ⚠ **整条祖链是 mereological，不是时序的。** 这条边说的是过程与输出品
+            **真部分重叠** —— 不是「输出品是过程的一个时间部分」。本文件先前在
+            hasSimulationParameter 那一节把 hasInput 误记成 ⊑ hasTemporalPart，
+            已于 2026-08-22 订正；那一节已于 2026-08-26 改名为 hasSimulationSetting，
+            订正记录随之并入本条。
+
+          ⚠ 上游拿它写过的 ∃ 限制全库 **3 条**（DataProcessing→DiscreteData、
+            Measurement→MeasurementResult、Manufacturing→WorkPiece）。
+            「模拟输出一个属性」这一条上游没有，下面那条是第一次说。
+      ################################################################

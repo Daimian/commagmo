@@ -1,0 +1,153 @@
+digraph material {
+    graph [rankdir=TB, bgcolor=white, splines=true, nodesep=0.40, ranksep=0.70,
+           fontname="Helvetica"];
+
+    /* GENERATED from ontology/src/material.yaml by
+       `python build.py` — do not hand-edit; edit the YAML
+       and rebuild. The one hand-curated poster is
+       module_material-core.dot, which spans modules and is not produced here.
+       purple = declared in this module (--color-by-side 打开时改为按侧上色：暖棕 = 物质侧、
+       蓝 = 描述侧、紫 = 代表侧、绿 = 缺陷（只在 Contrast）、粉 = 量（Property ⊑ Sign）），
+       pale purple = our own namespace but declared in a
+       sibling module, grey = someone else's ontology. A prefix on a label means ONLY
+       "not our namespace" — our own classes never carry one, whichever file declares them.
+       Pale-purple boxes DO get their own named parents drawn, one level, read from the
+       sibling ttl — that axiom is ours, one file away. Grey boxes never do.
+       solid hollow triangle = rdfs:subClassOf, triangle at the PARENT end
+       (--parents-up: the PARENT is ranked ABOVE the child, so the edge is
+        written parent -> child with dir=back; the triangle still sits at the
+        parent end, so the reading is the same as the default layout)
+       dashed = class-level owl:Restriction (label: predicate + quantifier)
+       dotted = rdfs:domain -> rdfs:range of an object property declared here
+       green dotted "(doc)" = an owl:AnnotationProperty declared here, pointing at a
+       named class: DOCUMENTATION, ZERO ENTAILMENT (--show-doc-edges only)
+       red solid undirected = owl:disjointWith, a real axiom (--show-disjoint only)
+       purple dashed box = declared elsewhere and given an axiom HERE THAT UPSTREAM LACKS;
+       a restatement of an upstream axiom keeps the plain grey reference box */
+    node [shape=box, style="rounded,filled", penwidth=1.4, margin="0.20,0.12",
+          fontsize=15, fillcolor="#ebebeb", color="#a8a8a8", fontcolor="#333333",
+          fontname="Helvetica-Oblique"];
+    edge [color="#5a7d8c", fontcolor="#5a7d8c", fontname="Helvetica", fontsize=13,
+          penwidth=1.5, arrowsize=0.9];
+
+
+    /* ---- declared in this module ---- */
+    node [fillcolor="#e6dcf7", color="#6d28d9", fontname="Times-Roman", fontcolor="#111111"];
+    x_CellVolume [label="CellVolume"];
+    x_ConventionalUnitCell [label="ConventionalUnit\nCell"];
+    x_CrystalStructure [label="CrystalStructure"];
+    x_CrystalSystem [label="CrystalSystem"];
+    x_CrystallinePhase [label="CrystallinePhase"];
+    x_CrystallineMagneticMaterial [label="Crystalline\nMagneticMaterial"];
+    x_CrystallineMagneticPhase [label="Crystalline\nMagneticPhase"];
+    x_CrystallographicDefect [label="Crystallographic\nDefect"];
+    x_Crystallography [label="Crystallography"];
+    x_Defect [label="Defect"];
+    x_FractionalPosition [label="Fractional\nPosition"];
+    x_Grain [label="Grain"];
+    x_GrainBoundary [label="GrainBoundary"];
+    x_Impurity [label="Impurity"];
+    x_Interstitial [label="Interstitial"];
+    x_LatticeParameter [label="LatticeParameter"];
+    x_LineDefect [label="LineDefect"];
+    x_MagneticDomain [label="MagneticDomain"];
+    x_MagneticDomainWall [label="MagneticDomain\nWall"];
+    x_MagneticStructure [label="Magnetic\nStructure"];
+    x_Microstructure [label="Microstructure"];
+    x_MicrostructureComponent [label="Microstructure\nComponent"];
+    x_Phase [label="Phase"];
+    x_PlaneDefect [label="PlaneDefect"];
+    x_PointDefect [label="PointDefect"];
+    x_Pore [label="Pore"];
+    x_Precipitate [label="Precipitate"];
+    x_PrimitiveUnitCell [label="PrimitiveUnit\nCell"];
+    x_Site [label="Site"];
+    x_Spacegroup [label="Spacegroup"];
+    x_SpatialContrast [label="SpatialContrast"];
+    x_SubstitutionalImpurity [label="Substitutional\nImpurity"];
+    x_Supercell [label="Supercell"];
+    x_SymmetryMultiplicity [label="Symmetry\nMultiplicity"];
+    x_TopologicalDefect [label="Topological\nDefect"];
+    x_UnitCell [label="UnitCell"];
+    x_Vacancy [label="Vacancy"];
+    x_WyckoffSymbol [label="WyckoffSymbol"];
+
+    /* ---- declared elsewhere, but given a parent or a restriction HERE that upstream does NOT have (genuine cross-module axiom, report 10 §7.2). Axioms this file merely RESTATES from reference/ do not land here — those subjects stay in the plain-reference lane below. ---- */
+    node [fillcolor="#f5f0ff", color="#6d28d9", style="rounded,filled,dashed", fontname="Times-Italic", fontcolor="#111111"];
+    emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 [label="emmo:Crystalline\nMaterial"];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 [label="emmo:Material"];
+    emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 [label="emmo:MaterialBy\nStructure"];
+
+    /* ---- referenced from elsewhere (upstream EMMO or another project's ontology); their own parents are not drawn ---- */
+    node [fillcolor="#ebebeb", color="#a8a8a8", style="rounded,filled", fontname="Helvetica-Oblique", fontcolor="#333333"];
+    emmo_EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 [label="emmo:Chemical\nComposition"];
+    emmo_EMMO_f76884f7_964e_488e_9bb7_1b2453e9e817 [label="emmo:Component"];
+    emmo_EMMO_1e877c70_3b01_45a8_a8f6_8ce4f6a24660 [label="emmo:Contrast"];
+    emmo_EMMO_b9522e56_1fac_4766_97e6_428605fabd3e [label="emmo:Holistic\nArrangement"];
+    emmo_EMMO_d8d2144e_5c8d_455d_a643_5caf4d8d9df8 [label="emmo:Language"];
+    emmo_EMMO_668fbd5b_6f1b_405c_9c6b_d6067bd0595a [label="emmo:PhaseOf\nMatter"];
+    emmo_EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba [label="emmo:Property"];
+    emmo_EMMO_a8eb87b5_4d10_4137_a75c_e04ee59ca095 [label="emmo:Volume\nFraction"];
+
+    /* ---- class-level restrictions ---- */
+    edge [style=dashed, arrowhead=normal, color="#5a7d8c", fontcolor="#5a7d8c"];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 [label="emmo:hasChemical\nComposition ∃"];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba [label="emmo:hasProperty ∃"];
+    emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 -> x_CrystallinePhase [label="hasPhase ∃\n⊑ emmo:hasSpatialPart"];
+    x_CrystalStructure -> x_UnitCell [label="emmo:hasSpatial\nTile =1"];
+    x_CrystalStructure -> x_Spacegroup [label="emmo:hasSpatial\nTile =1"];
+    x_CrystalStructure -> x_Site [label="emmo:hasSpatial\nTile ∃"];
+    x_CrystallineMagneticMaterial -> x_CrystallineMagneticPhase [label="hasPhase ∃\n⊑ emmo:hasSpatialPart"];
+    x_CrystallineMagneticPhase -> x_MagneticStructure [label="emmo:hasProperty ∃"];
+    x_CrystallineMagneticPhase -> x_TopologicalDefect [label="hasTopological\nDefect ∃\n⊑ emmo:hasSpatialPart"];
+    x_CrystallinePhase -> x_CrystallographicDefect [label="has\nCrystallographic\nDefect ∃\n⊑ emmo:hasSpatialPart"];
+    x_Grain -> x_Phase [label="emmo:overlaps ∃"];
+    x_Microstructure -> x_Phase [label="hasPhase ≥1\n⊑ emmo:hasSpatialPart"];
+    x_Microstructure -> x_MicrostructureComponent [label="emmo:has\nComponent ∃"];
+    x_Phase -> emmo_EMMO_a8eb87b5_4d10_4137_a75c_e04ee59ca095 [label="emmo:hasProperty ∃"];
+    x_Precipitate -> x_Phase [label="isPartOfPhase ∃\n⊑ emmo:isPartOf"];
+
+    /* ---- subClassOf ---- */
+    edge [style=solid, color="#9a9a9a", dir=back, arrowtail=onormal, arrowhead=none, penwidth=1.2, label=""];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 [weight=8];
+    emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 -> emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 [weight=8];
+    x_Crystallography -> x_CellVolume [weight=8];
+    x_UnitCell -> x_ConventionalUnitCell [weight=8];
+    x_Crystallography -> x_CrystalStructure [weight=8];
+    x_Crystallography -> x_CrystalSystem [weight=8];
+    emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 -> x_CrystallineMagneticMaterial [weight=8];
+    x_CrystallinePhase -> x_CrystallineMagneticPhase [weight=8];
+    x_Phase -> x_CrystallinePhase [weight=8];
+    x_Defect -> x_CrystallographicDefect [weight=8];
+    emmo_EMMO_d8d2144e_5c8d_455d_a643_5caf4d8d9df8 -> x_Crystallography [weight=8];
+    x_SpatialContrast -> x_Defect [weight=8];
+    x_Crystallography -> x_FractionalPosition [weight=8];
+    x_MicrostructureComponent -> x_Grain [weight=8];
+    x_MicrostructureComponent -> x_GrainBoundary [weight=8];
+    x_PointDefect -> x_Impurity [weight=8];
+    x_PointDefect -> x_Interstitial [weight=8];
+    x_Crystallography -> x_LatticeParameter [weight=8];
+    x_CrystallographicDefect -> x_LineDefect [weight=8];
+    x_CrystallineMagneticPhase -> x_MagneticDomain [weight=8];
+    x_TopologicalDefect -> x_MagneticDomainWall [weight=8];
+    x_CrystalStructure -> x_MagneticStructure [weight=8];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> x_Microstructure [weight=8];
+    emmo_EMMO_b9522e56_1fac_4766_97e6_428605fabd3e -> x_Microstructure [weight=8];
+    emmo_EMMO_f76884f7_964e_488e_9bb7_1b2453e9e817 -> x_MicrostructureComponent [weight=8];
+    emmo_EMMO_668fbd5b_6f1b_405c_9c6b_d6067bd0595a -> x_Phase [weight=8];
+    x_CrystallographicDefect -> x_PlaneDefect [weight=8];
+    x_CrystallographicDefect -> x_PointDefect [weight=8];
+    x_MicrostructureComponent -> x_Pore [weight=8];
+    x_MicrostructureComponent -> x_Precipitate [weight=8];
+    x_UnitCell -> x_PrimitiveUnitCell [weight=8];
+    x_Crystallography -> x_Site [weight=8];
+    x_Crystallography -> x_Spacegroup [weight=8];
+    emmo_EMMO_1e877c70_3b01_45a8_a8f6_8ce4f6a24660 -> x_SpatialContrast [weight=8];
+    x_Impurity -> x_SubstitutionalImpurity [weight=8];
+    x_UnitCell -> x_Supercell [weight=8];
+    x_Crystallography -> x_SymmetryMultiplicity [weight=8];
+    x_Defect -> x_TopologicalDefect [weight=8];
+    x_Crystallography -> x_UnitCell [weight=8];
+    x_PointDefect -> x_Vacancy [weight=8];
+    x_Crystallography -> x_WyckoffSymbol [weight=8];
+}
