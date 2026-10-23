@@ -1,0 +1,315 @@
+digraph commagmo {
+    graph [rankdir=TB, bgcolor=white, splines=true, nodesep=0.40, ranksep=0.70,
+           fontname="Helvetica"];
+
+    /* GENERATED from ontology/src/simulation.yaml, material.yaml by
+       `python build.py` — do not hand-edit; edit the YAML
+       and rebuild. The one hand-curated poster is
+       module_material-core.dot, which spans modules and is not produced here.
+       purple = declared in this module (--color-by-side 打开时改为按侧上色：暖棕 = 物质侧、
+       蓝 = 描述侧、紫 = 代表侧、绿 = 缺陷（只在 Contrast）、粉 = 量（Property ⊑ Sign）），
+       pale purple = our own namespace but declared in a
+       sibling module, grey = someone else's ontology. A prefix on a label means ONLY
+       "not our namespace" — our own classes never carry one, whichever file declares them.
+       Pale-purple boxes DO get their own named parents drawn, one level, read from the
+       sibling ttl — that axiom is ours, one file away. Grey boxes never do.
+       solid hollow triangle = rdfs:subClassOf, triangle at the PARENT end
+       (--parents-up: the PARENT is ranked ABOVE the child, so the edge is
+        written parent -> child with dir=back; the triangle still sits at the
+        parent end, so the reading is the same as the default layout)
+       dashed = class-level owl:Restriction (label: predicate + quantifier)
+       dotted = rdfs:domain -> rdfs:range of an object property declared here
+       green dotted "(doc)" = an owl:AnnotationProperty declared here, pointing at a
+       named class: DOCUMENTATION, ZERO ENTAILMENT (--show-doc-edges only)
+       red solid undirected = owl:disjointWith, a real axiom (--show-disjoint only)
+       purple dashed box = declared elsewhere and given an axiom HERE THAT UPSTREAM LACKS;
+       a restatement of an upstream axiom keeps the plain grey reference box */
+    node [shape=box, style="rounded,filled", penwidth=1.4, margin="0.20,0.12",
+          fontsize=15, fillcolor="#ebebeb", color="#a8a8a8", fontcolor="#333333",
+          fontname="Helvetica-Oblique"];
+    edge [color="#5a7d8c", fontcolor="#5a7d8c", fontname="Helvetica", fontsize=13,
+          penwidth=1.5, arrowsize=0.9];
+
+
+    /* ---- declared in this module ---- */
+    node [fillcolor="#e6dcf7", color="#6d28d9", fontname="Times-Roman", fontcolor="#111111"];
+    x_AtomicConfiguration [label="Atomic\nConfiguration"];
+    x_AtomisticSpinModel [label="AtomisticSpin\nModel"];
+    x_AtomisticSpinSimulation [label="AtomisticSpin\nSimulation"];
+    x_BasisSet [label="BasisSet"];
+    x_BoundaryCondition [label="Boundary\nCondition"];
+    x_CellVolume [label="CellVolume"];
+    x_ConventionalUnitCell [label="ConventionalUnit\nCell"];
+    x_ConvergenceCriterion [label="Convergence\nCriterion"];
+    x_CoreElectronTreatment [label="CoreElectron\nTreatment"];
+    x_CorrectiveTerm [label="CorrectiveTerm"];
+    x_CrystalStructure [label="CrystalStructure"];
+    x_CrystalSystem [label="CrystalSystem"];
+    x_CrystallinePhase [label="CrystallinePhase"];
+    x_CrystallineMagneticMaterial [label="Crystalline\nMagneticMaterial"];
+    x_CrystallineMagneticPhase [label="Crystalline\nMagneticPhase"];
+    x_CrystallographicDefect [label="Crystallographic\nDefect"];
+    x_Crystallography [label="Crystallography"];
+    x_DFTSimulation [label="DFTSimulation"];
+    x_Defect [label="Defect"];
+    x_DensityFunctionalTheory [label="Density\nFunctionalTheory"];
+    x_DirichletBoundaryCondition [label="Dirichlet\nBoundary\nCondition"];
+    x_Discretisation [label="Discretisation"];
+    x_ExchangeCorrelationFunctional [label="Exchange\nCorrelation\nFunctional"];
+    x_FiniteDifferenceGrid [label="FiniteDifference\nGrid"];
+    x_FiniteElementMesh [label="FiniteElement\nMesh"];
+    x_FractionalPosition [label="Fractional\nPosition"];
+    x_FreeEnergyFunctional [label="FreeEnergy\nFunctional"];
+    x_Grain [label="Grain"];
+    x_GrainBoundary [label="GrainBoundary"];
+    x_Impurity [label="Impurity"];
+    x_InitialChargeDensity [label="InitialCharge\nDensity"];
+    x_InitialCondition [label="InitialCondition"];
+    x_InitialOrderParameterField [label="InitialOrder\nParameterField"];
+    x_InitialSpinConfiguration [label="InitialSpin\nConfiguration"];
+    x_InitialMagnetisationState [label="Initial\nMagnetisation\nState"];
+    x_Interstitial [label="Interstitial"];
+    x_KPointMesh [label="KPointMesh"];
+    x_LatticeParameter [label="LatticeParameter"];
+    x_LineDefect [label="LineDefect"];
+    x_MagneticDomain [label="MagneticDomain"];
+    x_MagneticDomainWall [label="MagneticDomain\nWall"];
+    x_MagneticStructure [label="Magnetic\nStructure"];
+    x_MaterialSimulation [label="Material\nSimulation"];
+    x_MaterialSimulationSoftware [label="Material\nSimulation\nSoftware"];
+    x_MicromagneticEnergyTerms [label="Micromagnetic\nEnergyTerms"];
+    x_MicromagneticModel [label="Micromagnetic\nModel"];
+    x_MicromagneticSimulation [label="Micromagnetic\nSimulation"];
+    x_Microstructure [label="Microstructure"];
+    x_MicrostructureComponent [label="Microstructure\nComponent"];
+    x_MixingScheme [label="MixingScheme"];
+    x_ModelParameter [label="ModelParameter"];
+    x_ModelValidation [label="ModelValidation"];
+    x_NeumannBoundaryCondition [label="NeumannBoundary\nCondition"];
+    x_NumericalPrecision [label="Numerical\nPrecision"];
+    x_OpenBoundaryCondition [label="OpenBoundary\nCondition"];
+    x_PeriodicBoundaryCondition [label="PeriodicBoundary\nCondition"];
+    x_Phase [label="Phase"];
+    x_PhaseFieldModel [label="PhaseFieldModel"];
+    x_PhaseFieldSimulation [label="PhaseField\nSimulation"];
+    x_PlaneDefect [label="PlaneDefect"];
+    x_PointDefect [label="PointDefect"];
+    x_Pore [label="Pore"];
+    x_PostProcessing [label="PostProcessing"];
+    x_PostProcessingMethod [label="PostProcessing\nMethod"];
+    x_Precipitate [label="Precipitate"];
+    x_PrimitiveUnitCell [label="PrimitiveUnit\nCell"];
+    x_RandomSeed [label="RandomSeed"];
+    x_RelaxationFreedom [label="Relaxation\nFreedom"];
+    x_SimulatedProperty [label="Simulated\nProperty"];
+    x_SimulationSetting [label="Simulation\nSetting"];
+    x_Site [label="Site"];
+    x_Solver [label="Solver"];
+    x_SolverForDFT [label="SolverForDFT"];
+    x_SolverForPhaseField [label="SolverForPhase\nField"];
+    x_SolverForAtomisticSpin [label="SolverFor\nAtomisticSpin"];
+    x_SolverForMicromagnetics [label="SolverFor\nMicromagnetics"];
+    x_Spacegroup [label="Spacegroup"];
+    x_SpatialContrast [label="SpatialContrast"];
+    x_SpinHamiltonian [label="SpinHamiltonian"];
+    x_SubstitutionalImpurity [label="Substitutional\nImpurity"];
+    x_Supercell [label="Supercell"];
+    x_SymmetryMultiplicity [label="Symmetry\nMultiplicity"];
+    x_TopologicalDefect [label="Topological\nDefect"];
+    x_UnitCell [label="UnitCell"];
+    x_Vacancy [label="Vacancy"];
+    x_WyckoffSymbol [label="WyckoffSymbol"];
+
+    /* ---- declared elsewhere, but given a parent or a restriction HERE that upstream does NOT have (genuine cross-module axiom, report 10 §7.2). Axioms this file merely RESTATES from reference/ do not land here — those subjects stay in the plain-reference lane below. ---- */
+    node [fillcolor="#f5f0ff", color="#6d28d9", style="rounded,filled,dashed", fontname="Times-Italic", fontcolor="#111111"];
+    emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 [label="emmo:Crystalline\nMaterial"];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 [label="emmo:Material"];
+    emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 [label="emmo:MaterialBy\nStructure"];
+
+    /* ---- referenced from elsewhere (upstream EMMO or another project's ontology); their own parents are not drawn ---- */
+    node [fillcolor="#ebebeb", color="#a8a8a8", style="rounded,filled", fontname="Helvetica-Oblique", fontcolor="#333333"];
+    emmo_EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213 [label="emmo:Atomistic\nModel"];
+    emmo_EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 [label="emmo:Chemical\nComposition"];
+    emmo_EMMO_f76884f7_964e_488e_9bb7_1b2453e9e817 [label="emmo:Component"];
+    emmo_EMMO_4456a5d2_16a6_4ee1_9a8e_5c75956b28ea [label="emmo:Continuum\nModel"];
+    emmo_EMMO_1e877c70_3b01_45a8_a8f6_8ce4f6a24660 [label="emmo:Contrast"];
+    emmo_EMMO_1c7f2dfe_0db4_4bf6_a0f6_853054a34ead [label="emmo:Data\nProcessing"];
+    emmo_EMMO_6eca09be_17e9_445e_abc9_000aa61b7a11 [label="emmo:Electronic\nModel"];
+    emmo_EMMO_e56ee3eb_7609_4ae1_8bed_51974f0960a6 [label="emmo:Equation"];
+    emmo_EMMO_b9522e56_1fac_4766_97e6_428605fabd3e [label="emmo:Holistic\nArrangement"];
+    emmo_EMMO_d8d2144e_5c8d_455d_a643_5caf4d8d9df8 [label="emmo:Language"];
+    emmo_EMMO_e5438930_04e7_4d42_ade5_3700d4a52ab7 [label="emmo:Material\nRelation"];
+    emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 [label="emmo:Materials\nModel"];
+    emmo_EMMO_53935db0_af45_4426_b9e9_244a0d77db00 [label="emmo:Mesoscopic\nModel"];
+    emmo_EMMO_d0200cf1_e4f4_45ae_873f_b9359daea3cd [label="emmo:Modelled\nProperty"];
+    emmo_EMMO_7d56ec24_499d_487a_af7d_a91aaa787bfe [label="emmo:Multi\nSimulation"];
+    emmo_EMMO_dd4a7f3e_ef56_466c_ac1a_d2716b5f87ec [label="emmo:Objective\nProperty"];
+    emmo_EMMO_d1d436e7_72fc_49cd_863b_7bfb4ba5276a [label="emmo:Parameter"];
+    emmo_EMMO_668fbd5b_6f1b_405c_9c6b_d6067bd0595a [label="emmo:PhaseOf\nMatter"];
+    emmo_EMMO_b29fd350_39aa_4af7_9459_3faa0544cba6 [label="emmo:Physics\nBasedModel"];
+    emmo_EMMO_e97af6ec_4371_4bbc_8936_34b76e33302f [label="emmo:Physics\nBasedSimulation"];
+    emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 [label="emmo:Physics\nEquation"];
+    emmo_EMMO_eaf4640d_651d_4cbe_a315_3d2dc5df3b35 [label="emmo:Procedural\nData"];
+    emmo_EMMO_472a0ca2_58bf_4618_b561_6fe68bd9fd49 [label="emmo:Procedure"];
+    emmo_EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba [label="emmo:Property"];
+    emmo_EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b [label="emmo:Simulation"];
+    emmo_EMMO_8b66ada5_510c_44bd_a8d8_3c64d301a5e9 [label="emmo:Simulation\nSoftware"];
+    emmo_EMMO_a8eb87b5_4d10_4137_a75c_e04ee59ca095 [label="emmo:Volume\nFraction"];
+    emmo_EMMO_f7ed665b_c2e1_42bc_889b_6b42ed3a36f0 [label="emmo:\nMathematical\nModel"];
+
+    /* ---- class-level restrictions ---- */
+    edge [style=dashed, arrowhead=normal, color="#5a7d8c", fontcolor="#5a7d8c"];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba [label="emmo:hasProperty ∃"];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 [label="emmo:hasChemical\nComposition ∃"];
+    emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 -> emmo_EMMO_e5438930_04e7_4d42_ade5_3700d4a52ab7 [label="emmo:hasSpatial\nPart ∃"];
+    emmo_EMMO_b29fd350_39aa_4af7_9459_3faa0544cba6 -> emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 [label="emmo:hasSpatial\nPart ∃"];
+    emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 -> x_CrystallinePhase [label="hasPhase ∃\n⊑ emmo:hasSpatialPart"];
+    x_AtomisticSpinModel -> x_SpinHamiltonian [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
+    x_AtomisticSpinModel -> x_ModelParameter [label="hasModel\nParameter ∃\n⊑ emmo:hasSpatialPart"];
+    x_AtomisticSpinSimulation -> x_AtomicConfiguration [label="has\nDiscretisation ∃\n⊑ hasSimulationSetting"];
+    x_AtomisticSpinSimulation -> x_SolverForAtomisticSpin [label="hasSolver ∃\n⊑ emmo:hasModel"];
+    x_AtomisticSpinSimulation -> x_InitialSpinConfiguration [label="hasInitial\nCondition ∃\n⊑ hasSimulationSetting"];
+    x_AtomisticSpinSimulation -> x_RandomSeed [label="hasRandomSeed ∃\n⊑ hasSimulationSetting"];
+    x_CrystalStructure -> x_UnitCell [label="emmo:hasSpatial\nTile =1"];
+    x_CrystalStructure -> x_Spacegroup [label="emmo:hasSpatial\nTile =1"];
+    x_CrystalStructure -> x_Site [label="emmo:hasSpatial\nTile ∃"];
+    x_CrystallineMagneticMaterial -> x_CrystallineMagneticPhase [label="hasPhase ∃\n⊑ emmo:hasSpatialPart"];
+    x_CrystallineMagneticPhase -> x_MagneticStructure [label="emmo:hasProperty ∃"];
+    x_CrystallineMagneticPhase -> x_TopologicalDefect [label="hasTopological\nDefect ∃\n⊑ emmo:hasSpatialPart"];
+    x_CrystallinePhase -> x_CrystallographicDefect [label="has\nCrystallographic\nDefect ∃\n⊑ emmo:hasSpatialPart"];
+    x_DFTSimulation -> x_KPointMesh [label="has\nDiscretisation ∃\n⊑ hasSimulationSetting"];
+    x_DFTSimulation -> x_BasisSet [label="has\nDiscretisation ∃\n⊑ hasSimulationSetting"];
+    x_DFTSimulation -> x_SolverForDFT [label="hasSolver ∃\n⊑ emmo:hasModel"];
+    x_DFTSimulation -> x_InitialChargeDensity [label="hasInitial\nCondition ∃\n⊑ hasSimulationSetting"];
+    x_DensityFunctionalTheory -> x_ExchangeCorrelationFunctional [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
+    x_DensityFunctionalTheory -> x_CoreElectronTreatment [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
+    x_DensityFunctionalTheory -> x_ModelParameter [label="hasModel\nParameter ∃\n⊑ emmo:hasSpatialPart"];
+    x_Grain -> x_Phase [label="emmo:overlaps ∃"];
+    x_MaterialSimulation -> emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 [label="hasSimulated\nMaterial ∃\n⊑ emmo:hasSimulatedObject"];
+    x_MaterialSimulation -> emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 [label="hasMaterials\nModel ∃\n⊑ emmo:hasModel"];
+    x_MaterialSimulation -> x_MaterialSimulationSoftware [label="emmo:has\nParticipant ∃"];
+    x_MaterialSimulation -> x_BoundaryCondition [label="hasBoundary\nCondition ∃\n⊑ hasSimulationSetting"];
+    x_MaterialSimulation -> x_ConvergenceCriterion [label="hasConvergence\nCriterion ∃\n⊑ hasSimulationSetting"];
+    x_MicromagneticModel -> x_MicromagneticEnergyTerms [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
+    x_MicromagneticModel -> x_ModelParameter [label="hasModel\nParameter ∃\n⊑ emmo:hasSpatialPart"];
+    x_MicromagneticSimulation -> x_FiniteDifferenceGrid [label="has\nDiscretisation ∃\n⊑ hasSimulationSetting"];
+    x_MicromagneticSimulation -> x_SolverForMicromagnetics [label="hasSolver ∃\n⊑ emmo:hasModel"];
+    x_MicromagneticSimulation -> x_InitialMagnetisationState [label="hasInitial\nCondition ∃\n⊑ hasSimulationSetting"];
+    x_Microstructure -> x_Phase [label="hasPhase ≥1\n⊑ emmo:hasSpatialPart"];
+    x_Microstructure -> x_MicrostructureComponent [label="emmo:has\nComponent ∃"];
+    x_ModelValidation -> x_SimulatedProperty [label="compares\nSimulated ∃"];
+    x_ModelValidation -> emmo_EMMO_dd4a7f3e_ef56_466c_ac1a_d2716b5f87ec [label="compares\nReference ∃"];
+    x_Phase -> emmo_EMMO_a8eb87b5_4d10_4137_a75c_e04ee59ca095 [label="emmo:hasProperty ∃"];
+    x_PhaseFieldModel -> x_FreeEnergyFunctional [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
+    x_PhaseFieldModel -> x_ModelParameter [label="hasModel\nParameter ∃\n⊑ emmo:hasSpatialPart"];
+    x_PhaseFieldSimulation -> x_FiniteElementMesh [label="has\nDiscretisation ∃\n⊑ hasSimulationSetting"];
+    x_PhaseFieldSimulation -> x_SolverForPhaseField [label="hasSolver ∃\n⊑ emmo:hasModel"];
+    x_PhaseFieldSimulation -> x_InitialOrderParameterField [label="hasInitial\nCondition ∃\n⊑ hasSimulationSetting"];
+    x_PhaseFieldSimulation -> x_RandomSeed [label="hasRandomSeed ∃\n⊑ hasSimulationSetting"];
+    x_PostProcessing -> x_SimulatedProperty [label="emmo:hasOutput ∃"];
+    x_PostProcessing -> x_PostProcessingMethod [label="emmo:is\nRepresentedBy ∃"];
+    x_Precipitate -> x_Phase [label="isPartOfPhase ∃\n⊑ emmo:isPartOf"];
+    x_SimulatedProperty -> x_MaterialSimulation [label="emmo:isOutputOf ∃"];
+
+    /* ---- object property signatures (domain -> range) ---- */
+    edge [style=dotted, arrowhead=vee, color="#0e7490", fontcolor="#0e7490"];
+    x_MaterialSimulation -> x_SimulationSetting [label="hasSimulation\nSetting\n⊑ emmo:hasInput"];
+
+    /* ---- subClassOf ---- */
+    edge [style=solid, color="#9a9a9a", dir=back, arrowtail=onormal, arrowhead=none, penwidth=1.2, label=""];
+    emmo_EMMO_b29fd350_39aa_4af7_9459_3faa0544cba6 -> emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 [weight=8];
+    emmo_EMMO_e56ee3eb_7609_4ae1_8bed_51974f0960a6 -> emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 [weight=8];
+    emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 -> emmo_EMMO_4456a5d2_16a6_4ee1_9a8e_5c75956b28ea [weight=8];
+    emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 -> emmo_EMMO_53935db0_af45_4426_b9e9_244a0d77db00 [weight=8];
+    emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 -> emmo_EMMO_6eca09be_17e9_445e_abc9_000aa61b7a11 [weight=8];
+    emmo_EMMO_e97af6ec_4371_4bbc_8936_34b76e33302f -> emmo_EMMO_7d56ec24_499d_487a_af7d_a91aaa787bfe [weight=8];
+    emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 -> emmo_EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213 [weight=8];
+    emmo_EMMO_b29fd350_39aa_4af7_9459_3faa0544cba6 -> emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 [weight=8];
+    emmo_EMMO_e56ee3eb_7609_4ae1_8bed_51974f0960a6 -> emmo_EMMO_e5438930_04e7_4d42_ade5_3700d4a52ab7 [weight=8];
+    emmo_EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b -> emmo_EMMO_e97af6ec_4371_4bbc_8936_34b76e33302f [weight=8];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 [weight=8];
+    emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 -> emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 [weight=8];
+    x_Discretisation -> x_AtomicConfiguration [weight=8];
+    emmo_EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213 -> x_AtomisticSpinModel [weight=8];
+    x_Discretisation -> x_BasisSet [weight=8];
+    x_SimulationSetting -> x_BoundaryCondition [weight=8];
+    x_Crystallography -> x_CellVolume [weight=8];
+    x_UnitCell -> x_ConventionalUnitCell [weight=8];
+    x_SimulationSetting -> x_ConvergenceCriterion [weight=8];
+    emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 -> x_CoreElectronTreatment [weight=8];
+    emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 -> x_CorrectiveTerm [weight=8];
+    x_Crystallography -> x_CrystalStructure [weight=8];
+    x_Crystallography -> x_CrystalSystem [weight=8];
+    emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 -> x_CrystallineMagneticMaterial [weight=8];
+    x_CrystallinePhase -> x_CrystallineMagneticPhase [weight=8];
+    x_Phase -> x_CrystallinePhase [weight=8];
+    x_Defect -> x_CrystallographicDefect [weight=8];
+    emmo_EMMO_d8d2144e_5c8d_455d_a643_5caf4d8d9df8 -> x_Crystallography [weight=8];
+    x_SpatialContrast -> x_Defect [weight=8];
+    emmo_EMMO_6eca09be_17e9_445e_abc9_000aa61b7a11 -> x_DensityFunctionalTheory [weight=8];
+    x_BoundaryCondition -> x_DirichletBoundaryCondition [weight=8];
+    x_SimulationSetting -> x_Discretisation [weight=8];
+    emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 -> x_ExchangeCorrelationFunctional [weight=8];
+    x_Discretisation -> x_FiniteDifferenceGrid [weight=8];
+    x_Discretisation -> x_FiniteElementMesh [weight=8];
+    x_Crystallography -> x_FractionalPosition [weight=8];
+    emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 -> x_FreeEnergyFunctional [weight=8];
+    x_MicrostructureComponent -> x_Grain [weight=8];
+    x_MicrostructureComponent -> x_GrainBoundary [weight=8];
+    x_PointDefect -> x_Impurity [weight=8];
+    x_InitialCondition -> x_InitialChargeDensity [weight=8];
+    x_SimulationSetting -> x_InitialCondition [weight=8];
+    x_InitialCondition -> x_InitialMagnetisationState [weight=8];
+    x_InitialCondition -> x_InitialOrderParameterField [weight=8];
+    x_InitialCondition -> x_InitialSpinConfiguration [weight=8];
+    x_PointDefect -> x_Interstitial [weight=8];
+    x_Discretisation -> x_KPointMesh [weight=8];
+    x_Crystallography -> x_LatticeParameter [weight=8];
+    x_CrystallographicDefect -> x_LineDefect [weight=8];
+    x_CrystallineMagneticPhase -> x_MagneticDomain [weight=8];
+    x_TopologicalDefect -> x_MagneticDomainWall [weight=8];
+    x_CrystalStructure -> x_MagneticStructure [weight=8];
+    emmo_EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b -> x_MaterialSimulation [weight=8];
+    emmo_EMMO_8b66ada5_510c_44bd_a8d8_3c64d301a5e9 -> x_MaterialSimulationSoftware [weight=8];
+    emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 -> x_MicromagneticEnergyTerms [weight=8];
+    emmo_EMMO_53935db0_af45_4426_b9e9_244a0d77db00 -> x_MicromagneticModel [weight=8];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> x_Microstructure [weight=8];
+    emmo_EMMO_b9522e56_1fac_4766_97e6_428605fabd3e -> x_Microstructure [weight=8];
+    emmo_EMMO_f76884f7_964e_488e_9bb7_1b2453e9e817 -> x_MicrostructureComponent [weight=8];
+    x_SimulationSetting -> x_MixingScheme [weight=8];
+    emmo_EMMO_d1d436e7_72fc_49cd_863b_7bfb4ba5276a -> x_ModelParameter [weight=8];
+    emmo_EMMO_472a0ca2_58bf_4618_b561_6fe68bd9fd49 -> x_ModelValidation [weight=8];
+    x_BoundaryCondition -> x_NeumannBoundaryCondition [weight=8];
+    x_SimulationSetting -> x_NumericalPrecision [weight=8];
+    x_BoundaryCondition -> x_OpenBoundaryCondition [weight=8];
+    x_BoundaryCondition -> x_PeriodicBoundaryCondition [weight=8];
+    emmo_EMMO_668fbd5b_6f1b_405c_9c6b_d6067bd0595a -> x_Phase [weight=8];
+    emmo_EMMO_4456a5d2_16a6_4ee1_9a8e_5c75956b28ea -> x_PhaseFieldModel [weight=8];
+    x_CrystallographicDefect -> x_PlaneDefect [weight=8];
+    x_CrystallographicDefect -> x_PointDefect [weight=8];
+    x_MicrostructureComponent -> x_Pore [weight=8];
+    emmo_EMMO_1c7f2dfe_0db4_4bf6_a0f6_853054a34ead -> x_PostProcessing [weight=8];
+    x_SimulationSetting -> x_PostProcessingMethod [weight=8];
+    x_MicrostructureComponent -> x_Precipitate [weight=8];
+    x_UnitCell -> x_PrimitiveUnitCell [weight=8];
+    x_SimulationSetting -> x_RandomSeed [weight=8];
+    x_SimulationSetting -> x_RelaxationFreedom [weight=8];
+    emmo_EMMO_d0200cf1_e4f4_45ae_873f_b9359daea3cd -> x_SimulatedProperty [weight=8];
+    emmo_EMMO_eaf4640d_651d_4cbe_a315_3d2dc5df3b35 -> x_SimulationSetting [weight=8];
+    x_Crystallography -> x_Site [weight=8];
+    emmo_EMMO_f7ed665b_c2e1_42bc_889b_6b42ed3a36f0 -> x_Solver [weight=8];
+    x_Solver -> x_SolverForAtomisticSpin [weight=8];
+    x_Solver -> x_SolverForDFT [weight=8];
+    x_Solver -> x_SolverForMicromagnetics [weight=8];
+    x_Solver -> x_SolverForPhaseField [weight=8];
+    x_Crystallography -> x_Spacegroup [weight=8];
+    emmo_EMMO_1e877c70_3b01_45a8_a8f6_8ce4f6a24660 -> x_SpatialContrast [weight=8];
+    emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 -> x_SpinHamiltonian [weight=8];
+    x_Impurity -> x_SubstitutionalImpurity [weight=8];
+    x_UnitCell -> x_Supercell [weight=8];
+    x_Crystallography -> x_SymmetryMultiplicity [weight=8];
+    x_Defect -> x_TopologicalDefect [weight=8];
+    x_Crystallography -> x_UnitCell [weight=8];
+    x_PointDefect -> x_Vacancy [weight=8];
+    x_Crystallography -> x_WyckoffSymbol [weight=8];
+}

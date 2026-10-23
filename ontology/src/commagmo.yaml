@@ -1,0 +1,11 @@
+module:
+  iri: https://w3id.org/emmo/domain/commagmo
+  version: 1.2.0
+  title: ComMagMO — Computational Magnetic Materials Ontology (v1.2)
+  imports:
+  - https://w3id.org/emmo/domain/commagmo/material
+  - https://w3id.org/emmo/domain/commagmo/simulation
+  prefixes:
+    dcterms: http://purl.org/dc/terms/
+    owl: http://www.w3.org/2002/07/owl#
+  notes: []

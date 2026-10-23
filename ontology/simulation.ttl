@@ -1,0 +1,460 @@
+# GENERATED from ontology/src/simulation.yaml — do not edit. Design rationale lives in that file.
+
+@prefix commagmo: <https://w3id.org/emmo/domain/commagmo#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix emmo: <https://w3id.org/emmo#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://w3id.org/emmo/domain/commagmo/simulation> a owl:Ontology ;
+    dcterms:title "ComMagMO simulation module (v1.2)"@en ;
+    owl:imports <https://w3id.org/emmo> ;
+    owl:versionIRI <https://w3id.org/emmo/domain/commagmo/simulation/1.2.0> ;
+    owl:versionInfo "1.2.0" .
+
+commagmo:MaterialSimulation a owl:Class ;
+    rdfs:label "MaterialSimulation"@en ;
+    rdfs:subClassOf emmo:EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasSimulatedMaterial ; owl:someValuesFrom emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasMaterialsModel ; owl:someValuesFrom emmo:EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_ae2d1a96_bfa1_409a_a7d2_03d69e8a125a ; owl:someValuesFrom commagmo:MaterialSimulationSoftware ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasBoundaryCondition ; owl:someValuesFrom commagmo:BoundaryCondition ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasConvergenceCriterion ; owl:someValuesFrom commagmo:ConvergenceCriterion ] ;
+    skos:definition "A simulation that takes a material as its simulated object, solves a materials model, and is run by simulation software."@en ;
+    commagmo:mayHaveInputProperty emmo:EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba ;
+    commagmo:mayHaveOutputCalculatedProperty commagmo:SimulatedProperty ;
+    commagmo:mayHaveSolver commagmo:Solver .
+
+commagmo:DensityFunctionalTheory a owl:Class ;
+    rdfs:label "DensityFunctionalTheory"@en ;
+    skos:altLabel "DFT"@en ;
+    rdfs:subClassOf emmo:EMMO_6eca09be_17e9_445e_abc9_000aa61b7a11 ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasEquationForm ; owl:someValuesFrom commagmo:ExchangeCorrelationFunctional ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasEquationForm ; owl:someValuesFrom commagmo:CoreElectronTreatment ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasModelParameter ; owl:someValuesFrom commagmo:ModelParameter ] ;
+    skos:definition "An electronic model whose physics equation determines the ground state of a many-electron system from functionals of the spatially dependent electron density."@en .
+
+commagmo:AtomisticSpinModel a owl:Class ;
+    rdfs:label "AtomisticSpinModel"@en ;
+    rdfs:subClassOf emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213 ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasEquationForm ; owl:someValuesFrom commagmo:SpinHamiltonian ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasModelParameter ; owl:someValuesFrom commagmo:ModelParameter ] ;
+    skos:definition "An atomistic model whose physics equation describes the behaviour of the magnetic moments localised on atomic sites."@en .
+
+commagmo:MicromagneticModel a owl:Class ;
+    rdfs:label "MicromagneticModel"@en ;
+    rdfs:subClassOf emmo:EMMO_53935db0_af45_4426_b9e9_244a0d77db00 ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasEquationForm ; owl:someValuesFrom commagmo:MicromagneticEnergyTerms ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasModelParameter ; owl:someValuesFrom commagmo:ModelParameter ] ;
+    skos:definition "A mesoscopic model whose physics equation describes the magnetisation as a continuous vector field over discretisation cells, each cell being treated as internally uniform."@en .
+
+commagmo:PhaseFieldModel a owl:Class ;
+    rdfs:label "PhaseFieldModel"@en ;
+    rdfs:subClassOf emmo:EMMO_4456a5d2_16a6_4ee1_9a8e_5c75956b28ea ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasEquationForm ; owl:someValuesFrom commagmo:FreeEnergyFunctional ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasModelParameter ; owl:someValuesFrom commagmo:ModelParameter ] ;
+    skos:definition "A continuum model whose physics equation describes microstructure evolution through one or more continuous order parameters representing the local presence of each phase."@en .
+
+commagmo:DFTSimulation a owl:Class ;
+    rdfs:label "DFTSimulation"@en ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasDiscretisation ; owl:someValuesFrom commagmo:KPointMesh ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasDiscretisation ; owl:someValuesFrom commagmo:BasisSet ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasSolver ; owl:someValuesFrom commagmo:SolverForDFT ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasInitialCondition ; owl:someValuesFrom commagmo:InitialChargeDensity ] ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( commagmo:MaterialSimulation [ a owl:Restriction ; owl:onProperty commagmo:hasMaterialsModel ; owl:someValuesFrom commagmo:DensityFunctionalTheory ] ) ] ;
+    skos:definition "A material simulation that solves a density functional theory model."@en .
+
+commagmo:AtomisticSpinSimulation a owl:Class ;
+    rdfs:label "AtomisticSpinSimulation"@en ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasDiscretisation ; owl:someValuesFrom commagmo:AtomicConfiguration ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasSolver ; owl:someValuesFrom commagmo:SolverForAtomisticSpin ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasInitialCondition ; owl:someValuesFrom commagmo:InitialSpinConfiguration ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasRandomSeed ; owl:someValuesFrom commagmo:RandomSeed ] ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( commagmo:MaterialSimulation [ a owl:Restriction ; owl:onProperty commagmo:hasMaterialsModel ; owl:someValuesFrom commagmo:AtomisticSpinModel ] ) ] ;
+    skos:definition "A material simulation that solves an atomistic spin model."@en .
+
+commagmo:MicromagneticSimulation a owl:Class ;
+    rdfs:label "MicromagneticSimulation"@en ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasDiscretisation ; owl:someValuesFrom commagmo:FiniteDifferenceGrid ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasSolver ; owl:someValuesFrom commagmo:SolverForMicromagnetics ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasInitialCondition ; owl:someValuesFrom commagmo:InitialMagnetisationState ] ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( commagmo:MaterialSimulation [ a owl:Restriction ; owl:onProperty commagmo:hasMaterialsModel ; owl:someValuesFrom commagmo:MicromagneticModel ] ) ] ;
+    skos:definition "A material simulation that solves a micromagnetic model."@en .
+
+commagmo:PhaseFieldSimulation a owl:Class ;
+    rdfs:label "PhaseFieldSimulation"@en ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasDiscretisation ; owl:someValuesFrom commagmo:FiniteElementMesh ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasSolver ; owl:someValuesFrom commagmo:SolverForPhaseField ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasInitialCondition ; owl:someValuesFrom commagmo:InitialOrderParameterField ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasRandomSeed ; owl:someValuesFrom commagmo:RandomSeed ] ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( commagmo:MaterialSimulation [ a owl:Restriction ; owl:onProperty commagmo:hasMaterialsModel ; owl:someValuesFrom commagmo:PhaseFieldModel ] ) ] ;
+    skos:definition "A material simulation that solves a phase field model."@en .
+
+commagmo:Solver a owl:Class ;
+    rdfs:label "Solver"@en ;
+    rdfs:subClassOf emmo:EMMO_f7ed665b_c2e1_42bc_889b_6b42ed3a36f0 ;
+    skos:definition "A mathematical construct that provides a procedure for numerically solving the equations of a model, as distinct from the model itself."@en .
+
+commagmo:SimulationSetting a owl:Class ;
+    rdfs:label "SimulationSetting"@en ;
+    rdfs:subClassOf emmo:EMMO_eaf4640d_651d_4cbe_a315_3d2dc5df3b35 ;
+    skos:definition "Procedural data that configures how a simulation run is carried out. Diagnostic: it never enters any equation, and it is fixed by whoever sets up the run rather than by the physics — typically it either has a convergence limit or is purely technical."@en .
+
+commagmo:ModelParameter a owl:Class ;
+    rdfs:label "ModelParameter"@en ;
+    rdfs:subClassOf emmo:EMMO_d1d436e7_72fc_49cd_863b_7bfb4ba5276a ;
+    skos:definition "A parameter appearing in the physics equation of a materials model, whose value is known independently of the equation. Diagnostic: it carries a physical dimension, has a provenance, and has no convergence limit."@en .
+
+commagmo:MaterialSimulationSoftware a owl:Class ;
+    rdfs:label "MaterialSimulationSoftware"@en ;
+    rdfs:subClassOf emmo:EMMO_8b66ada5_510c_44bd_a8d8_3c64d301a5e9 ;
+    skos:definition "An application program aimed to functionally reproduce the behaviour of a material."@en .
+
+commagmo:SimulatedProperty a owl:Class ;
+    rdfs:label "SimulatedProperty"@en ;
+    rdfs:subClassOf emmo:EMMO_d0200cf1_e4f4_45ae_873f_b9359daea3cd ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_2bb50428_568d_46e8_b8bf_59a4c5656461 ; owl:someValuesFrom commagmo:MaterialSimulation ] ;
+    skos:definition "A modelled property whose value is obtained from a simulation."@en .
+
+commagmo:Discretisation a owl:Class ;
+    rdfs:label "Discretisation"@en ;
+    rdfs:subClassOf commagmo:SimulationSetting ;
+    skos:definition "A simulation setting that specifies how the continuous problem is sampled onto a finite set of points, cells or entities."@en .
+
+commagmo:KPointMesh a owl:Class ;
+    rdfs:label "KPointMesh"@en ;
+    rdfs:subClassOf commagmo:Discretisation ;
+    skos:definition "A discretisation that samples reciprocal space on a grid of k points."@en .
+
+commagmo:AtomicConfiguration a owl:Class ;
+    rdfs:label "AtomicConfiguration"@en ;
+    rdfs:subClassOf commagmo:Discretisation ;
+    skos:definition "A discretisation given by the set of atomic sites themselves, as used by atomistic models where no further mesh is introduced."@en .
+
+commagmo:FiniteDifferenceGrid a owl:Class ;
+    rdfs:label "FiniteDifferenceGrid"@en ;
+    rdfs:subClassOf commagmo:Discretisation ;
+    skos:definition "A discretisation that divides real space into regular cells on which finite differences are evaluated."@en .
+
+commagmo:FiniteElementMesh a owl:Class ;
+    rdfs:label "FiniteElementMesh"@en ;
+    rdfs:subClassOf commagmo:Discretisation ;
+    skos:definition "A discretisation that divides real space into irregular elements on which basis functions are defined."@en .
+
+commagmo:BasisSet a owl:Class ;
+    rdfs:label "BasisSet"@en ;
+    rdfs:subClassOf commagmo:Discretisation ;
+    skos:definition "A discretisation that fixes the finite set of functions in which the single particle wavefunctions are expanded, together with the cutoff that limits how many of them are kept."@en .
+
+commagmo:SolverForDFT a owl:Class ;
+    rdfs:label "SolverForDFT"@en ;
+    rdfs:subClassOf commagmo:Solver ;
+    skos:definition "A solver that numerically finds the self-consistent solution of the Kohn-Sham equations."@en .
+
+commagmo:SolverForAtomisticSpin a owl:Class ;
+    rdfs:label "SolverForAtomisticSpin"@en ;
+    rdfs:subClassOf commagmo:Solver ;
+    skos:definition "A solver that numerically evolves or samples a system of localised atomic magnetic moments, for example by Langevin dynamics or Monte Carlo."@en .
+
+commagmo:SolverForMicromagnetics a owl:Class ;
+    rdfs:label "SolverForMicromagnetics"@en ;
+    rdfs:subClassOf commagmo:Solver ;
+    skos:definition "A solver that numerically integrates the Landau-Lifshitz-Gilbert equation over a discretised magnetisation field."@en .
+
+commagmo:SolverForPhaseField a owl:Class ;
+    rdfs:label "SolverForPhaseField"@en ;
+    rdfs:subClassOf commagmo:Solver ;
+    skos:definition "A solver that numerically integrates the evolution equations of one or more continuous order parameters."@en .
+
+commagmo:InitialCondition a owl:Class ;
+    rdfs:label "InitialCondition"@en ;
+    rdfs:subClassOf commagmo:SimulationSetting ;
+    skos:definition "A simulation setting that fixes the state of the discretised system before the solver starts."@en .
+
+commagmo:InitialChargeDensity a owl:Class ;
+    rdfs:label "InitialChargeDensity"@en ;
+    rdfs:subClassOf commagmo:InitialCondition ;
+    skos:definition "An initial condition that fixes the electron density from which the self-consistent cycle starts."@en .
+
+commagmo:InitialSpinConfiguration a owl:Class ;
+    rdfs:label "InitialSpinConfiguration"@en ;
+    rdfs:subClassOf commagmo:InitialCondition ;
+    skos:definition "An initial condition that fixes the orientation of every atomic magnetic moment before the run starts."@en .
+
+commagmo:InitialMagnetisationState a owl:Class ;
+    rdfs:label "InitialMagnetisationState"@en ;
+    rdfs:subClassOf commagmo:InitialCondition ;
+    skos:definition "An initial condition that fixes the magnetisation vector field over the discretisation cells before the run starts."@en .
+
+commagmo:InitialOrderParameterField a owl:Class ;
+    rdfs:label "InitialOrderParameterField"@en ;
+    rdfs:subClassOf commagmo:InitialCondition ;
+    skos:definition "An initial condition that fixes the value of every order parameter over the domain before the run starts."@en .
+
+commagmo:BoundaryCondition a owl:Class ;
+    rdfs:label "BoundaryCondition"@en ;
+    rdfs:subClassOf commagmo:SimulationSetting ;
+    skos:definition "A simulation setting that fixes how the discretised domain behaves at its boundary."@en .
+
+commagmo:PeriodicBoundaryCondition a owl:Class ;
+    rdfs:label "PeriodicBoundaryCondition"@en ;
+    rdfs:subClassOf commagmo:BoundaryCondition ;
+    skos:definition "A boundary condition in which the domain repeats itself, so that a quantity leaving one face re-enters at the opposite one."@en .
+
+commagmo:DirichletBoundaryCondition a owl:Class ;
+    rdfs:label "DirichletBoundaryCondition"@en ;
+    rdfs:subClassOf commagmo:BoundaryCondition ;
+    skos:definition "A boundary condition that fixes the value of the field on the boundary."@en .
+
+commagmo:NeumannBoundaryCondition a owl:Class ;
+    rdfs:label "NeumannBoundaryCondition"@en ;
+    rdfs:subClassOf commagmo:BoundaryCondition ;
+    skos:definition "A boundary condition that fixes the normal derivative of the field on the boundary."@en .
+
+commagmo:OpenBoundaryCondition a owl:Class ;
+    rdfs:label "OpenBoundaryCondition"@en ;
+    rdfs:subClassOf commagmo:BoundaryCondition ;
+    skos:definition "A boundary condition in which the domain is treated as isolated, with the field decaying towards infinity."@en .
+
+commagmo:ConvergenceCriterion a owl:Class ;
+    rdfs:label "ConvergenceCriterion"@en ;
+    rdfs:subClassOf commagmo:SimulationSetting ;
+    skos:definition "A simulation setting that states the quantity and the threshold by which the solver decides that the run has converged."@en .
+
+commagmo:RandomSeed a owl:Class ;
+    rdfs:label "RandomSeed"@en ;
+    rdfs:subClassOf commagmo:SimulationSetting ;
+    skos:definition "A simulation setting that fixes the starting state of the pseudo-random number generator, so that a stochastic run can be repeated exactly."@en .
+
+commagmo:NumericalPrecision a owl:Class ;
+    rdfs:label "NumericalPrecision"@en ;
+    rdfs:subClassOf commagmo:SimulationSetting ;
+    skos:definition "A simulation setting that fixes the accuracy of the numerical machinery of the run - grid densities, projection scheme and the like - without changing the physics being solved."@en .
+
+commagmo:MixingScheme a owl:Class ;
+    rdfs:label "MixingScheme"@en ;
+    rdfs:subClassOf commagmo:SimulationSetting ;
+    skos:definition "A simulation setting that states how the input and output densities of successive self consistent iterations are combined in order to reach the self consistent solution."@en .
+
+commagmo:RelaxationFreedom a owl:Class ;
+    rdfs:label "RelaxationFreedom"@en ;
+    rdfs:subClassOf commagmo:SimulationSetting ;
+    skos:definition "A simulation setting that states which degrees of freedom of the simulated structure are allowed to change during the run - none, the ionic positions only, or the cell shape or volume as well."@en .
+
+commagmo:ExchangeCorrelationFunctional a owl:Class ;
+    rdfs:label "ExchangeCorrelationFunctional"@en ;
+    rdfs:subClassOf emmo:EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 ;
+    skos:definition "A functional of the electron density that supplies the exchange and correlation contribution to the total energy in a density functional theory model."@en .
+
+commagmo:SpinHamiltonian a owl:Class ;
+    rdfs:label "SpinHamiltonian"@en ;
+    rdfs:subClassOf emmo:EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 ;
+    skos:definition "An energy expression of an atomistic spin model, written as a sum of terms over the magnetic moments localised on atomic sites."@en .
+
+commagmo:MicromagneticEnergyTerms a owl:Class ;
+    rdfs:label "MicromagneticEnergyTerms"@en ;
+    rdfs:subClassOf emmo:EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 ;
+    skos:definition "A set of energy contributions - exchange, anisotropy, demagnetising and Zeeman - whose sum a micromagnetic model minimises or evolves."@en .
+
+commagmo:FreeEnergyFunctional a owl:Class ;
+    rdfs:label "FreeEnergyFunctional"@en ;
+    rdfs:subClassOf emmo:EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 ;
+    skos:definition "A functional of one or more order parameters whose variational derivative drives the evolution equations of a phase field model."@en .
+
+commagmo:CoreElectronTreatment a owl:Class ;
+    rdfs:label "CoreElectronTreatment"@en ;
+    rdfs:subClassOf emmo:EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 ;
+    skos:definition "The part of a density functional theory model that states how the core electrons and the nuclear potential are represented in the Kohn-Sham Hamiltonian, either explicitly for all electrons or through an effective potential replacing the core region."@en .
+
+commagmo:CorrectiveTerm a owl:Class ;
+    rdfs:label "CorrectiveTerm"@en ;
+    rdfs:subClassOf emmo:EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 ;
+    skos:definition "An additional term added to the energy expression of a density functional theory model in order to repair a known deficiency of the chosen exchange correlation functional, such as the underestimated on-site Coulomb repulsion of localised states or the absence of long range dispersion."@en .
+
+commagmo:PostProcessing a owl:Class ;
+    rdfs:label "PostProcessing"@en ;
+    rdfs:subClassOf emmo:EMMO_1c7f2dfe_0db4_4bf6_a0f6_853054a34ead ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_c4bace1d_4db0_4cd3_87e9_18122bae2840 ; owl:someValuesFrom commagmo:SimulatedProperty ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_60577dea_9019_4537_ac41_80b0fb563d41 ; owl:someValuesFrom commagmo:PostProcessingMethod ] ;
+    skos:definition "A data processing that turns the raw output of a simulation run into the target quantity."@en .
+
+commagmo:PostProcessingMethod a owl:Class ;
+    rdfs:label "PostProcessingMethod"@en ;
+    rdfs:subClassOf commagmo:SimulationSetting ;
+    skos:definition "A simulation setting that states how the target quantity is extracted from the raw output, for example by fitting, integration, or reading a peak."@en .
+
+commagmo:ModelValidation a owl:Class ;
+    rdfs:label "ModelValidation"@en ;
+    rdfs:subClassOf emmo:EMMO_472a0ca2_58bf_4618_b561_6fe68bd9fd49 ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:comparesSimulated ; owl:someValuesFrom commagmo:SimulatedProperty ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:comparesReference ; owl:someValuesFrom emmo:EMMO_dd4a7f3e_ef56_466c_ac1a_d2716b5f87ec ] ;
+    skos:definition "A procedure that compares a simulated property against a reference value, which may be measured, taken from the literature, or computed by another method."@en .
+
+commagmo:mayHaveInputProperty a owl:AnnotationProperty ;
+    rdfs:label "mayHaveInputProperty"@en ;
+    rdfs:comment "注解，非公理：主语类的实例**可以**由 commagmo:hasInputProperty 关联到宾语类的实例。零蕴涵。"@zh .
+
+commagmo:mayHaveOutputCalculatedProperty a owl:AnnotationProperty ;
+    rdfs:label "mayHaveOutputCalculatedProperty"@en ;
+    rdfs:comment "注解，非公理：主语类的实例**可以**由 commagmo:hasOutputCalculatedProperty 关联到宾语类的实例。零蕴涵。"@zh .
+
+commagmo:mayHaveSolver a owl:AnnotationProperty ;
+    rdfs:label "mayHaveSolver"@en ;
+    rdfs:comment "注解，非公理：主语类的实例**可以**由 commagmo:hasSolver 关联到宾语类的实例。零蕴涵。"@zh .
+
+commagmo:motivatedBy a owl:AnnotationProperty ;
+    rdfs:label "motivatedBy"@en ;
+    rdfs:comment "注解，非公理：主语类之所以铸出来，是因为宾语那个编号的 CQ 要它。值只认 cms-kg-schema/docs/requirements/cq.md 的 R-nn ／ F-nn。零蕴涵。"@zh .
+
+commagmo:hasSimulatedMaterial a owl:ObjectProperty ;
+    rdfs:label "hasSimulatedMaterial"@en ;
+    rdfs:subPropertyOf emmo:EMMO_ad0bdf66_93c4_4a4d_8e1d_57ec850b1741 ;
+    rdfs:range emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 ;
+    skos:definition "Relates a simulation to the material that is simulated."@en .
+
+commagmo:hasMaterialsModel a owl:ObjectProperty ;
+    rdfs:label "hasMaterialsModel"@en ;
+    rdfs:subPropertyOf emmo:EMMO_24c71baf_6db6_48b9_86c8_8c70cf36db0c ;
+    rdfs:range emmo:EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 ;
+    skos:definition "Relates a simulation to the materials model that it solves."@en .
+
+commagmo:hasSolver a owl:ObjectProperty ;
+    rdfs:label "hasSolver"@en ;
+    rdfs:subPropertyOf emmo:EMMO_24c71baf_6db6_48b9_86c8_8c70cf36db0c ;
+    rdfs:range commagmo:Solver ;
+    skos:definition "Relates a simulation to the solver used to solve the equations of its model."@en .
+
+commagmo:hasSimulationSetting a owl:ObjectProperty ;
+    rdfs:label "hasSimulationSetting"@en ;
+    rdfs:subPropertyOf emmo:EMMO_36e69413_8c59_4799_946c_10b05d266e22 ;
+    rdfs:domain commagmo:MaterialSimulation ;
+    rdfs:range commagmo:SimulationSetting ;
+    skos:definition "Relates a simulation run to one of its procedural settings."@en .
+
+commagmo:hasModelParameter a owl:ObjectProperty ;
+    rdfs:label "hasModelParameter"@en ;
+    rdfs:subPropertyOf emmo:EMMO_dc57d998_23db_4d8e_b2cd_f346b195b846 ;
+    rdfs:range commagmo:ModelParameter ;
+    skos:definition "Relates a materials model to a parameter appearing in its physics equation."@en .
+
+commagmo:hasInputProperty a owl:ObjectProperty ;
+    rdfs:label "hasInputProperty"@en ;
+    rdfs:subPropertyOf emmo:EMMO_36e69413_8c59_4799_946c_10b05d266e22 ;
+    rdfs:range emmo:EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba ;
+    skos:definition "Relates a simulation to a property given as an input to the run."@en .
+
+commagmo:hasOutputCalculatedProperty a owl:ObjectProperty ;
+    rdfs:label "hasOutputCalculatedProperty"@en ;
+    rdfs:subPropertyOf emmo:EMMO_c4bace1d_4db0_4cd3_87e9_18122bae2840 ;
+    rdfs:range commagmo:SimulatedProperty ;
+    skos:definition "Relates a simulation to the property that it calculates as its output."@en .
+
+commagmo:hasDiscretisation a owl:ObjectProperty ;
+    rdfs:label "hasDiscretisation"@en ;
+    rdfs:subPropertyOf commagmo:hasSimulationSetting ;
+    rdfs:range commagmo:Discretisation ;
+    skos:definition "Relates a simulation run to its discretisation."@en .
+
+commagmo:hasInitialCondition a owl:ObjectProperty ;
+    rdfs:label "hasInitialCondition"@en ;
+    rdfs:subPropertyOf commagmo:hasSimulationSetting ;
+    rdfs:range commagmo:InitialCondition ;
+    skos:definition "Relates a simulation run to its initial condition."@en .
+
+commagmo:hasBoundaryCondition a owl:ObjectProperty ;
+    rdfs:label "hasBoundaryCondition"@en ;
+    rdfs:subPropertyOf commagmo:hasSimulationSetting ;
+    rdfs:range commagmo:BoundaryCondition ;
+    skos:definition "Relates a simulation run to its boundary condition."@en .
+
+commagmo:hasConvergenceCriterion a owl:ObjectProperty ;
+    rdfs:label "hasConvergenceCriterion"@en ;
+    rdfs:subPropertyOf commagmo:hasSimulationSetting ;
+    rdfs:range commagmo:ConvergenceCriterion ;
+    skos:definition "Relates a simulation run to the criterion by which it is judged converged."@en .
+
+commagmo:hasRandomSeed a owl:ObjectProperty ;
+    rdfs:label "hasRandomSeed"@en ;
+    rdfs:subPropertyOf commagmo:hasSimulationSetting ;
+    rdfs:range commagmo:RandomSeed ;
+    skos:definition "Relates a stochastic simulation run to its random seed."@en .
+
+commagmo:hasEquationForm a owl:ObjectProperty ;
+    rdfs:label "hasEquationForm"@en ;
+    rdfs:subPropertyOf emmo:EMMO_dc57d998_23db_4d8e_b2cd_f346b195b846 ;
+    rdfs:range emmo:EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 ;
+    skos:definition "Relates a materials model to the specific form of the physics equation it is built on."@en .
+
+commagmo:comparesSimulated a owl:ObjectProperty ;
+    rdfs:label "comparesSimulated"@en ;
+    rdfs:range commagmo:SimulatedProperty ;
+    skos:definition "Relates a model validation to the simulated property under test."@en .
+
+commagmo:comparesReference a owl:ObjectProperty ;
+    rdfs:label "comparesReference"@en ;
+    rdfs:range emmo:EMMO_dd4a7f3e_ef56_466c_ac1a_d2716b5f87ec ;
+    skos:definition "Relates a model validation to the reference value it is compared against."@en .
+
+emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 rdfs:label "Material"@en ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204 ; owl:someValuesFrom emmo:EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_51f426a6_af4a_4e91_a392_2b0bb635e2d5 ; owl:someValuesFrom emmo:EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 ] .
+
+emmo:EMMO_90ae56e4_d197_49b6_be1a_0049e4756606 rdfs:label "Object"@en .
+
+emmo:EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b rdfs:label "Simulation"@en .
+
+emmo:EMMO_ccdc1a41_6e96_416b_92ec_efe67917434a rdfs:label "Document"@en .
+
+emmo:EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 rdfs:label "MaterialsModel"@en ;
+    rdfs:subClassOf emmo:EMMO_b29fd350_39aa_4af7_9459_3faa0544cba6 ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_dc57d998_23db_4d8e_b2cd_f346b195b846 ; owl:someValuesFrom emmo:EMMO_e5438930_04e7_4d42_ade5_3700d4a52ab7 ] ;
+    owl:disjointUnionOf ( emmo:EMMO_6eca09be_17e9_445e_abc9_000aa61b7a11 emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213 emmo:EMMO_53935db0_af45_4426_b9e9_244a0d77db00 emmo:EMMO_4456a5d2_16a6_4ee1_9a8e_5c75956b28ea ) .
+
+emmo:EMMO_e5438930_04e7_4d42_ade5_3700d4a52ab7 rdfs:label "MaterialRelation"@en ;
+    rdfs:subClassOf emmo:EMMO_e56ee3eb_7609_4ae1_8bed_51974f0960a6 .
+
+emmo:EMMO_e56ee3eb_7609_4ae1_8bed_51974f0960a6 rdfs:label "Equation"@en .
+
+emmo:EMMO_b29fd350_39aa_4af7_9459_3faa0544cba6 rdfs:label "PhysicsBasedModel"@en ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_dc57d998_23db_4d8e_b2cd_f346b195b846 ; owl:someValuesFrom emmo:EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 ] .
+
+emmo:EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 rdfs:label "PhysicsEquation"@en ;
+    rdfs:subClassOf emmo:EMMO_b29fd350_39aa_4af7_9459_3faa0544cba6 ;
+    rdfs:subClassOf emmo:EMMO_e56ee3eb_7609_4ae1_8bed_51974f0960a6 .
+
+emmo:EMMO_6eca09be_17e9_445e_abc9_000aa61b7a11 rdfs:label "ElectronicModel"@en ;
+    rdfs:subClassOf emmo:EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 .
+
+emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213 rdfs:label "AtomisticModel"@en ;
+    rdfs:subClassOf emmo:EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 .
+
+emmo:EMMO_53935db0_af45_4426_b9e9_244a0d77db00 rdfs:label "MesoscopicModel"@en ;
+    rdfs:subClassOf emmo:EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 .
+
+emmo:EMMO_4456a5d2_16a6_4ee1_9a8e_5c75956b28ea rdfs:label "ContinuumModel"@en ;
+    rdfs:subClassOf emmo:EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 .
+
+emmo:EMMO_d1d436e7_72fc_49cd_863b_7bfb4ba5276a rdfs:label "Parameter"@en .
+
+emmo:EMMO_8b66ada5_510c_44bd_a8d8_3c64d301a5e9 rdfs:label "SimulationSoftware"@en .
+
+emmo:EMMO_7d56ec24_499d_487a_af7d_a91aaa787bfe rdfs:label "MultiSimulation"@en ;
+    rdfs:subClassOf emmo:EMMO_e97af6ec_4371_4bbc_8936_34b76e33302f .
+
+emmo:EMMO_e97af6ec_4371_4bbc_8936_34b76e33302f rdfs:label "PhysicsBasedSimulation"@en ;
+    rdfs:subClassOf emmo:EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b .
+
+emmo:EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba rdfs:label "Property"@en .
+
+emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204 rdfs:label "hasProperty"@en .
+
+emmo:EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 rdfs:label "ChemicalComposition"@en .
+
+emmo:EMMO_51f426a6_af4a_4e91_a392_2b0bb635e2d5 rdfs:label "hasChemicalComposition"@en .
+
+emmo:EMMO_d0200cf1_e4f4_45ae_873f_b9359daea3cd rdfs:label "ModelledProperty"@en .
+
+emmo:EMMO_c4bace1d_4db0_4cd3_87e9_18122bae2840 rdfs:label "hasOutput"@en .
