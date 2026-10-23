@@ -128,8 +128,14 @@ commagmo:CrystallineMagneticPhase a owl:Class ;
     rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasTopologicalDefect ; owl:someValuesFrom commagmo:TopologicalDefect ] ;
     skos:definition "A crystalline phase that is magnetically ordered, having atomic magnetic moments due to unpaired electrons."@en .
 
+commagmo:MagneticMaterial a owl:Class ;
+    rdfs:label "MagneticMaterial"@en ;
+    rdfs:subClassOf emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 ;
+    skos:definition "A material that can exhibit spontaneous long-range magnetic order."@en .
+
 commagmo:CrystallineMagneticMaterial a owl:Class ;
     rdfs:label "CrystallineMagneticMaterial"@en ;
+    rdfs:subClassOf commagmo:MagneticMaterial ;
     rdfs:subClassOf emmo:EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 ;
     rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasPhase ; owl:someValuesFrom commagmo:CrystallineMagneticPhase ] ;
     skos:definition "A magnetic material with a crystalline structure."@en .
@@ -269,20 +275,16 @@ commagmo:hasCrystallographicDefect a owl:ObjectProperty ;
     rdfs:range commagmo:CrystallographicDefect ;
     skos:definition "A relation between a crystalline whole and a crystallographic defect it contains, such as a vacancy, an interstitial or a dislocation."@en .
 
-emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 rdfs:label "Material"@en ;
-    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_51f426a6_af4a_4e91_a392_2b0bb635e2d5 ; owl:someValuesFrom emmo:EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 ] ;
-    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204 ; owl:someValuesFrom emmo:EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba ] .
+emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 rdfs:label "Material"@en .
 
 emmo:EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 rdfs:label "ChemicalComposition"@en .
 
 emmo:EMMO_51f426a6_af4a_4e91_a392_2b0bb635e2d5 rdfs:label "hasChemicalComposition"@en .
 
-emmo:EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 rdfs:label "MaterialByStructure"@en ;
-    rdfs:subClassOf emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 .
+emmo:EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 rdfs:label "MaterialByStructure"@en .
 
 emmo:EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 rdfs:label "CrystallineMaterial"@en ;
-    rdfs:subClassOf emmo:EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 ;
-    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasPhase ; owl:someValuesFrom commagmo:CrystallinePhase ] .
+    rdfs:subClassOf emmo:EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 .
 
 emmo:EMMO_d8d2144e_5c8d_455d_a643_5caf4d8d9df8 rdfs:label "Language"@en .
 

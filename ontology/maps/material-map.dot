@@ -52,6 +52,7 @@ digraph material {
     x_LineDefect [label="LineDefect"];
     x_MagneticDomain [label="MagneticDomain"];
     x_MagneticDomainWall [label="MagneticDomain\nWall"];
+    x_MagneticMaterial [label="MagneticMaterial"];
     x_MagneticStructure [label="Magnetic\nStructure"];
     x_Microstructure [label="Microstructure"];
     x_MicrostructureComponent [label="Microstructure\nComponent"];
@@ -72,28 +73,20 @@ digraph material {
     x_Vacancy [label="Vacancy"];
     x_WyckoffSymbol [label="WyckoffSymbol"];
 
-    /* ---- declared elsewhere, but given a parent or a restriction HERE that upstream does NOT have (genuine cross-module axiom, report 10 §7.2). Axioms this file merely RESTATES from reference/ do not land here — those subjects stay in the plain-reference lane below. ---- */
-    node [fillcolor="#f5f0ff", color="#6d28d9", style="rounded,filled,dashed", fontname="Times-Italic", fontcolor="#111111"];
-    emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 [label="emmo:Crystalline\nMaterial"];
-    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 [label="emmo:Material"];
-    emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 [label="emmo:MaterialBy\nStructure"];
-
     /* ---- referenced from elsewhere (upstream EMMO or another project's ontology); their own parents are not drawn ---- */
     node [fillcolor="#ebebeb", color="#a8a8a8", style="rounded,filled", fontname="Helvetica-Oblique", fontcolor="#333333"];
-    emmo_EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 [label="emmo:Chemical\nComposition"];
     emmo_EMMO_f76884f7_964e_488e_9bb7_1b2453e9e817 [label="emmo:Component"];
     emmo_EMMO_1e877c70_3b01_45a8_a8f6_8ce4f6a24660 [label="emmo:Contrast"];
+    emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 [label="emmo:Crystalline\nMaterial"];
     emmo_EMMO_b9522e56_1fac_4766_97e6_428605fabd3e [label="emmo:Holistic\nArrangement"];
     emmo_EMMO_d8d2144e_5c8d_455d_a643_5caf4d8d9df8 [label="emmo:Language"];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 [label="emmo:Material"];
+    emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 [label="emmo:MaterialBy\nStructure"];
     emmo_EMMO_668fbd5b_6f1b_405c_9c6b_d6067bd0595a [label="emmo:PhaseOf\nMatter"];
-    emmo_EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba [label="emmo:Property"];
     emmo_EMMO_a8eb87b5_4d10_4137_a75c_e04ee59ca095 [label="emmo:Volume\nFraction"];
 
     /* ---- class-level restrictions ---- */
     edge [style=dashed, arrowhead=normal, color="#5a7d8c", fontcolor="#5a7d8c"];
-    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 [label="emmo:hasChemical\nComposition ∃"];
-    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba [label="emmo:hasProperty ∃"];
-    emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 -> x_CrystallinePhase [label="hasPhase ∃\n⊑ emmo:hasSpatialPart"];
     x_CrystalStructure -> x_UnitCell [label="emmo:hasSpatial\nTile =1"];
     x_CrystalStructure -> x_Spacegroup [label="emmo:hasSpatial\nTile =1"];
     x_CrystalStructure -> x_Site [label="emmo:hasSpatial\nTile ∃"];
@@ -109,12 +102,12 @@ digraph material {
 
     /* ---- subClassOf ---- */
     edge [style=solid, color="#9a9a9a", dir=back, arrowtail=onormal, arrowhead=none, penwidth=1.2, label=""];
-    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 [weight=8];
     emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 -> emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 [weight=8];
     x_Crystallography -> x_CellVolume [weight=8];
     x_UnitCell -> x_ConventionalUnitCell [weight=8];
     x_Crystallography -> x_CrystalStructure [weight=8];
     x_Crystallography -> x_CrystalSystem [weight=8];
+    x_MagneticMaterial -> x_CrystallineMagneticMaterial [weight=8];
     emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 -> x_CrystallineMagneticMaterial [weight=8];
     x_CrystallinePhase -> x_CrystallineMagneticPhase [weight=8];
     x_Phase -> x_CrystallinePhase [weight=8];
@@ -130,6 +123,7 @@ digraph material {
     x_CrystallographicDefect -> x_LineDefect [weight=8];
     x_CrystallineMagneticPhase -> x_MagneticDomain [weight=8];
     x_TopologicalDefect -> x_MagneticDomainWall [weight=8];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> x_MagneticMaterial [weight=8];
     x_CrystalStructure -> x_MagneticStructure [weight=8];
     emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> x_Microstructure [weight=8];
     emmo_EMMO_b9522e56_1fac_4766_97e6_428605fabd3e -> x_Microstructure [weight=8];

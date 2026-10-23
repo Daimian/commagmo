@@ -19,9 +19,8 @@ module:
           上游引用节点 —— 只写 rdfs:label，本文件不给它们任何公理。
           没有 `a owl:Class`：类型声明属于声明它的那个文件。
 
-          ⚠ **2026-08-22 起本节有一个例外**：emmo:Material 在文件末尾「属性侧」那一节
-            多了一条 ⊑ ∃emmo:hasProperty.emmo:Property。整笔账记在那一节，
-            包括退回本地口径的做法。本节这一条仍然只是标签。
+          ⚰ 2026-08-22 起的那个例外（emmo:Material ⊑ ∃emmo:hasProperty.emmo:Property）
+            已于 2026-10-23 删除（docs/material-cross-ontology.md §5，H9）。本节现在没有例外。
       ################################################################
   - before: MaterialSimulation
     text: |-
@@ -77,18 +76,9 @@ module:
   - before: emmo:Property
     text: |-
       ################################################################
-          属性侧起版（2026-08-22）—— 一条写在上游类身上的 ∃，一个本地属性类。
-
-          ⚠⚠ **这一节破了本文件从起版起守着的一条规矩：「主语收在本地类」。**
-            下面那条 ∃ 的主语是 emmo:Material，填充类是 emmo:Property，**两端全在上游**。
-            这正是 v0.1.1 瘦身时用来删掉同款公理的那条判据（当时删的是
-            emmo:Material ⊑ ∃hasConventionalProperty.emmo:ConventionalProperty，
-            理由原话「主语与填充类都是上游的，本仓库没有立场给 emmo:Material 新增公理」）。
-            本轮按指示写，账记在这里，退路也写在这里。
-
-          ⚠ material.ttl 里已经有一条同款的（emmo:Material ⊑ ∃hasChemicalComposition.…），
-            那一条是那个文件里唯一的例外；本条是本文件的第一条。两条同主语，
-            合到一张图里叠加，谁都不覆盖谁。
+          属性侧（2026-08-22 起版）—— 现在只剩一个本地属性类 SimulatedProperty。
+          ⚰ 起版时那条写在上游类身上的 ∃（emmo:Material ⊑ ∃hasProperty.Property）
+            已于 2026-10-23 删除（docs/material-cross-ontology.md §5，H9），本文件重新守住「主语收在本地类」。
       ################################################################
 classes:
   MaterialSimulation:
@@ -1209,6 +1199,66 @@ classes:
     definition: A simulation setting that states how the target quantity is extracted from the raw output, for example by fitting, integration, or reading a peak.
     parents:
     - SimulationSetting
+  ScaleBridging:
+    label: ScaleBridging
+    definition: A data processing that turns a property calculated by a simulation at one scale into a property given as input to a simulation at another scale, for example converting exchange constants into an exchange stiffness.
+    parents:
+    - emmo:DataProcessing
+    restrictions:
+    - emmo:hasInput some SimulatedProperty
+    - emmo:hasOutput some emmo:Property
+    rationale: |-
+      ################################################################
+          尺度桥接 —— 2026-10-23 起版（docs/material-cross-ontology.md §5，G6）。
+          多尺度链路里「上一尺度的输出怎么变成下一尺度的输入」那一步。
+
+          链的写法全用现有谓词，不铸新边：
+            模拟 A  —hasOutputCalculatedProperty→ p1（SimulatedProperty）
+            桥接     —emmo:hasInput→ p1，—emmo:hasOutput→ p2（emmo:Property）
+            模拟 B  —hasInputProperty→ p2
+          直接照搬、不做换算的情况就是恒等桥接（p2 与 p1 同值），不另开写法。
+
+          ⚠ 为什么输出是 Property 而不是 ModelParameter：EMMO 里 Parameter 在数学/数据侧，
+            是方程里的那个变量符号（J_ij、A）；Property 是带值的量。桥接产出的是值，
+            由模拟 B 经 hasInputProperty 接收；方程里的符号仍由模型的 hasModelParameter 承担。
+          ⚠ 与 PostProcessing 同一个毛病：父类 emmo:DataProcessing 自带
+            ∃hasInput.DiscreteData 与 ∃hasOutput.DiscreteData，Property 不在 DiscreteData 下，
+            所以一个桥接个体同时欠两份输入、两份输出。读起来对（脚本读文件、写文件、给出量），记账。
+          ⚠ **换算方法（A = J S² z / a 之类）本版不写成公理。** 候选是
+            emmo:isRepresentedBy some emmo:Equation，但恒等桥接没有方程，写 ∃ 会多出义务。
+            待有实例数据时再定。
+          ⚠ 未经 HermiT 实测。
+      ################################################################
+  MultiscaleSimulation:
+    label: MultiscaleSimulation
+    definition: A simulation made of two or more material simulations that are solved one after another, in which the output of one is passed to the next through scale bridging.
+    parents:
+    - emmo:Simulation
+    restrictions:
+    - emmo:hasTemporalTile min 2 MaterialSimulation
+    - emmo:hasTemporalTile some ScaleBridging
+    rationale: |-
+      ################################################################
+          多尺度模拟 —— 整条链的容器，2026-10-23 起版（docs/material-cross-ontology.md §5，G3、G7）。
+          本版只做顺序（层级）耦合；并发耦合只认 emmo:Coupled 那几个类名，不写公理。
+
+          ⚠ **父类取 emmo:Simulation，不取 emmo:LinkedModelsSimulation。**
+            LinkedModelsSimulation（"A chain of linked physics based model simulations, where
+            equations are solved sequentially"）意思最贴，但它 ⊑ MultiSimulation ⊑
+            PhysicsBasedSimulation；commagmo:MaterialSimulation 特意不取 PhysicsBasedSimulation
+            （机器学习势、代理模型也算材料模拟）。挂过去等于说「链里只能有物理基模型」。
+            与 emmo:MultiSimulation 那一节同一个理由，只在这里注明，不写 ⊑。
+
+          ⚠ 部分用 emmo:hasTemporalTile：EMMO 的 SerialWorkflow 就是「tasks are tiles of
+            a sequence」。各次模拟与各个桥接步骤都是这条时间序列上的一块。
+            后果：填进宾语位的个体被 rdfs:range 推成 emmo:TemporalTile。
+            本类**没有**挂 emmo:SerialWorkflow，那是另一个待决。
+
+          ⚠ **「至少跨两个尺度」写不进公理**，只写了「至少两次材料模拟」。
+            跨尺度要说的是两次模拟所解的模型属于不同的尺度档，这要比较两个填充者，
+            OWL 的类表达式说不出来。三次同尺度模拟串起来，推理器同样认它是本类。
+          ⚠ 未经 HermiT 实测。
+      ################################################################
   ModelValidation:
     label: ModelValidation
     definition: A procedure that compares a simulated property against a reference value, which may be measured, taken from the literature, or computed by another method.
@@ -1783,87 +1833,14 @@ properties:
 upstream:
   emmo:Material:
     label: Material
-    restrictions:
-    - emmo:hasProperty some emmo:Property
-    - emmo:hasChemicalComposition some emmo:ChemicalComposition
     rationale:
     - |2-
           emmo:Material
           <https://w3id.org/emmo#EMMO_4207e895_8b83_4318_996a_72cfb32acd94>
           disciplines/materials.ttl —— "The class of individuals standing for
           an amount of ordinary matter substance."
-          ⚠ 本文件末尾「属性侧」那一节给它写了一条公理，见那里。
-    - |-
-      ################################################################
-          emmo:Material ⊑ ∃emmo:hasProperty.emmo:Property
-
-          HermiT 实测（ontology/*.ttl ＋ emmo-inferred-1.0.4.ttl，加本条前后各跑一次，
-          非探针的不可满足类**两边都是 0**）：
-
-          主语侧 —— **本文件里由下面那条 ∃hasChemicalComposition 顶住闸门，本条零成本。**
-            emmo:hasProperty 的 rdfs:domain 是 emmo:Referent，而 emmo:Material 在**上游**
-            不是 Referent（只加载 emmo-inferred-1.0.4.ttl 跑一次：祖先 18，Referent 不在内）。
-            本条按理该把 Referent 闸门推开一次。**实测没有推**：
-              emmo:Material 祖先数 **22 → 22**，逐个比对一个不差。
-            理由是同节 ∃hasChemicalComposition 已经付过 —— 那条的父谓词 emmo:hasConvention
-            同样 rdfs:domain emmo:Referent，两条是亲兄弟，走同一个闸门。
-            ⚠ **先有哪一条，哪一条付账。** 两条谁也不比谁便宜，只是同一笔账不付两次。
-              单独留任何一条，emmo:Material 都会多背 4 个类：Referent、SemioticEntity、
-              Semiotics、Perspective。
-            ⚠ **2026-08-22 之前这个零是跨文件借来的** —— 当时本文件只有 ∃hasProperty，
-              闸门靠 material.ttl 那条顶着，而**单独加载本文件时那条并不存在**。
-              同步补齐（见下面那一节）之后本文件自己带着两条，不再借。
-
-          宾语侧 —— 落在填进去的个体上，不改类的位置。
-            拿一个裸个体（对照组推出 **1** 个类，只有 owl:Thing）填进 hasProperty 的宾语位，
-            推出 **14** 个类，**多背 13 个**：Property、Coded、CodedByStructure、
-            Conventional、Sign、SignByReferent、SemioticEntity、Semiotics、Perspective、
-            CausalStructure、Item、Fusion、EMMO。
-            一句话：**填进宾语位的东西被静默推成一个记号。** 与本文件记了一路的
-            Referent 闸门、CausalSystem 闸门同一个机制（rdfs:domain / rdfs:range 在开放
-            世界下推断类型而不是检查类型）。
-
-          **真正变的是义务，不是位置。** 探针
-            `emmo:Material ⊓ (≤0 emmo:hasProperty.⊤)`
-            加本条前 **可满足**，加本条后 **⊥**。
-            也就是说：**ABox 里从此写不出一份没有任何属性的材料了。**
-            这条义务落到 emmo:Material 的全部后代身上（上游 23 个后代，加本仓库
-            material.ttl 挂在其下的那几支），且任何 import 本文件的下游拿到的
-            emmo:Material 都比上游紧。
-
-          **退路（要退回本地口径就照这个做）**：铸一个 commagmo: 的材料类挂在
-            emmo:Material 之下，把这条 ∃ 移过去。蕴涵一条不差，主语收回本地类。
-            ⚠ v1.1 眼下**没有**本地材料类（material.ttl 24 个本地类里一个都不是），
-              所以这条退路要先补那个类 —— 与 v0.1.1 自铸 core:Material 是同一步棋。
-      ################################################################
-    - |-
-      ################################################################
-          emmo:Material ⊑ ∃emmo:hasChemicalComposition.emmo:ChemicalComposition
-          —— 公理写在上面那个节点里，账记在这里。
-
-          ⚠⚠ **2026-08-22 同步补齐：从 emmo:Material 出发的两条边，两个文件各写一份。**
-            在此之前是一边一条 —— material.ttl 只有 ∃hasChemicalComposition，
-            本文件只有 ∃hasProperty。合并加载时两条都在，看不出问题；
-            **单独加载任何一个文件，另一条就不存在**，而这两个文件各自都是一份
-            能独立加载的 ttl。实测过的不对称（HermiT，各自 ＋ emmo-inferred-1.0.4.ttl）：
-
-              加载              Material 祖先  Referent  无属性材料⊥  无组成材料⊥
-              ─────────────────────────────────────────────────────────────────
-              只有 EMMO              18          否          否          否
-              material.ttl 单独      22          是        **否**        是
-              simulation.ttl 单独    22          是          是        **否**
-              两个合并               22          是          是          是
-
-            补齐之后四行的后三列全部一致：每个文件单独加载，两条义务都在。
-            ⚠ **合并加载的那张图一个蕴涵都没变** —— 两处的 owl:Restriction 结构逐字
-              相同，合到一张图里是两个空白节点说同一句话，逻辑上冗余。
-              变的只有「单独加载一个文件时它说了什么」，以及两张概念图各自画出的边。
-            ⚠ 代价是**同一条公理有两份手写副本**，改一处必须改另一处，没有任何机器在守。
-
-          **本条自己的完整代价记在 material.ttl 那一节**（主语侧 +4 祖先、宾语侧 +6 类、
-          ABox 负担那一整条链），本文件不重复。本文件加它的增量代价是零：
-          Referent 闸门在本文件里已被上面那条 ∃hasProperty 推开，两条同一个闸门。
-      ################################################################
+          ⚰ 本节点上的两条公理（∃hasProperty.Property、∃hasChemicalComposition.ChemicalComposition）
+            已于 2026-10-23 删除，恢复为纯引用节点。账记在 material.yaml 的同名节点（docs/material-cross-ontology.md §5，H9）。
   emmo:Object:
     label: Object
     rationale: |2-
@@ -2139,62 +2116,8 @@ upstream:
           上游唯一公理 ⊑ emmo:CodedByStructure（EMMO_38f31ba5…），本文件不重述。
 
           ⚠ **它整支在记号侧，不在物侧**：Property ⊑ Coded ⊑ … ⊑ Conventional ⊑ Sign
-            ⊑ SignByReferent。所以下面那条 ∃ 是一条从物侧伸向记号侧的边 ——
-            与 material.ttl 那条 ∃hasChemicalComposition（伸向 Data 侧）走的是同一条
-            父谓词祖链（都 ⊑ emmo:hasConvention），但落在符号学的另一支上。
-      ################################################################
-  emmo:hasProperty:
-    label: hasProperty
-    rationale: |-
-      ################################################################
-          emmo:hasProperty
-          <https://w3id.org/emmo#EMMO_e1097637_70d2_4895_973f_2396f04fa204>
-          perspectives/semiotics.ttl —— "A semiotic relation that connects a semiotic
-          object to a property in a declaration process."
-          rdfs:domain emmo:Referent，rdfs:range emmo:Property，
-          ⊑ emmo:hasConvention ⊑ emmo:isRepresentedBy ⊑ emmo:semiotical。
-
-          ⚠ 同一条三元组 material.ttl 里也有一份（那边 emmo:Crystal 那条 ∃ 删除后的记账
-            仍然引着它）。两处内容逐字相同，合到一张图里是同一条三元组，不冲突。
-
-          ⚠ **释义里的「declaration process」是这条边最该被读懂的地方**：它说的不是
-            「这份材料客观上具有某个属性」，而是「有一个声明过程把某个属性连到了它身上」。
-            下面那条 ∃ 因此断言的是：**每一份材料都已经有一个被声明出来的属性。**
-            v0.1.1 驳过同款说法（原话：「一块没人测过、没人写下结构的晶体是反例」），
-            这里的对应反例是**一份刚被命名、还没人给它写下任何属性的材料**。
-            本轮按指示照写，这条反例记在案，它属于 shapes.ttl 的 sh:Warning 那一档。
-      ################################################################
-  emmo:ChemicalComposition:
-    label: ChemicalComposition
-    rationale: |-
-      ################################################################
-          emmo:ChemicalComposition
-          <https://w3id.org/emmo#EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3>
-          disciplines/chemistry.ttl —— "A language construct that provides information
-          about the consitutents of a substance and their fractions or amounts."
-          （consitutents 是上游的拼写，原样抄。）
-
-          ⚠ **它在符号侧，不在物侧** —— 18 个祖先没有一个是物（ChemicalSymbolicConstruct、
-            SymbolicConstruct、Symbolic、Language、Data、DiscreteData、Contrast…）。
-            material.ttl 那一节把这笔账逐条记过，本文件不重复。
-
-          ⚠ 同一条三元组 material.ttl 里也有一份，内容逐字相同。
-      ################################################################
-  emmo:hasChemicalComposition:
-    label: hasChemicalComposition
-    rationale: |-
-      ################################################################
-          emmo:hasChemicalComposition
-          <https://w3id.org/emmo#EMMO_51f426a6_af4a_4e91_a392_2b0bb635e2d5>
-          disciplines/chemistry.ttl —— "Relates a substance to chemical composition."
-          rdfs:domain emmo:Substance，rdfs:range emmo:ChemicalComposition，
-          ⊑ emmo:hasConvention ⊑ emmo:isRepresentedBy ⊑ emmo:semiotical。
-
-          ⚠ **它与 emmo:hasProperty 是亲兄弟**，同挂 hasConvention 之下（那一格共九条）。
-            EMMO 把「有属性」与「有组成」并列放在「有约定表示」之下，两者不是一支套一支。
-            上面那条主语侧的零成本就是这个兄弟关系的后果。
-
-          ⚠ 同一条三元组 material.ttl 里也有一份，内容逐字相同。
+            ⊑ SignByReferent。本文件现在只在 hasInputProperty 的 rdfs:range 上用它。
+            （emmo:Material ⊑ ∃hasProperty.Property 那条已于 2026-10-23 删除，H9。）
       ################################################################
   emmo:ModelledProperty:
     label: ModelledProperty

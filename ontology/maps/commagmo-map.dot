@@ -74,6 +74,7 @@ digraph commagmo {
     x_LineDefect [label="LineDefect"];
     x_MagneticDomain [label="MagneticDomain"];
     x_MagneticDomainWall [label="MagneticDomain\nWall"];
+    x_MagneticMaterial [label="MagneticMaterial"];
     x_MagneticStructure [label="Magnetic\nStructure"];
     x_MaterialSimulation [label="Material\nSimulation"];
     x_MaterialSimulationSoftware [label="Material\nSimulation\nSoftware"];
@@ -85,6 +86,7 @@ digraph commagmo {
     x_MixingScheme [label="MixingScheme"];
     x_ModelParameter [label="ModelParameter"];
     x_ModelValidation [label="ModelValidation"];
+    x_MultiscaleSimulation [label="Multiscale\nSimulation"];
     x_NeumannBoundaryCondition [label="NeumannBoundary\nCondition"];
     x_NumericalPrecision [label="Numerical\nPrecision"];
     x_OpenBoundaryCondition [label="OpenBoundary\nCondition"];
@@ -101,6 +103,7 @@ digraph commagmo {
     x_PrimitiveUnitCell [label="PrimitiveUnit\nCell"];
     x_RandomSeed [label="RandomSeed"];
     x_RelaxationFreedom [label="Relaxation\nFreedom"];
+    x_ScaleBridging [label="ScaleBridging"];
     x_SimulatedProperty [label="Simulated\nProperty"];
     x_SimulationSetting [label="Simulation\nSetting"];
     x_Site [label="Site"];
@@ -120,24 +123,20 @@ digraph commagmo {
     x_Vacancy [label="Vacancy"];
     x_WyckoffSymbol [label="WyckoffSymbol"];
 
-    /* ---- declared elsewhere, but given a parent or a restriction HERE that upstream does NOT have (genuine cross-module axiom, report 10 §7.2). Axioms this file merely RESTATES from reference/ do not land here — those subjects stay in the plain-reference lane below. ---- */
-    node [fillcolor="#f5f0ff", color="#6d28d9", style="rounded,filled,dashed", fontname="Times-Italic", fontcolor="#111111"];
-    emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 [label="emmo:Crystalline\nMaterial"];
-    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 [label="emmo:Material"];
-    emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 [label="emmo:MaterialBy\nStructure"];
-
     /* ---- referenced from elsewhere (upstream EMMO or another project's ontology); their own parents are not drawn ---- */
     node [fillcolor="#ebebeb", color="#a8a8a8", style="rounded,filled", fontname="Helvetica-Oblique", fontcolor="#333333"];
     emmo_EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213 [label="emmo:Atomistic\nModel"];
-    emmo_EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 [label="emmo:Chemical\nComposition"];
     emmo_EMMO_f76884f7_964e_488e_9bb7_1b2453e9e817 [label="emmo:Component"];
     emmo_EMMO_4456a5d2_16a6_4ee1_9a8e_5c75956b28ea [label="emmo:Continuum\nModel"];
     emmo_EMMO_1e877c70_3b01_45a8_a8f6_8ce4f6a24660 [label="emmo:Contrast"];
+    emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 [label="emmo:Crystalline\nMaterial"];
     emmo_EMMO_1c7f2dfe_0db4_4bf6_a0f6_853054a34ead [label="emmo:Data\nProcessing"];
     emmo_EMMO_6eca09be_17e9_445e_abc9_000aa61b7a11 [label="emmo:Electronic\nModel"];
     emmo_EMMO_e56ee3eb_7609_4ae1_8bed_51974f0960a6 [label="emmo:Equation"];
     emmo_EMMO_b9522e56_1fac_4766_97e6_428605fabd3e [label="emmo:Holistic\nArrangement"];
     emmo_EMMO_d8d2144e_5c8d_455d_a643_5caf4d8d9df8 [label="emmo:Language"];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 [label="emmo:Material"];
+    emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 [label="emmo:MaterialBy\nStructure"];
     emmo_EMMO_e5438930_04e7_4d42_ade5_3700d4a52ab7 [label="emmo:Material\nRelation"];
     emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 [label="emmo:Materials\nModel"];
     emmo_EMMO_53935db0_af45_4426_b9e9_244a0d77db00 [label="emmo:Mesoscopic\nModel"];
@@ -159,11 +158,8 @@ digraph commagmo {
 
     /* ---- class-level restrictions ---- */
     edge [style=dashed, arrowhead=normal, color="#5a7d8c", fontcolor="#5a7d8c"];
-    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba [label="emmo:hasProperty ∃"];
-    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 [label="emmo:hasChemical\nComposition ∃"];
     emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 -> emmo_EMMO_e5438930_04e7_4d42_ade5_3700d4a52ab7 [label="emmo:hasSpatial\nPart ∃"];
     emmo_EMMO_b29fd350_39aa_4af7_9459_3faa0544cba6 -> emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 [label="emmo:hasSpatial\nPart ∃"];
-    emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 -> x_CrystallinePhase [label="hasPhase ∃\n⊑ emmo:hasSpatialPart"];
     x_AtomisticSpinModel -> x_SpinHamiltonian [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
     x_AtomisticSpinModel -> x_ModelParameter [label="hasModel\nParameter ∃\n⊑ emmo:hasSpatialPart"];
     x_AtomisticSpinSimulation -> x_AtomicConfiguration [label="has\nDiscretisation ∃\n⊑ hasSimulationSetting"];
@@ -199,6 +195,8 @@ digraph commagmo {
     x_Microstructure -> x_MicrostructureComponent [label="emmo:has\nComponent ∃"];
     x_ModelValidation -> x_SimulatedProperty [label="compares\nSimulated ∃"];
     x_ModelValidation -> emmo_EMMO_dd4a7f3e_ef56_466c_ac1a_d2716b5f87ec [label="compares\nReference ∃"];
+    x_MultiscaleSimulation -> x_MaterialSimulation [label="emmo:hasTemporal\nTile ≥2"];
+    x_MultiscaleSimulation -> x_ScaleBridging [label="emmo:hasTemporal\nTile ∃"];
     x_Phase -> emmo_EMMO_a8eb87b5_4d10_4137_a75c_e04ee59ca095 [label="emmo:hasProperty ∃"];
     x_PhaseFieldModel -> x_FreeEnergyFunctional [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
     x_PhaseFieldModel -> x_ModelParameter [label="hasModel\nParameter ∃\n⊑ emmo:hasSpatialPart"];
@@ -209,6 +207,8 @@ digraph commagmo {
     x_PostProcessing -> x_SimulatedProperty [label="emmo:hasOutput ∃"];
     x_PostProcessing -> x_PostProcessingMethod [label="emmo:is\nRepresentedBy ∃"];
     x_Precipitate -> x_Phase [label="isPartOfPhase ∃\n⊑ emmo:isPartOf"];
+    x_ScaleBridging -> x_SimulatedProperty [label="emmo:hasInput ∃"];
+    x_ScaleBridging -> emmo_EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba [label="emmo:hasOutput ∃"];
     x_SimulatedProperty -> x_MaterialSimulation [label="emmo:isOutputOf ∃"];
 
     /* ---- object property signatures (domain -> range) ---- */
@@ -227,7 +227,6 @@ digraph commagmo {
     emmo_EMMO_b29fd350_39aa_4af7_9459_3faa0544cba6 -> emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 [weight=8];
     emmo_EMMO_e56ee3eb_7609_4ae1_8bed_51974f0960a6 -> emmo_EMMO_e5438930_04e7_4d42_ade5_3700d4a52ab7 [weight=8];
     emmo_EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b -> emmo_EMMO_e97af6ec_4371_4bbc_8936_34b76e33302f [weight=8];
-    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 [weight=8];
     emmo_EMMO_f00fb163_48c9_4c59_b6c2_4205c082aa54 -> emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 [weight=8];
     x_Discretisation -> x_AtomicConfiguration [weight=8];
     emmo_EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213 -> x_AtomisticSpinModel [weight=8];
@@ -240,6 +239,7 @@ digraph commagmo {
     emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 -> x_CorrectiveTerm [weight=8];
     x_Crystallography -> x_CrystalStructure [weight=8];
     x_Crystallography -> x_CrystalSystem [weight=8];
+    x_MagneticMaterial -> x_CrystallineMagneticMaterial [weight=8];
     emmo_EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 -> x_CrystallineMagneticMaterial [weight=8];
     x_CrystallinePhase -> x_CrystallineMagneticPhase [weight=8];
     x_Phase -> x_CrystallinePhase [weight=8];
@@ -268,6 +268,7 @@ digraph commagmo {
     x_CrystallographicDefect -> x_LineDefect [weight=8];
     x_CrystallineMagneticPhase -> x_MagneticDomain [weight=8];
     x_TopologicalDefect -> x_MagneticDomainWall [weight=8];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> x_MagneticMaterial [weight=8];
     x_CrystalStructure -> x_MagneticStructure [weight=8];
     emmo_EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b -> x_MaterialSimulation [weight=8];
     emmo_EMMO_8b66ada5_510c_44bd_a8d8_3c64d301a5e9 -> x_MaterialSimulationSoftware [weight=8];
@@ -279,6 +280,7 @@ digraph commagmo {
     x_SimulationSetting -> x_MixingScheme [weight=8];
     emmo_EMMO_d1d436e7_72fc_49cd_863b_7bfb4ba5276a -> x_ModelParameter [weight=8];
     emmo_EMMO_472a0ca2_58bf_4618_b561_6fe68bd9fd49 -> x_ModelValidation [weight=8];
+    emmo_EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b -> x_MultiscaleSimulation [weight=8];
     x_BoundaryCondition -> x_NeumannBoundaryCondition [weight=8];
     x_SimulationSetting -> x_NumericalPrecision [weight=8];
     x_BoundaryCondition -> x_OpenBoundaryCondition [weight=8];
@@ -294,6 +296,7 @@ digraph commagmo {
     x_UnitCell -> x_PrimitiveUnitCell [weight=8];
     x_SimulationSetting -> x_RandomSeed [weight=8];
     x_SimulationSetting -> x_RelaxationFreedom [weight=8];
+    emmo_EMMO_1c7f2dfe_0db4_4bf6_a0f6_853054a34ead -> x_ScaleBridging [weight=8];
     emmo_EMMO_d0200cf1_e4f4_45ae_873f_b9359daea3cd -> x_SimulatedProperty [weight=8];
     emmo_EMMO_eaf4640d_651d_4cbe_a315_3d2dc5df3b35 -> x_SimulationSetting [weight=8];
     x_Crystallography -> x_Site [weight=8];
