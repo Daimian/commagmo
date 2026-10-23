@@ -183,7 +183,18 @@ OntoClean 原文用模态逻辑定义刚性（Guarino & Welty, *Handbook on Onto
 
 审查中发现判据给不出答案或问错维度时，记在这里。
 
-（暂无）
+以下四条来自 2026-10-23 的 material 试点（`docs/review-material.md`），**尚未修订判据**。
+
+- **D1 · H2 没有区分两种 range（判据给错答案）。** 一种是视角型 range，比如 `SpatialTile`、`Tile`、`Role`、`Component`，
+  身份本来就是由关系推出来的，而各个 Perspective 之间没有互斥公理；另一种是范畴型 range，比如 `Property`，填错了就是范畴错误。
+  按 H2 字面判，上游自己的 `ChemicalFormula ⊑ ∃hasSpatialTile.ChemicalElement` 也不过。
+- **D2 · 没有问到"在上游类上写公理"（没问到这个维度）。** H8 只管重新声明类和关系。
+  本模块在上游类上写了 3 条公理（`emmo:Material` 两条，`emmo:CrystallineMaterial` 一条），
+  还有 1 条捷径父类边（`MaterialByStructure ⊑ Material`，上游实际要经过 `MaterialByClassicalMaterialsScience` 这一跳）。
+- **D3 · 刚性探针没有写明怎么翻译成 EMMO 的说法（给不出答案）。** 试点里的翻译是：刚性问题 → 存在依赖
+  （`Role ⊑ ∃hasRole⁻.Whole`，再加"整体与部分类型不同"）。
+- **D4 · H8 机判只能查同名重复，查不出近义重复（没问到这个维度）。** 例：`Phase` 的释义与 `emmo:PhaseOfMatter`
+  的 elucidation 几乎逐字相同。现在只能靠 S-isa 加 S-exist 间接兜住。
 
 ## 出处
 
