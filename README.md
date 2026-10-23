@@ -27,11 +27,13 @@ build.py            entry point
 ## Building
 
 ```bash
-pip install -r requirements.txt
-python build.py              # regenerate ontology/*.ttl and ontology/maps/*
-python build.py --no-render  # skip the png maps (they need graphviz's dot on PATH)
-python build.py --check      # verify the committed files match the YAML and parse as Turtle
+conda env create -f environment.yml          # once: python, pyyaml, rdflib, graphviz
+conda run -n commagmo-bin python build.py          # regenerate ontology/*.ttl and ontology/maps/*
+conda run -n commagmo-bin python build.py --check  # verify the committed files match the YAML and parse as Turtle
 ```
+
+Without conda: `pip install -r requirements.txt` and put graphviz's `dot` on PATH, or pass
+`--no-render` to skip the png maps.
 
 ## History
 
