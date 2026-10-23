@@ -22,6 +22,8 @@ ontology/
   *.ttl, maps/      generated from src/ — do not hand-edit
 tools/commagmo_build/   the generator (YAML → ttl and concept maps)
 build.py            entry point
+docs/
+  review-criteria.md    criteria for judging a class or relation, used when reviewing the YAML
 ```
 
 ## Building
