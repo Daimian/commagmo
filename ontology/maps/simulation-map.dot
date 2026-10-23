@@ -63,6 +63,7 @@ digraph simulation {
     x_MixingScheme [label="MixingScheme"];
     x_ModelParameter [label="ModelParameter"];
     x_ModelValidation [label="ModelValidation"];
+    x_MultiscaleSimulation [label="Multiscale\nSimulation"];
     x_NeumannBoundaryCondition [label="NeumannBoundary\nCondition"];
     x_NumericalPrecision [label="Numerical\nPrecision"];
     x_OpenBoundaryCondition [label="OpenBoundary\nCondition"];
@@ -73,6 +74,7 @@ digraph simulation {
     x_PostProcessingMethod [label="PostProcessing\nMethod"];
     x_RandomSeed [label="RandomSeed"];
     x_RelaxationFreedom [label="Relaxation\nFreedom"];
+    x_ScaleBridging [label="ScaleBridging"];
     x_SimulatedProperty [label="Simulated\nProperty"];
     x_SimulationSetting [label="Simulation\nSetting"];
     x_Solver [label="Solver"];
@@ -82,18 +84,14 @@ digraph simulation {
     x_SolverForMicromagnetics [label="SolverFor\nMicromagnetics"];
     x_SpinHamiltonian [label="SpinHamiltonian"];
 
-    /* ---- declared elsewhere, but given a parent or a restriction HERE that upstream does NOT have (genuine cross-module axiom, report 10 §7.2). Axioms this file merely RESTATES from reference/ do not land here — those subjects stay in the plain-reference lane below. ---- */
-    node [fillcolor="#f5f0ff", color="#6d28d9", style="rounded,filled,dashed", fontname="Times-Italic", fontcolor="#111111"];
-    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 [label="emmo:Material"];
-
     /* ---- referenced from elsewhere (upstream EMMO or another project's ontology); their own parents are not drawn ---- */
     node [fillcolor="#ebebeb", color="#a8a8a8", style="rounded,filled", fontname="Helvetica-Oblique", fontcolor="#333333"];
     emmo_EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213 [label="emmo:Atomistic\nModel"];
-    emmo_EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 [label="emmo:Chemical\nComposition"];
     emmo_EMMO_4456a5d2_16a6_4ee1_9a8e_5c75956b28ea [label="emmo:Continuum\nModel"];
     emmo_EMMO_1c7f2dfe_0db4_4bf6_a0f6_853054a34ead [label="emmo:Data\nProcessing"];
     emmo_EMMO_6eca09be_17e9_445e_abc9_000aa61b7a11 [label="emmo:Electronic\nModel"];
     emmo_EMMO_e56ee3eb_7609_4ae1_8bed_51974f0960a6 [label="emmo:Equation"];
+    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 [label="emmo:Material"];
     emmo_EMMO_e5438930_04e7_4d42_ade5_3700d4a52ab7 [label="emmo:Material\nRelation"];
     emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 [label="emmo:Materials\nModel"];
     emmo_EMMO_53935db0_af45_4426_b9e9_244a0d77db00 [label="emmo:Mesoscopic\nModel"];
@@ -113,8 +111,6 @@ digraph simulation {
 
     /* ---- class-level restrictions ---- */
     edge [style=dashed, arrowhead=normal, color="#5a7d8c", fontcolor="#5a7d8c"];
-    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba [label="emmo:hasProperty ∃"];
-    emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> emmo_EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 [label="emmo:hasChemical\nComposition ∃"];
     emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 -> emmo_EMMO_e5438930_04e7_4d42_ade5_3700d4a52ab7 [label="emmo:hasSpatial\nPart ∃"];
     emmo_EMMO_b29fd350_39aa_4af7_9459_3faa0544cba6 -> emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 [label="emmo:hasSpatial\nPart ∃"];
     x_AtomisticSpinModel -> x_SpinHamiltonian [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
@@ -142,6 +138,8 @@ digraph simulation {
     x_MicromagneticSimulation -> x_InitialMagnetisationState [label="hasInitial\nCondition ∃\n⊑ hasSimulationSetting"];
     x_ModelValidation -> x_SimulatedProperty [label="compares\nSimulated ∃"];
     x_ModelValidation -> emmo_EMMO_dd4a7f3e_ef56_466c_ac1a_d2716b5f87ec [label="compares\nReference ∃"];
+    x_MultiscaleSimulation -> x_MaterialSimulation [label="emmo:hasTemporal\nTile ≥2"];
+    x_MultiscaleSimulation -> x_ScaleBridging [label="emmo:hasTemporal\nTile ∃"];
     x_PhaseFieldModel -> x_FreeEnergyFunctional [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
     x_PhaseFieldModel -> x_ModelParameter [label="hasModel\nParameter ∃\n⊑ emmo:hasSpatialPart"];
     x_PhaseFieldSimulation -> x_FiniteElementMesh [label="has\nDiscretisation ∃\n⊑ hasSimulationSetting"];
@@ -150,6 +148,8 @@ digraph simulation {
     x_PhaseFieldSimulation -> x_RandomSeed [label="hasRandomSeed ∃\n⊑ hasSimulationSetting"];
     x_PostProcessing -> x_SimulatedProperty [label="emmo:hasOutput ∃"];
     x_PostProcessing -> x_PostProcessingMethod [label="emmo:is\nRepresentedBy ∃"];
+    x_ScaleBridging -> x_SimulatedProperty [label="emmo:hasInput ∃"];
+    x_ScaleBridging -> emmo_EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba [label="emmo:hasOutput ∃"];
     x_SimulatedProperty -> x_MaterialSimulation [label="emmo:isOutputOf ∃"];
 
     /* ---- object property signatures (domain -> range) ---- */
@@ -195,6 +195,7 @@ digraph simulation {
     x_SimulationSetting -> x_MixingScheme [weight=8];
     emmo_EMMO_d1d436e7_72fc_49cd_863b_7bfb4ba5276a -> x_ModelParameter [weight=8];
     emmo_EMMO_472a0ca2_58bf_4618_b561_6fe68bd9fd49 -> x_ModelValidation [weight=8];
+    emmo_EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b -> x_MultiscaleSimulation [weight=8];
     x_BoundaryCondition -> x_NeumannBoundaryCondition [weight=8];
     x_SimulationSetting -> x_NumericalPrecision [weight=8];
     x_BoundaryCondition -> x_OpenBoundaryCondition [weight=8];
@@ -204,6 +205,7 @@ digraph simulation {
     x_SimulationSetting -> x_PostProcessingMethod [weight=8];
     x_SimulationSetting -> x_RandomSeed [weight=8];
     x_SimulationSetting -> x_RelaxationFreedom [weight=8];
+    emmo_EMMO_1c7f2dfe_0db4_4bf6_a0f6_853054a34ead -> x_ScaleBridging [weight=8];
     emmo_EMMO_d0200cf1_e4f4_45ae_873f_b9359daea3cd -> x_SimulatedProperty [weight=8];
     emmo_EMMO_eaf4640d_651d_4cbe_a315_3d2dc5df3b35 -> x_SimulationSetting [weight=8];
     emmo_EMMO_f7ed665b_c2e1_42bc_889b_6b42ed3a36f0 -> x_Solver [weight=8];

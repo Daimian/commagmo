@@ -29,17 +29,15 @@ module:
           上游引用节点 —— 一律只写 rdfs:label，`a owl:Class` 不写
           （类型声明属于声明它的那个文件）。
 
-          ⚠ 本版起有**一处例外**：emmo:Material 身上多了一条
-            ⊑ ∃emmo:hasChemicalComposition.emmo:ChemicalComposition。
-            这是本仓库第一次给上游类写公理，账在文件末尾那一节。
+          ⚰ 2026-10-23 起不再有例外：emmo:Material 与 emmo:CrystallineMaterial 身上
+            原有的三条公理都已删除（docs/material-cross-ontology.md §5，H6、H9）。
       ################################################################
   - before: emmo:MaterialByStructure
     text: |-
       ################################################################
-          晶体那一支。两个上游节点之间那条 ⊑ 是**逐字重述**（零新增蕴涵），
-          而 emmo:Crystal 身上另有一条 ∃emmo:hasProperty.CrystalStructure 是**本文件新加的**，
-          上游没有 —— 所以本节点在概念图上会落进紫色虚线那一档，不是灰色纯引用档。
-          账在本节末尾那一段。
+          晶体那一支。CrystallineMaterial ⊑ MaterialByStructure 是**逐字重述**（零新增蕴涵）。
+          MaterialByStructure ⊑ Material 那条捷径边已于 2026-10-23 删除（H5），
+          所以这一团在概念图上不再接到 emmo:Material。
       ################################################################
   - before: emmo:Language
     text: |-
@@ -212,6 +210,10 @@ module:
   - before: emmo:isPartOf
     text: |-
       ################################################################
+          ⚰ **2026-10-23：下面第一条（主语 emmo:CrystallineMaterial）已删除**
+            （docs/material-cross-ontology.md §5，H6）。本节记的无穷回归随之消失；第二条
+            （主语 CrystallineMagneticMaterial）保留。以下为删除前的原账，留作历史。
+
           两条 hasPhase 的边，账一起记：
             emmo:CrystallineMaterial            ⊑ ∃commagmo:hasPhase.commagmo:CrystallinePhase
             commagmo:CrystallineMagneticMaterial ⊑ ∃commagmo:hasPhase.commagmo:CrystallineMagneticPhase
@@ -1377,10 +1379,30 @@ classes:
             ⚠ 类级不受影响：commagmo:MagneticStructure 的类级祖先里**没有 Property**，
               rdfs:range 只作用于填进去的个体。本地这个类仍然干净地待在 Language 那一支。
       ################################################################
+  MagneticMaterial:
+    label: MagneticMaterial
+    definition: A material that can exhibit spontaneous long-range magnetic order.
+    parents:
+    - emmo:Material
+    rationale: |-
+      ################################################################
+          commagmo:MagneticMaterial —— 2026-10-23 自铸（docs/material-cross-ontology.md §5，H7）。
+
+          ⚠ **直接挂 emmo:Material，不挂任何 MaterialBy* 分面。**
+            EMMO 1.0.4 没有 MagneticMaterial，也没有按性质分的分面；MaterialByFunction
+            （按用途）与 MaterialByStructure（按结构）都不准：磁有序是一种性质（PSPP 的 P），
+            铁在居里点以上就不再有序。mammos 把它挂在 MaterialByStructure 下，
+            pmdco 按 disposition 定义（magnetic ceramic ≡ … ⊓ ∃has disposition.…），本类取后者的意思。
+          ⚠ 释义用「能出现」（disposition）而不是「处于有序态」：同一份铁不该随温度进出本类。
+          ⚠ **本版只有释义，没有公理。** 「能出现磁有序」要写成公理，得先有一个表示
+            磁有序倾向的类（disposition 或 Property），本仓库还没有。推理器因此不会把
+            任何东西自动归进本类，全靠断言。
+      ################################################################
   CrystallineMagneticMaterial:
     label: CrystallineMagneticMaterial
     definition: A magnetic material with a crystalline structure.
     parents:
+    - MagneticMaterial
     - emmo:CrystallineMaterial
     restrictions:
     - hasPhase some CrystallineMagneticPhase
@@ -2371,9 +2393,6 @@ properties:
 upstream:
   emmo:Material:
     label: Material
-    restrictions:
-    - emmo:hasChemicalComposition some emmo:ChemicalComposition
-    - emmo:hasProperty some emmo:Property
     rationale:
     - |2-
           emmo:Material
@@ -2408,133 +2427,23 @@ upstream:
           CeramicMaterial、CompositeMaterial、NanoMaterial…）。
           本地要铸磁性材料那一支之前，先照着这几个分面看一遍，别重推已有的。
 
-          ⚠ 同一条三元组 simulation.ttl 里也有一份（那边 hasSimulatedMaterial 的
-            rdfs:range 要用它）。两处内容逐字相同，合到一张图里是同一条三元组，
-            不冲突；本文件是它的落脚处，那边算本地引用。
-          ⚠⚠ **本文件给这个上游类写了两条公理**（∃hasChemicalComposition 与
-            ∃hasProperty），与 simulation.ttl 一路的「主语收在本地类」不同。
-            两条的账分别记在下面各自那一节，包括退回本地口径的做法。
-
-          ⚠⚠ **2026-08-22 同步补齐：从 emmo:Material 出发的两条边，两个文件各写一份。**
-            在此之前是一边一条 —— material.ttl 只有 ∃hasChemicalComposition，
-            simulation.ttl 只有 ∃hasProperty。合并加载时两条都在，看不出问题；
-            **单独加载任何一个文件，另一条就不存在**，而这两个文件各自都是一份
-            能独立加载的 ttl。实测过的不对称（HermiT，各自 ＋ emmo-inferred-1.0.4.ttl）：
-
-              加载              Material 祖先  Referent  无属性材料⊥  无组成材料⊥
-              ─────────────────────────────────────────────────────────────────
-              只有 EMMO              18          否          否          否
-              material.ttl 单独      22          是        **否**        是
-              simulation.ttl 单独    22          是          是        **否**
-              两个合并               22          是          是          是
-
-            补齐之后四行的后三列全部一致：每个文件单独加载，两条义务都在。
-            ⚠ **合并加载的那张图一个蕴涵都没变** —— 两处的 owl:Restriction 结构逐字
-              相同，合到一张图里是两个空白节点说同一句话，逻辑上冗余。
-              变的只有「单独加载一个文件时它说了什么」，以及两张概念图各自画出的边。
-            ⚠ 代价是**同一条公理有两份手写副本**，改一处必须改另一处，没有任何机器在守。
-              这一笔与本文件此前记的「两个文件之间的 Referent 闸门依赖」是同一类问题，
-              区别是补齐之后闸门由每个文件自己顶住，不再互相借。
+          ⚠ 同一个引用节点 simulation.ttl 里也有一份（那边 hasSimulatedMaterial 的
+            rdfs:range 要用它），两处都只有 rdfs:label。
     - |-
       ################################################################
-          emmo:Material ⊑ ∃emmo:hasChemicalComposition.emmo:ChemicalComposition
-          —— 公理写在上面 emmo:Material 那个节点里，账记在这里。
-
-          ⚠⚠ **这是本仓库第一次给上游类写公理。** v1.1 此前一路的做法是「主语收在
-            本地类」：要说什么，先铸一个 commagmo: 的类，把 ∃ 挂在它身上，上游节点
-            只留 rdfs:label。本条按指示直接挂在 emmo:Material 上，两点后果先摆明：
-              · 它顺 subClassOf 落到 Material 的 **23 个后代**身上 —— Crystal、
-                CrystallineMaterial、AmorphousMaterial、GranularMaterial、
-                MetallicMaterial、CeramicMaterial、CompositeMaterial、NanoMaterial…
-                全都跟着「必有化学组成」。
-              · 任何 import 本文件的下游本体，拿到的 emmo:Material 都比上游的紧。
-                这不是「我们自己的类」的事，是把一个上游概念改了。
-            要退回本地口径，做法是铸 commagmo: 的材料类（或直接铸磁性材料那一支），
-            把 ∃ 挂到它身上，emmo:Material 恢复成纯引用节点。留作待决。
-
-          主语侧 —— **不免费，实测多 4 个祖先。**
-            本条自己声明的 rdfs:domain 是 emmo:Substance，而 Material ⊑ Substance
-            上游成立，这一层零成本。但父谓词 emmo:isRepresentedBy 的 rdfs:domain 是
-            **emmo:Referent**，Material 的 16 个祖先里没有它。
-
-            HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl，
-            口径同 src/commagmo_tools/core/reason.py；不可满足类 **0**）：
-              · 类级：emmo:Material 的祖先 **16 → 20**，多出
-                **Referent、SemioticEntity、Semiotics、Perspective**。
-              · ABox 对照：裸 Material 个体本来推出 18 个类，加了本条之后推出 22 个，
-                多的是同样那 4 个 —— 而且**不必写任何一条 hasChemicalComposition 断言**。
-                类级公理已经把每一份材料判成了符号学视角下的被指称物。
-            一句话：**一份普通物质被静默推成一个 Referent。** 与本仓库记了一路的
-            Referent 闸门同一个机制（rdfs:domain 在开放世界下推断类型而不是检查类型），
-            区别是这次由我们自己写的公理触发，不是重述上游。
-            ⚠ 不导致不一致：把 owl:disjointWith（56 条）、owl:AllDisjointClasses（14 条）
-              与 owl:disjointUnionOf 全部展开成无序对共 **845** 条，其中**没有一条**
-              碰 Referent / Semiotics / SemioticEntity / Sign / Conventional / Perspective。
-              Perspective 本来就不是排他分区，物侧与符号侧同时挂在 EMMO 里合法。
-              所以撞不出矛盾，只是多背了四个身份。
-
-          宾语侧 —— 同样不免费，代价落在填进来的那个组成个体上，**多 6 个类**。
-            本条自己声明的 rdfs:range 是 emmo:ChemicalComposition（按定义零成本），
-            但继承来的 range 是 emmo:Conventional（hasConvention）与 emmo:Sign
-            （isRepresentedBy），而 ChemicalComposition 的 18 个祖先里两个都没有。
-            HermiT 实测：一个 ChemicalComposition 个体单独摆着推出 20 个类，
-            填进本谓词的宾语位后推出 26 个，多出
-            **Conventional、Sign、SignByReferent、SemioticEntity、Semiotics、Information**。
-            ⚠ Information 是被 ≡ Data ⊓ Sign 定出来的（reference/information.ttl）：
-              组成个体本来就是 Data，一进宾语位拿到 Sign，于是升格成 Information。
-              这一条读起来是**对的** —— 组成式确实是「有意义的数据」；但它是靠 range
-              推出来的，没有任何文件说过，记账时算副作用不算设计。
-            ⚠ 这笔宾语侧的账**上游自己用这条谓词时同样要付** —— 上游 skos:example 里
-              subst:alloy1 那段 Turtle 跑出来是同一个结果。不是本文件引入的。
-
-          ABox 负担 —— 断言一个 Material 个体，就欠下一整条链：
-              Material → ChemicalComposition（必属三档之一）
-                       → 落到 SingleComponentComposition 那一档还要
-                         ∃hasSpeciesPart.ChemicalSpecies ⊓ ∃hasQuantityPart.ChemicalCompositionQuantity
-            ⚠ 但这条链**是有穷的**：ChemicalSpecies 与 ChemicalCompositionQuantity
-              都不再回头要求一份材料。对照 simulation.ttl 里 PhysicsEquation 那个环
-              （PE ⊑ PhysicsBasedModel ⊑ ∃hasSpatialPart.PE，无穷下去），本条没有这个
-              毛病：推理器造一个匿名后继就收工，有穷 ABox 填得满。
-
-          ⚠ 用 someValuesFrom 而不是 allValuesFrom 或基数限制，理由：
-            要说的是「每份材料都有组成」，不是「材料只能有组成」（后者要 allValuesFrom，
-            会把下游别的合法填充一并挡掉），也不是「有且只有一个总组成」（上游 note
-            明确推荐一个组分挂一条，写基数上界会打架）。
-
-          ⚠ 顺带一条免费的连接：simulation.ttl 里
-            commagmo:MaterialSimulation ⊑ ∃commagmo:hasSimulatedMaterial.emmo:Material，
-            本条一写，**每一次材料模拟所模拟的那份材料都必有化学组成** —— 不必再写边。
-      ################################################################
-    - |-
-      ################################################################
-          emmo:Material ⊑ ∃emmo:hasProperty.emmo:Property
-          —— 公理写在文件开头 emmo:Material 那个节点里，账记在这里。
-          2026-08-22 同步补齐时加入；simulation.ttl「属性侧」那一节写的是同一条，
-          那边记着这条公理自己的完整代价（宾语侧 +13、义务探针翻转等）。
-          这里只记**本文件加它要付什么**，不重复那边已经记过的。
-
-          主语侧 —— **本文件里零成本，因为闸门早被上面那条 ∃hasChemicalComposition 推开了。**
-            两条谓词是亲兄弟，同挂 emmo:hasConvention 之下，走的是同一个
-            emmo:isRepresentedBy → rdfs:domain emmo:Referent 闸门。
-            HermiT 实测（本文件 ＋ emmo-inferred-1.0.4.ttl）：
-            emmo:Material 祖先 **22 → 22**，逐个比对一个不差。
-            ⚠ 反过来说：**先有哪一条，哪一条付账。** 若哪天删掉 ∃hasChemicalComposition
-              （它自己那一节写着退回本地口径的做法），本条会立刻自己把闸门推开一次，
-              代价是 emmo:Material 多背 4 个：Referent、SemioticEntity、Semiotics、
-              Perspective。两条公理谁也不比谁便宜，只是同一笔账不付两次。
-
-          义务 —— 探针 `emmo:Material ⊓ (≤0 emmo:hasProperty.⊤)`
-            本文件加它之前 **可满足**，加之后 **⊥**。
-            也就是说本文件从此也说：**ABox 里写不出一份没有任何属性的材料。**
-            这条义务与 ∃hasChemicalComposition 那条并列，都落到 Material 的 23 个后代身上。
-
-          ⚠ 反例照旧记在案：一份刚被命名、还没人给它写下任何属性的材料。
-            emmo:hasProperty 的释义里那个 "declaration process" 说的是**已经被声明出来**，
-            不是「客观上具有」。这条属于 shapes 的 sh:Warning 那一档，不是 Violation。
-
-          ⚠ 本文件已经有两条本地公理用着 emmo:hasProperty（commagmo:Phase 与
-            commagmo:CrystallineMagneticPhase 各一条 ∃），主语都是本地类。
-            本条是本文件第一次把它的主语放在上游类上。
+          ⚰ **已删除（2026-10-23）：本节点上的两条公理，连同 simulation.yaml 里的手写副本。**
+            emmo:Material ⊑ ∃emmo:hasChemicalComposition.emmo:ChemicalComposition
+            emmo:Material ⊑ ∃emmo:hasProperty.emmo:Property
+          本节点恢复为纯引用节点。
+          依据：docs/material-cross-ontology.md §5（H9）。要点：
+            · 两条都写在上游类上，任何 import 本模块的下游拿到的 emmo:Material 都比上游紧。
+              两条的父谓词都 ⊑ emmo:isRepresentedBy（rdfs:domain emmo:Referent），
+              各自都会把整个上游类推成 Referent（实测祖先 18 → 22）。
+            · ∃ 在开放世界下不检查数据：没写成分的材料个体不会报错。
+              「被模拟的材料必须写成分」改由 SHACL 管（待办）。
+            · 删掉公理不影响在个体上使用这两个谓词；被模拟的材料仍经
+              emmo:hasSimulatedObject ⊑ emmo:hasReferent 被推成 Referent。
+          旧账（HermiT 实测、义务探针、两文件同步补齐的经过）见 commit eb157cb 及之前的版本。
       ################################################################
   emmo:ChemicalComposition:
     label: ChemicalComposition
@@ -2621,15 +2530,17 @@ upstream:
       ################################################################
   emmo:MaterialByStructure:
     label: MaterialByStructure
-    parents:
-    - emmo:Material
   emmo:CrystallineMaterial:
     label: CrystallineMaterial
     parents:
     - emmo:MaterialByStructure
-    restrictions:
-    - hasPhase some CrystallinePhase
     rationale: |2-
+          ⚰ **已删除（2026-10-23）：emmo:CrystallineMaterial ⊑ ∃commagmo:hasPhase.commagmo:CrystallinePhase。**
+            写在上游类上，且经 CrystallinePhase ⊑ … ⊑ CrystallineMaterial 造成无穷回归
+            （账见文件开头 emmo:isPartOf 前那条 note）。磁性那一侧需要的内容由
+            CrystallineMagneticMaterial ⊑ ∃hasPhase.CrystallineMagneticPhase 承担。
+            依据：docs/material-cross-ontology.md §5（H6）。
+
           emmo:CrystallineMaterial
           <https://w3id.org/emmo#EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655>
           disciplines/materials.ttl。
@@ -2658,24 +2569,11 @@ upstream:
               所以拿它当「非晶 ⊔ 晶态」用是一次**放松**，今天为空（后代就那 3 个），
               上游加第四个子类的那天会**静默变松**。
 
-          ⚠⚠ **下面那条 ⊑ emmo:Material 上游没有写，是抄推论。**
-            上游本类的父类是 **emmo:MaterialByClassicalMaterialsScience**
-            <…#EMMO_39348191_08fd_4bb6_9b1e_012d5b2f1ff6>（它的另一个子类是 MaterialByType），
-            而那个类的父类才是 emmo:Material。严格的写法有两条：
-              (甲) 重述 ⊑ MaterialByClassicalMaterialsScience，并把那个类也摆成一个引用节点
-                   —— 又一个中间站；
-              (乙) 像下面这样跳过去，直接写 ⊑ emmo:Material。
-            **本轮按指示走 (乙)**，与 v0.1.1 在同一个类上做的选择一致，那边的原话是
-            「第四轮删 MaterialBySize 定下的调子就是**不为好看多摆中间站**，所以这里跟着跳」。
-            ⚠ 代价：**零新增蕴涵**（推理器本来就从上游那条链推得出来），
-              但出图脚本拿 reference/ 缓存比不中这条边，本节点在概念图上会显示为
-              **紫色虚线框**「在此处被赋予父类」。**这一次那个颜色是如实的** ——
-              本文件确实写了一条上游没有逐字写过的公理，尽管它不新增任何蕴涵。
-
-          ⚠ 本节这两条边**把图上分成两团的材料侧接起来了**。commagmo:CrystallineMaterial
-            那一节先前记着一条待决：「那条链在 EMMO 里是通的，图上暂时分成两团，
-            要连起来是补**四条**重述、零新增蕴涵，留作待决」。
-            本轮用**两条**接上了（省下的两条正是跳过中间站省的），那个待决到此结清。
+          ⚰ **已删除（2026-10-23）：捷径边 emmo:MaterialByStructure ⊑ emmo:Material。**
+            上游实际是 ⊑ emmo:MaterialByClassicalMaterialsScience ⊑ emmo:Material；这条边跳过
+            中间站，零新增蕴涵，却让读者以为上游就是这么挂的。删掉后概念图上材料侧会
+            重新分成两团，这是如实的：本文件不再重述 MaterialByStructure 以上的链。
+            依据：docs/material-cross-ontology.md §5（H5）。
   emmo:Language:
     label: Language
     rationale: |-
@@ -2803,7 +2701,7 @@ upstream:
           sign (e.g., black) or a quantitiative property (e.g., 1.4 kg)."
           上游唯一公理 ⊑ emmo:CodedByStructure（EMMO_38f31ba5…），本文件不重述。
 
-          ⚠ 同一条三元组 simulation.ttl 里也有一份（那边「属性侧」那一节要用它）。
+          ⚠ 同一个引用节点 simulation.ttl 里也有一份（那边 hasInputProperty 的 rdfs:range 要用它）。
             两处内容逐字相同，合到一张图里是同一条三元组，不冲突。
       ################################################################
   emmo:PhaseOfMatter:

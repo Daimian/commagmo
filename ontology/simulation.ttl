@@ -286,6 +286,20 @@ commagmo:PostProcessingMethod a owl:Class ;
     rdfs:subClassOf commagmo:SimulationSetting ;
     skos:definition "A simulation setting that states how the target quantity is extracted from the raw output, for example by fitting, integration, or reading a peak."@en .
 
+commagmo:ScaleBridging a owl:Class ;
+    rdfs:label "ScaleBridging"@en ;
+    rdfs:subClassOf emmo:EMMO_1c7f2dfe_0db4_4bf6_a0f6_853054a34ead ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_36e69413_8c59_4799_946c_10b05d266e22 ; owl:someValuesFrom commagmo:SimulatedProperty ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_c4bace1d_4db0_4cd3_87e9_18122bae2840 ; owl:someValuesFrom emmo:EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba ] ;
+    skos:definition "A data processing that turns a property calculated by a simulation at one scale into a property given as input to a simulation at another scale, for example converting exchange constants into an exchange stiffness."@en .
+
+commagmo:MultiscaleSimulation a owl:Class ;
+    rdfs:label "MultiscaleSimulation"@en ;
+    rdfs:subClassOf emmo:EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_65a2c5b8_e4d8_4a51_b2f8_e55effc0547d ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass commagmo:MaterialSimulation ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_65a2c5b8_e4d8_4a51_b2f8_e55effc0547d ; owl:someValuesFrom commagmo:ScaleBridging ] ;
+    skos:definition "A simulation made of two or more material simulations that are solved one after another, in which the output of one is passed to the next through scale bridging."@en .
+
 commagmo:ModelValidation a owl:Class ;
     rdfs:label "ModelValidation"@en ;
     rdfs:subClassOf emmo:EMMO_472a0ca2_58bf_4618_b561_6fe68bd9fd49 ;
@@ -398,9 +412,7 @@ commagmo:comparesReference a owl:ObjectProperty ;
     rdfs:range emmo:EMMO_dd4a7f3e_ef56_466c_ac1a_d2716b5f87ec ;
     skos:definition "Relates a model validation to the reference value it is compared against."@en .
 
-emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 rdfs:label "Material"@en ;
-    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204 ; owl:someValuesFrom emmo:EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba ] ;
-    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_51f426a6_af4a_4e91_a392_2b0bb635e2d5 ; owl:someValuesFrom emmo:EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 ] .
+emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 rdfs:label "Material"@en .
 
 emmo:EMMO_90ae56e4_d197_49b6_be1a_0049e4756606 rdfs:label "Object"@en .
 
@@ -448,12 +460,6 @@ emmo:EMMO_e97af6ec_4371_4bbc_8936_34b76e33302f rdfs:label "PhysicsBasedSimulatio
     rdfs:subClassOf emmo:EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b .
 
 emmo:EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba rdfs:label "Property"@en .
-
-emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204 rdfs:label "hasProperty"@en .
-
-emmo:EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 rdfs:label "ChemicalComposition"@en .
-
-emmo:EMMO_51f426a6_af4a_4e91_a392_2b0bb635e2d5 rdfs:label "hasChemicalComposition"@en .
 
 emmo:EMMO_d0200cf1_e4f4_45ae_873f_b9359daea3cd rdfs:label "ModelledProperty"@en .
 
