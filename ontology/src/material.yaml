@@ -20,10 +20,8 @@ module:
           文件只是组织方式，不是命名空间边界（概念图的图例也是这么写的：
           「我们自己的类永远不带前缀，不论是哪个文件声明的」）。
 
-          ⚠ 本体 IRI 取 …/commagmo/material，而 simulation.ttl 目前占着根 IRI
-            …/commagmo。等根模块文件出现时，simulation.ttl 那一个应当一并改成
-            …/commagmo/simulation，由根文件 owl:imports 两个子模块。
-            本文件不改已提交的东西，这笔记在这里。
+          本体 IRI 取 …/commagmo/material；simulation 取 …/commagmo/simulation；
+          根 IRI …/commagmo 归 commagmo.yaml，由它 owl:imports 两个子模块。
       ################################################################
   - before: emmo:Material
     text: |-
