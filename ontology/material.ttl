@@ -118,14 +118,12 @@ commagmo:Phase a owl:Class ;
 commagmo:CrystallinePhase a owl:Class ;
     rdfs:label "CrystallinePhase"@en ;
     rdfs:subClassOf commagmo:Phase ;
-    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasCrystallographicDefect ; owl:someValuesFrom commagmo:CrystallographicDefect ] ;
     skos:definition "A phase with uniform crystalline structure and a defined composition range."@en .
 
 commagmo:CrystallineMagneticPhase a owl:Class ;
     rdfs:label "CrystallineMagneticPhase"@en ;
     rdfs:subClassOf commagmo:CrystallinePhase ;
     rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204 ; owl:someValuesFrom commagmo:MagneticStructure ] ;
-    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasTopologicalDefect ; owl:someValuesFrom commagmo:TopologicalDefect ] ;
     skos:definition "A crystalline phase that is magnetically ordered, having atomic magnetic moments due to unpaired electrons."@en .
 
 commagmo:MagneticMaterial a owl:Class ;
@@ -147,21 +145,23 @@ commagmo:MagneticStructure a owl:Class ;
 
 commagmo:MagneticDomain a owl:Class ;
     rdfs:label "MagneticDomain"@en ;
-    rdfs:subClassOf commagmo:CrystallineMagneticPhase ;
+    rdfs:subClassOf commagmo:MicrostructureComponent ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_d893d373_b579_4867_841e_1c2b31a8d2c6 ; owl:someValuesFrom commagmo:Phase ] ;
     skos:definition "A region of a magnetically ordered body throughout which the magnetisation direction is uniform."@en .
 
 commagmo:TopologicalDefect a owl:Class ;
     rdfs:label "TopologicalDefect"@en ;
     rdfs:subClassOf commagmo:Defect ;
     skos:definition "A defect in an ordered medium that is topologically protected, classified by the homotopy group of the order-parameter space."@en ;
-    rdfs:comment "SCOPE. Within this ontology the ordered medium of interest is a magnetically ordered one: the order parameter is the magnetisation direction field, its target manifold is the unit sphere, and the intended instances are the topological defects of magnetic order — skyrmions and antiskyrmions, magnetic bubbles, vortex and skyrmion lines, Bloch points and emergent monopoles, domain walls of Bloch, Neel and cross-tie type, and hopfions. Lattice defects belong to the sibling class CrystallographicDefect instead."@en ;
+    rdfs:comment "SCOPE. Within this ontology the ordered medium of interest is a magnetically ordered one: the order parameter is the magnetisation direction field, its target manifold is the unit sphere, and the intended instances are the topological defects of magnetic order — skyrmions and antiskyrmions, magnetic bubbles, vortex and skyrmion lines, Bloch points and emergent monopoles, domain walls that separate topologically distinct states (such as 180° walls under uniaxial anisotropy), and hopfions. MagneticDomainWall itself is not a subclass: a 360° wall joins a state to itself and is topologically trivial. Lattice defects belong to the sibling class CrystallographicDefect instead."@en ;
     rdfs:comment "SCOPE IS EDITORIAL, NOT LOGICAL. The definition above is the general one and covers ordered media of any kind — liquid crystals, superfluids, superconductors — and no axiom on this class restricts it to magnetic systems. Nothing prevents a non-magnetic instance, and nothing here carries the topological criterion itself: neither an order-parameter field, nor a target manifold, nor a winding number is represented. Making the magnetic scope logical would require that machinery first."@en ;
     rdfs:comment "TOPOLOGICAL AND DIMENSIONAL ARE ORTHOGONAL CRITERIA OVER ONE POPULATION, NOT TWO TREES. This class is a sibling of CrystallographicDefect, not a fourth member of the PointDefect / LineDefect / PlaneDefect triad, which cuts by the dimension of the defect locus. A dislocation is both a LineDefect and a TopologicalDefect and should carry both parents; a vacancy is a PointDefect and is not topological; a skyrmion in a thin film is topological and its host lattice is perfect."@en .
 
 commagmo:MagneticDomainWall a owl:Class ;
     rdfs:label "MagneticDomainWall"@en ;
-    rdfs:subClassOf commagmo:TopologicalDefect ;
-    skos:definition "A two-dimensional topological defect separating two magnetic domains, across which the direction of the magnetisation rotates."@en .
+    rdfs:subClassOf commagmo:Defect ;
+    rdfs:subClassOf commagmo:MicrostructureComponent ;
+    skos:definition "A two-dimensional region separating magnetic domains, across which the direction of the magnetisation rotates."@en .
 
 commagmo:SpatialContrast a owl:Class ;
     rdfs:label "SpatialContrast"@en ;
@@ -238,6 +238,7 @@ commagmo:Grain a owl:Class ;
 commagmo:GrainBoundary a owl:Class ;
     rdfs:label "GrainBoundary"@en ;
     rdfs:subClassOf commagmo:MicrostructureComponent ;
+    rdfs:subClassOf commagmo:PlaneDefect ;
     skos:definition "A boundary between at least two grains."@en .
 
 commagmo:Pore a owl:Class ;
@@ -275,9 +276,17 @@ commagmo:hasCrystallographicDefect a owl:ObjectProperty ;
     rdfs:range commagmo:CrystallographicDefect ;
     skos:definition "A relation between a crystalline whole and a crystallographic defect it contains, such as a vacancy, an interstitial or a dislocation."@en .
 
+commagmo:hasNominalComposition a owl:ObjectProperty ;
+    rdfs:label "hasNominalComposition"@en ;
+    rdfs:subPropertyOf emmo:EMMO_51f426a6_af4a_4e91_a392_2b0bb635e2d5 ;
+    rdfs:range emmo:EMMO_0eabfde6_c6c5_4b1f_bf10_e4e0e06e9b2e ;
+    skos:definition "Relates a substance to its nominal chemical composition, such as its chemical formula, which together with its crystal structure identifies the kind of a phase."@en .
+
 emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 rdfs:label "Material"@en .
 
 emmo:EMMO_7efd64d1_05a1_49cd_a7f0_783ca050d4f3 rdfs:label "ChemicalComposition"@en .
+
+emmo:EMMO_0eabfde6_c6c5_4b1f_bf10_e4e0e06e9b2e rdfs:label "TotalComposition"@en .
 
 emmo:EMMO_51f426a6_af4a_4e91_a392_2b0bb635e2d5 rdfs:label "hasChemicalComposition"@en .
 

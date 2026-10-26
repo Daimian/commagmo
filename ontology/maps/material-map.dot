@@ -92,9 +92,8 @@ digraph material {
     x_CrystalStructure -> x_Site [label="emmo:hasSpatial\nTile ∃"];
     x_CrystallineMagneticMaterial -> x_CrystallineMagneticPhase [label="hasPhase ∃\n⊑ emmo:hasSpatialPart"];
     x_CrystallineMagneticPhase -> x_MagneticStructure [label="emmo:hasProperty ∃"];
-    x_CrystallineMagneticPhase -> x_TopologicalDefect [label="hasTopological\nDefect ∃\n⊑ emmo:hasSpatialPart"];
-    x_CrystallinePhase -> x_CrystallographicDefect [label="has\nCrystallographic\nDefect ∃\n⊑ emmo:hasSpatialPart"];
     x_Grain -> x_Phase [label="emmo:overlaps ∃"];
+    x_MagneticDomain -> x_Phase [label="emmo:overlaps ∃"];
     x_Microstructure -> x_Phase [label="hasPhase ≥1\n⊑ emmo:hasSpatialPart"];
     x_Microstructure -> x_MicrostructureComponent [label="emmo:has\nComponent ∃"];
     x_Phase -> emmo_EMMO_a8eb87b5_4d10_4137_a75c_e04ee59ca095 [label="emmo:hasProperty ∃"];
@@ -117,12 +116,14 @@ digraph material {
     x_Crystallography -> x_FractionalPosition [weight=8];
     x_MicrostructureComponent -> x_Grain [weight=8];
     x_MicrostructureComponent -> x_GrainBoundary [weight=8];
+    x_PlaneDefect -> x_GrainBoundary [weight=8];
     x_PointDefect -> x_Impurity [weight=8];
     x_PointDefect -> x_Interstitial [weight=8];
     x_Crystallography -> x_LatticeParameter [weight=8];
     x_CrystallographicDefect -> x_LineDefect [weight=8];
-    x_CrystallineMagneticPhase -> x_MagneticDomain [weight=8];
-    x_TopologicalDefect -> x_MagneticDomainWall [weight=8];
+    x_MicrostructureComponent -> x_MagneticDomain [weight=8];
+    x_Defect -> x_MagneticDomainWall [weight=8];
+    x_MicrostructureComponent -> x_MagneticDomainWall [weight=8];
     emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> x_MagneticMaterial [weight=8];
     x_CrystalStructure -> x_MagneticStructure [weight=8];
     emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> x_Microstructure [weight=8];

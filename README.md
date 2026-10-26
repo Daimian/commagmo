@@ -3,6 +3,9 @@
 **Computational Magnetic Materials Ontology**: an OWL 2 domain ontology aligned to
 [EMMO](https://emmo-repo.github.io/). It describes magnetic materials and the simulations
 performed on them at four length scales: electronic, atomistic, mesoscopic and continuum.
+Scales are assigned by the entities a model describes, following RoMM and OSMO. Micromagnetics
+treats the magnetisation as a continuous field, but it is classed as mesoscopic, as both
+sources do.
 
 Current version: **1.2.0**. Namespace: `https://w3id.org/emmo/domain/commagmo#`.
 It imports one upstream ontology, EMMO 1.0.4.
@@ -10,7 +13,7 @@ It imports one upstream ontology, EMMO 1.0.4.
 | File | Ontology IRI | Content |
 | --- | --- | --- |
 | [`ontology/commagmo.ttl`](ontology/commagmo.ttl) | `…/commagmo` | root: imports the two modules below |
-| [`ontology/material.ttl`](ontology/material.ttl) | `…/commagmo/material` | 38 classes, 4 object properties |
+| [`ontology/material.ttl`](ontology/material.ttl) | `…/commagmo/material` | 38 classes, 5 object properties |
 | [`ontology/simulation.ttl`](ontology/simulation.ttl) | `…/commagmo/simulation` | 48 classes, 15 object properties |
 | [`ontology/maps/`](ontology/maps/) | — | concept maps (`.dot` source + `.png`) |
 
