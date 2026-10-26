@@ -238,7 +238,7 @@ M6 的说明：
 
 ## 5 · 决议（grilling，2026-10-23）
 
-用户在讨论 Material 之前先把树根上移到本体目标。以下逐条由用户拍板，除 I1 外均已落实到 YAML。
+用户在讨论 Material 之前先把树根上移到本体目标。以下逐条由用户拍板，均已落实（I1 维持现状，只改 README）。
 
 ### 本体目标
 
@@ -248,7 +248,7 @@ M6 的说明：
 | G2 | PSPP 哪几段 | S→P 全做；P→S 只做"模拟工艺"，即相场模拟的输入参数和组织演化，真实工艺不建实体；Performance 只到材料级品质因数（(BH)max、Hc、Br、损耗），作为 Property 的子类；器件不进来 |
 | G3 | 多尺度怎么分 | 两条正交轴：尺度挂在单个模型上，耦合方式挂在多模型模拟上。这一版只认真做顺序（层级）耦合，并发耦合只保留 EMMO 类名 |
 | G4 | 尺度按什么定义 | 按模型里的实体（RoMM / EMMO），长度和时间数值只作注解 |
-| G5 | 材料在各尺度怎么展现 | **两层并存**：物质侧是材料和它的结构层级（相、晶粒、缺陷、磁畴，即 PSPP 的 S）；符号侧是各尺度模型的表示（超胞、原子构型、网格、场）。**Material 在物质侧，是各尺度模型共同的指称对象** |
+| G5 | 材料在各尺度怎么展现 | **两层并存**：物质侧是材料和它的结构层级（相、晶粒、缺陷、磁畴，即 PSPP 的 S）；符号侧是各尺度模型的表示（超胞、原子构型、网格、场）。**Material 在物质侧，是各尺度模型共同的指称对象**。（§6 K5 补充）物质侧只放实际存在的或被提议制造的物质；无限大、周期性、0 K、无缺陷等理想化都是模型假设，属于符号侧，由边界条件、原子构型、晶体结构和温度设置记录 |
 | G6 | 跨尺度参数怎么传 | 铸 `ScaleBridging ⊑ emmo:DataProcessing`，换算公式归这一步；直接照搬的情况算恒等桥接 |
 | G7 | 整条链要不要容器 | 铸 `MultiscaleSimulation ⊑ emmo:Simulation`；与 LinkedModelsSimulation 的关系只写注释 |
 
@@ -256,22 +256,22 @@ M6 的说明：
 
 | # | 问题 | 决议 |
 |---|---|---|
-| H1 | 被模拟的材料可以不存在吗 | 可以。Material 个体可以是假设的那份物质，不另设计算样品 |
-| H2 | 链里每次模拟指向哪份材料 | 各自指向它真正模拟的那份物质：DFT 指向理想晶体，微磁指向显微组织 |
-| H3′ | "NdFeB"这类种类 | **属于 ABox，不放进 TBox**；种类本身不建实体，由共享的 `ChemicalComposition` 个体表达。将来要做"工艺 + 组织"层面的种类（例如烧结磁体牌号）时，再升级为种类实体 |
+| H1 | 被模拟的材料可以不存在吗 | 可以，但只限**尚未制成的、被提议的材料**（§6 K2 收窄）；理想化不算在内（§6 K1）。不另设计算样品 |
+| H2 | 链里每次模拟指向哪份材料 | 各自指向它所计算的那份（真实的或被提议的）物质：DFT 通常指向某个相，例如主相；微磁指向显微组织（§6 K5 改写，原文是「DFT 指向理想晶体」） |
+| H3′ | "NdFeB"这类种类 | **属于 ABox，不放进 TBox**；种类本身不建实体。（§6 L2–L4 改写）**相的种类 = 名义成分 + 晶体结构**，由共享的具名符号个体表达（`hasNominalComposition` 与 CrystalStructure），只放在相这一层；材料层面的种类（工艺 + 组织，例如烧结磁体牌号）留待将来升级。原文是「由共享的 `ChemicalComposition` 个体表达」 |
 | H4 | 本地 Material 根类 | 不铸，直接用 `emmo:Material` |
 | H5 | 捷径边 `MaterialByStructure ⊑ Material` | 删除 |
 | H6 | `CrystallineMaterial ⊑ ∃hasPhase.CrystallinePhase` | 删除 |
 | H7 | 磁性材料 | 铸 `MagneticMaterial ⊑ emmo:Material`，不挂任何分面；释义写"能出现自发长程磁有序"；本版不写公理。`CrystallineMagneticMaterial` 同时 ⊑ MagneticMaterial 和 emmo:CrystallineMaterial |
 | H8 | 试样和工件 | 现在不建；接实验数据时复用 chameo:Sample 和 SampleExtraction |
 | H9 | 上游 Material 上的两条公理 | 两条都删，`simulation.yaml` 里的副本一起删。"材料必须写成分"交给 SHACL |
-| H10 | 理想晶体和磁体主相的关系 | 不直接连，靠共享成分和桥接链关联 |
+| H10 | 理想晶体和磁体主相的关系 | （§6 L1 改写）**链内各步经部分关系落在同一块材料上**：MultiscaleSimulation 的子模拟指向这块材料的显微组织或它的部分（如主相）；外来、被复用的结果不是子模拟，只经 ScaleBridging 的数据流进来。原文是「不直接连，靠共享成分和桥接链关联」，其前提已被 K1 推翻 |
 
 ### 收尾
 
 | # | 问题 | 决议 |
 |---|---|---|
-| I1 | 微磁模型的尺度 | 用户已按推荐批准改到 ContinuumModel，**但未落实**。落实前发现 `simulation.yaml` 的 MicromagneticModel 节点记有 RoMM（§3.4 列在 Mesoscopic 章，正文称 "the mesoscopic formalism"）和 OSMO 三条证据，判为介观。推荐所依据的"按 G4 微磁应为连续"并不成立，需要重新裁决 |
+| I1 | 微磁模型的尺度 | **维持 emmo:MesoscopicModel**。此前按"G4 微磁应为连续"批准的 ContinuumModel 作废：`simulation.yaml` 的 MicromagneticModel 节点记有 RoMM（§3.4 列在 Mesoscopic 章，正文称 "the mesoscopic formalism"）和 OSMO（M.5 在介观的 disjointUnionOf 里）三条证据。README 补一句：微磁用连续场形式，但按 RoMM/OSMO 归为介观 |
 | I2 | 模型侧和物质侧要不要单独连边 | 不加；模拟个体就是连接点（hasMaterialsModel / hasSimulatedMaterial / hasDiscretisation） |
 | I3 | SHACL | 本轮只记为待办 |
 
@@ -283,6 +283,80 @@ M6 的说明：
 - MultiscaleSimulation 要不要同时 ⊑ emmo:SerialWorkflow。
 - MagneticMaterial 的公理化，前提是先有表示磁有序倾向的类。
 - 新加的类没有用 HermiT 测过：本机没有 Java 运行时。
+- 点、线、面三档缺陷从 CrystallographicDefect 下解绑，改成直接 ⊑ Defect（§6 J8）。
+- 畴壁分隔畴的边：将来要写就用 ≥1，不用 =2（§6 J11）。
+- SHACL：`hasSimulatedMaterial` 的宾语必须显式声明为 emmo:Material，且不能是 Data，防止误填超胞等表示（§6 K4）。
+- 材料是已存在还是被提议：将来接实验数据（H8，chameo:Sample）时再考虑（§6 K3）。
+- SHACL：`hasNominalComposition` 的宾语和用作种类键的 CrystalStructure 必须是具名 IRI，不能是空白节点（§6 L3）。
+- SHACL：MultiscaleSimulation 子模拟的被模拟材料，须是整链材料本身或它的部分（§6 L1）。
+- 相的种类不铸实体，「种类相同」只能靠两个键的个体同一性判；需要时再考虑升级（§6 L2）。
+
+## 6 · 挑刺（2026-10-26）
+
+对 §5 决议逐个靶子挑刺。每条由用户拍板。
+
+### 靶子 5：物质侧的结构层级（G5）
+
+起因：G5 说物质侧有一个结构层级（相、晶粒、缺陷、磁畴），但这些类在 TBox 里挂在 EMMO 的不同分支下：
+Phase ⊑ PhaseOfMatter（Substance），Grain 等 ⊑ emmo:Component（Role ⊓ Constituent，没有 Matter 祖先），
+缺陷 ⊑ SpatialContrast（Contrast），而 MagneticDomain ⊑ CrystallineMagneticPhase，即把磁畴当成了相。
+核对过：EMMO 1.0.4 里 Substance、Role、Contrast 之间没有任何互斥公理（disjointWith、AllDisjointClasses、disjointUnionOf 都查了），
+同一个个体可以同时属于多个视角。
+
+| # | 问题 | 决议 |
+|---|---|---|
+| J1 | 结构层级在 TBox 里靠什么成立 | **以 Microstructure 为根的部分关系图**（hasPhase、hasComponent 等），父类按 EMMO 视角分开挂，不要求共同祖先。没接进这张图的结构特征算缺口。这一条是对 G5 的补充 |
+| J2 | 磁畴是不是相 | **不是。** 畴壁两侧是同一个热力学相；畴壁扫过原子全换、畴还是那个畴；继承来的「必含缺陷」与「畴内均匀」相悖；TopologicalDefect ⊓ MagneticDomain 挡不住 |
+| J3 | 相上的两条「必有缺陷」公理 | **都删。** ∃hasTopologicalDefect 对单畴、饱和样品是假话。∃hasCrystallographicDefect 原先的理由是与理想晶体冲突，已被 K1 取代（理想化移到模型侧后，真实相在 T > 0 下确实含平衡空位）；**维持删除的理由改为**：这条 ∃ 只推出一个匿名缺陷，回答不了任何问题，与 H9 同理（§6 K7）。有没有缺陷交给 ABox |
+| J4 | CrystallinePhase 要不要恢复 ⊑ emmo:Crystal | **不恢复**（legacy v1.2.0 起就没有这条边），只订正 rationale 里过时的说法 |
+| J5 | 磁畴挂到哪里 | `MagneticDomain ⊑ MicrostructureComponent ⊓ ∃overlaps.Phase`。用 overlaps 而不用 isPartOfPhase，是因为纳米复合磁体里一个畴可以跨相；填充用 Phase 而不用 CrystallineMagneticPhase，是因为非晶软磁也有畴 |
+| J6 | 晶粒没有 Matter 祖先算不算缺口 | **不算。** 晶粒长大时原子会换掉，同一性不靠物质承载，和磁畴是同一条理由 |
+| J7 | 晶界要不要同时 ⊑ PlaneDefect | **要**：`GrainBoundary ⊑ MicrostructureComponent ⊓ PlaneDefect`。不补 mstr 的 PhaseBoundary 链（同相晶粒之间的晶界不是相界） |
+| J8 | 点、线、面三档缺陷从 CrystallographicDefect 下拆出来 | 本版不拆，记为待办。G1 的核心问题用不到「缺陷是几维的」 |
+| J9 | 要不要铸 MagneticDomainStructure 容器 | **不铸**，它的角色由 Microstructure 承担 |
+| J10 | 畴壁要不要 ⊑ MicrostructureComponent | **要**，补上它没有宿主的缺口，和晶界对称 |
+| J11 | 畴壁「恰好分隔两个畴」的边 | 本版不铸。360° 畴壁两侧可以是同一个畴，闭合畴里一面畴壁可以邻接多个畴，所以将来写也用 ≥1 |
+| J12 | 畴壁是否都是拓扑缺陷 | **不是。** 180° 畴壁（单轴，π₀ = ℤ₂）是，360° 畴壁拓扑平凡。改成 `MagneticDomainWall ⊑ Defect ⊓ MicrostructureComponent`，释义里去掉 "topological"；TopologicalDefect 的 SCOPE 注释同步修改 |
+
+落实：都已写进 `material.yaml`，没有新增类或谓词，`build.py --check` 通过。改动过的类都**没有经过 HermiT 实测**，因为本机没有 Java。
+rdflib 核对过：MagneticDomain、MagneticDomainWall、GrainBoundary 的祖先里都有 MicrostructureComponent，
+CrystallinePhase 和 CrystallineMagneticPhase 上已经没有缺陷公理。
+
+### 靶子 1：假设材料放在物质侧（H1 与 G5 的冲突）
+
+起因：EMMO 的 Material 是「一份普通物质」，而 EMMO 是唯名论的 4D 本体，个体都是实际存在的时空实体，
+其中没有表示假设物理对象的类（唯一的 `Hypothesis` 是 Theory，属于符号侧）。H1 和 H2 却让「无限大、0 K、无缺陷的理想晶体」
+成了一个 Material 个体。可参照的另外两家：CMSO 的 Material 注释写着 "a theoretical entity and not necessarily a tangible object"，
+并另设 `ComputationalSample`（"a representative system of a material"）；EMMO 的 Referent 释义说 object 总是相对于一次解释而言。
+
+| # | 问题 | 决议 |
+|---|---|---|
+| K1 | DFT 模拟的对象是什么 | **真实的那份材料或相**（例如某块烧结磁体的 Nd₂Fe₁₄B 主相）。无限大、周期性、0 K、无缺陷都是模型假设，放在符号侧（PeriodicBoundaryCondition、AtomicConfiguration、CrystalStructure、温度设置）。不采用 CMSO 的 ComputationalSample |
+| K2 | 确实还不存在的材料 | 仍然是一个 emmo:Material 个体。H1 收窄为「可以是尚未制成的、被提议的材料」 |
+| K3 | 要不要记录「已存在 / 被提议」 | **不记录。** ModelValidation 的参考值可以来自文献或另一种方法，用不上这个区分。记为待办，等接入实验数据时再考虑 |
+| K4 | 防止把超胞等表示填进 hasSimulatedMaterial | 交给 SHACL：宾语必须显式声明为 emmo:Material，且不能是 Data。TBox 不加互斥（核对过，EMMO 里 Material 和 Data 的各级祖先之间都没有互斥公理；本机也跑不了 HermiT） |
+| K5 | G5 和 H2 的措辞 | G5 补一句「理想化属于符号侧」；H2 改为「DFT 通常指向某个相，微磁指向显微组织」；H10 标为前提失效，留给靶子 2 |
+| K6 | DFT 指向一个相时，hasSimulatedMaterial 的 range | **接受推断**：相个体会被推成 emmo:Material。EMMO 说 Material 可以是连续体物质，相和 Material 之间也没有互斥。不放宽 range，不另铸 hasSimulatedPhase |
+| K7 | J3 的依据被 K1 削弱，要不要恢复 CrystallinePhase ⊑ ∃hasCrystallographicDefect | **不恢复**，J3 的理由已更正（见上） |
+
+落实：只改了 rationale，公理没有变化。`simulation.yaml` 改的是 hasSimulatedMaterial，`material.yaml` 改的是 CrystallinePhase 删除缺陷公理那一段。
+
+### 靶子 2：用成分代替「种类」（H3′、H10、H2）
+
+起因：H3′ 用共享的 ChemicalComposition 个体给材料分组，但同一成分可以对应不同的种类：FePt 的 L1₀ 相是硬磁，A1 相是软磁；
+MnBi 有低温相和高温相；同名义成分的 Nd-Fe-B 有烧结和热变形两种。另外，EMMO 的惯用写法是每份物质各写一组成分
+（空白节点，上游甚至推荐一个组分挂一条），并没有共享成分个体的写法。H10 的前提也已被 K1 推翻。
+核对过：emmo:ChemicalComposition 完全在符号侧（祖先有 Language、Data，没有 Matter），所以拿它做分组键并不越界，用描述来分组本来就合理。
+
+| # | 问题 | 决议 |
+|---|---|---|
+| L1 | 链上各步在物质侧怎么关联 | **部分关系**：只有专门为这块材料做的模拟才算 MultiscaleSimulation 的子模拟，它们指向这块材料的显微组织或它的部分（如主相）。外来、被复用的结果（如文献中的 K₁）不是子模拟，只作为 SimulatedProperty 进 ScaleBridging。这条规则只是约定，OWL 写不出来，记入 SHACL 待办 |
+| L2 | 跨链的种类分组用什么做键 | **名义成分 + 晶体结构**（相的种类的经典判据），两者都是共享的具名符号个体。材料层面的种类仍然留待将来升级 |
+| L3 | 怎样保证分组键真的被共享 | 铸 `hasNominalComposition ⊑ emmo:hasChemicalComposition`，range 是 `emmo:TotalComposition`，不写 domain，以便和实测成分区分（实测成分仍用父谓词）。具名约束交给 SHACL。晶体结构不另铸谓词 |
+| L4 | 种类查询落在哪一层 | **只在相这一层。** 磁体整体的名义成分（如烧结磁体约 Nd₁₄Fe₇₉B₇）不是种类键 |
+
+落实：`material.yaml` 新增谓词 hasNominalComposition 和上游引用节点 emmo:TotalComposition，Phase 的 rationale 补了相的种类说明；
+`simulation.yaml` 在 MultiscaleSimulation 的 rationale 里补了 L1 的规则；README 里 material 模块的对象属性数从 4 改为 5。新增的谓词**没有经过 HermiT 实测**。
 
 ## 附 · 核对记录
 
