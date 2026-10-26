@@ -171,8 +171,6 @@ digraph commagmo {
     x_CrystalStructure -> x_Site [label="emmo:hasSpatial\nTile ∃"];
     x_CrystallineMagneticMaterial -> x_CrystallineMagneticPhase [label="hasPhase ∃\n⊑ emmo:hasSpatialPart"];
     x_CrystallineMagneticPhase -> x_MagneticStructure [label="emmo:hasProperty ∃"];
-    x_CrystallineMagneticPhase -> x_TopologicalDefect [label="hasTopological\nDefect ∃\n⊑ emmo:hasSpatialPart"];
-    x_CrystallinePhase -> x_CrystallographicDefect [label="has\nCrystallographic\nDefect ∃\n⊑ emmo:hasSpatialPart"];
     x_DFTSimulation -> x_KPointMesh [label="has\nDiscretisation ∃\n⊑ hasSimulationSetting"];
     x_DFTSimulation -> x_BasisSet [label="has\nDiscretisation ∃\n⊑ hasSimulationSetting"];
     x_DFTSimulation -> x_SolverForDFT [label="hasSolver ∃\n⊑ emmo:hasModel"];
@@ -181,6 +179,7 @@ digraph commagmo {
     x_DensityFunctionalTheory -> x_CoreElectronTreatment [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
     x_DensityFunctionalTheory -> x_ModelParameter [label="hasModel\nParameter ∃\n⊑ emmo:hasSpatialPart"];
     x_Grain -> x_Phase [label="emmo:overlaps ∃"];
+    x_MagneticDomain -> x_Phase [label="emmo:overlaps ∃"];
     x_MaterialSimulation -> emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 [label="hasSimulated\nMaterial ∃\n⊑ emmo:hasSimulatedObject"];
     x_MaterialSimulation -> emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 [label="hasMaterials\nModel ∃\n⊑ emmo:hasModel"];
     x_MaterialSimulation -> x_MaterialSimulationSoftware [label="emmo:has\nParticipant ∃"];
@@ -256,6 +255,7 @@ digraph commagmo {
     emmo_EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3 -> x_FreeEnergyFunctional [weight=8];
     x_MicrostructureComponent -> x_Grain [weight=8];
     x_MicrostructureComponent -> x_GrainBoundary [weight=8];
+    x_PlaneDefect -> x_GrainBoundary [weight=8];
     x_PointDefect -> x_Impurity [weight=8];
     x_InitialCondition -> x_InitialChargeDensity [weight=8];
     x_SimulationSetting -> x_InitialCondition [weight=8];
@@ -266,8 +266,9 @@ digraph commagmo {
     x_Discretisation -> x_KPointMesh [weight=8];
     x_Crystallography -> x_LatticeParameter [weight=8];
     x_CrystallographicDefect -> x_LineDefect [weight=8];
-    x_CrystallineMagneticPhase -> x_MagneticDomain [weight=8];
-    x_TopologicalDefect -> x_MagneticDomainWall [weight=8];
+    x_MicrostructureComponent -> x_MagneticDomain [weight=8];
+    x_Defect -> x_MagneticDomainWall [weight=8];
+    x_MicrostructureComponent -> x_MagneticDomainWall [weight=8];
     emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 -> x_MagneticMaterial [weight=8];
     x_CrystalStructure -> x_MagneticStructure [weight=8];
     emmo_EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b -> x_MaterialSimulation [weight=8];

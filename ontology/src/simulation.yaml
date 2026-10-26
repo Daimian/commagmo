@@ -1258,6 +1258,15 @@ classes:
             跨尺度要说的是两次模拟所解的模型属于不同的尺度档，这要比较两个填充者，
             OWL 的类表达式说不出来。三次同尺度模拟串起来，推理器同样认它是本类。
           ⚠ 未经 HermiT 实测。
+
+          ⚠⚠ **2026-10-26 补记：哪些模拟算子模拟**（docs/material-cross-ontology.md §6 L1）。
+            只有**专门为这块材料做的**模拟才是本类的 hasTemporalTile。它们的
+            hasSimulatedMaterial 指向这块材料的显微组织本身，或它的部分（例如经 hasPhase
+            到达的主相）—— 「这条链模拟的是同一块材料」靠这条部分关系路径回答，不靠比成分。
+            **外来的、被复用的结果**（例如文献里一组 Nd₂Fe₁₄B 的 K₁，被上百次微磁模拟复用）
+            不是子模拟，只作为 SimulatedProperty 进 ScaleBridging 的 hasInput。
+            ⚠ 这条规则只是约定，公理里没有：OWL 说不出「子模拟的宾语是整链宾语的部分」
+              （要比较两个填充者，与上面「跨尺度」同一个限制）。将来可交给 SHACL。
       ################################################################
   ModelValidation:
     label: ModelValidation
@@ -1426,6 +1435,18 @@ properties:
           ⚠ range 同样是推断不是检查 —— 填一个编码物（超胞）进来不会报错，
             它只会被一并推成一份普通物质。要把这种填法变成硬错误，需要一条
             owl:disjointWith 把编码物那一支与 emmo:Material 隔开。
+
+          ⚠⚠ **2026-10-26 补记**（docs/material-cross-ontology.md §6 靶子 1）：
+            · **宾语是实际存在的或被提议制造的那份物质，不是理想化。** 「无限、周期、0 K、
+              无缺陷」是模型假设，由 PeriodicBoundaryCondition、AtomicConfiguration、
+              CrystalStructure 与温度设置记录，不放在这里（K1）。
+            · **宾语可以是一个相**（DFT 通常算主相）。commagmo:Phase 不是 emmo:Material，
+              填进来会被本谓词的 range 推成 emmo:Material —— **这是有意的**：EMMO 自己写
+              "A material may be either a mesoscopic or a continuum substance"，
+              PhaseOfMatter 与 Material 的祖先之间也没有互斥公理（K6）。
+            · 上面那条「把编码物与 Material 隔开」**不走 owl:disjointWith**，交给 SHACL：
+              宾语须显式声明为 emmo:Material 且不是 Data（K4）。理由：互斥只拦得住已经
+              标了类型的个体，而且本机无 HermiT，加了也验不了。
       ################################################################
   hasMaterialsModel:
     kind: object

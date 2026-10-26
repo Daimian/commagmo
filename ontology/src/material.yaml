@@ -377,6 +377,9 @@ module:
                   (c) 补 Boundary → PhaseBoundary → SolidPhaseBoundary 三层再挂（mstr 口径，
                       要先铸三个类，而 Boundary 本来就是 commagmo:SpatialContrast 缺的那一支）。
                 **本轮按指示走 (a)。** 三条路都不冲突，(b)(c) 可以同时要。
+                ⚠ **2026-10-26 改为 (a)+(b)**：GrainBoundary ⊑ MicrostructureComponent ⊓ PlaneDefect
+                  （PlaneDefect 释义自带 "internal interface"）。(c) 不做：同相晶粒之间的晶界
+                  不是相界，PhaseBoundary 那条链用不上。未经 HermiT 实测。
 
             · **Precipitate** mstr 的第二父类是 **mstr:MicrostructureParticle**，
               而后者 ⊑ **emmo:Solid** <…#EMMO_a2b006f2…> ⊓ MicrostructureComponent。
@@ -1029,6 +1032,13 @@ classes:
             ⊑ emmo:Crystal ⊓ emmo:PhaseOfMatter —— 两者都直接挂在 PhaseOfMatter 之下，
             它另外要求晶态，本类另外什么都没要求。要让它 ⊑ 本类是给上游类加父类，
             而且得先想清楚本类将来会加什么条件。留作待决（v0.1.1 的墓碑里记过同一条）。
+
+          ⚠ **2026-10-26 补记：相的种类。** 相的种类 = 名义成分（commagmo:hasNominalComposition）
+            + 晶体结构（emmo:hasProperty → CrystalStructure），两者都是共享的具名符号个体；
+            种类本身不铸实体。种类键只放在相这一层，不放在材料（磁体）那一层。
+            见 hasNominalComposition 与 docs/material-cross-ontology.md §6 靶子 2。
+            上面那条「物理上最该带组成的恰恰是相」的待决，由此有了约定层面的答案，
+            但**仍然没有公理**：本类不写 ∃hasNominalComposition（理由同 H9）。
       ################################################################
     - "################################################################\n    commagmo:Phase ⊑ ∃emmo:hasProperty.emmo:VolumeFraction\n    —— 公理写在上面 commagmo:Phase 那个节点里，账记在这里。\n\n    HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl；\n    不可满足类 **0**）：\n\n    ⚠⚠ **主语侧不免费，而且这一条正好推翻了本文件先前记在 commagmo:Phase 上的\n      一句话。** 那一节原先写着「实测：本类个体 18 个类型，里面**没有 Referent /\n      Semiotics 那一组**（对照 commagmo:Microstructure 个体 23 个，含那一组）」——\n      本条一写，那句话就不成立了。\n      emmo:hasProperty 的 rdfs:domain 是 **emmo:Referent**，而 commagmo:Phase\n      经 emmo:PhaseOfMatter ⊑ ContinuumSubstance ⊑ Substance 一路上来是纯物侧，\n      Referent 不在其中。\n      实测：commagmo:Phase 的类级祖先 **16 → 20**，个体 **18 → 22**，多出\n      **Referent、SemioticEntity、Semiotics、Perspective** 四个。\n      ⚠ **与本文件 emmo:Material ⊑ ∃hasChemicalComposition 那一节记的 +4 是同一组\n        四个类、同一个机制**（rdfs:domain 在开放世界下推断类型而不是检查类型）。\n        那是本仓库记了一路的「Referent 闸门」，这是它在本文件里的第三次开启\n        （前两次：emmo:Material 那条、hasProperty 用在 emmo:Crystal 上那条 —— \n        后者当时是零成本，因为闸门已被前者提前付掉）。\n      ⚠ 不导致不一致：845 条互斥无序对里没有一条碰 Referent / Semiotics /\n        SemioticEntity / Sign / Conventional / Perspective；Perspective 本来就不是\n        排他分区。所以只是多背四个身份。\n      ⚠ **连带效果**：commagmo:Phase 的后代（CrystallinePhase、CrystallineMagneticPhase、\n        MagneticDomain）**一个都不受影响** —— 它们经 emmo:Crystal ⊑ … ⊑ emmo:Material\n        早就在闸门内侧了，实测祖先数 28 / 29 / 30 加本条前后一个不变。\n        真正变的只有 commagmo:Phase 自己，以及将来直接挂在它下面的非晶态相。\n      ⚠ **一个白捡的后果，记下来**：本文件 commagmo:Phase 那一节留着一条待决 ——\n        「物理上最该带组成的恰恰是相（相图的横轴就是成分），而当前的公理布局里\n        它偏偏没有」。那条待决当年记着两条路，其中 emmo:hasProperty 那条要付\n        Referent 闸门。**本条把那笔钱付掉了**，所以将来补组成边时，\n        无论走 hasChemicalComposition 还是 hasProperty，主语侧都已经是零成本。\n\n    宾语侧 —— **零成本，与本文件另外两条 hasProperty 边形成鲜明对照。**\n      一个 emmo:VolumeFraction 个体单独摆着 **29** 个类型，填进本谓词的宾语位后\n      **还是 29 个，一个都不多**。\n      理由：本谓词的 range 链要 Property（hasProperty）、Conventional（hasConvention）、\n      Sign（isRepresentedBy），而 emmo:VolumeFraction 的 27 个祖先里**三个全都已在**\n      （它本来就是一个物理量，量在 EMMO 里天然落在记号侧）。\n      ⚠ 对照：同一条谓词填 commagmo:CrystalStructure 宾语侧 **+9**、填\n        commagmo:MagneticStructure 也 **+9**。差别不在谓词，在填充类落在哪一侧 ——\n        **那两个是 Language ⊑ Data 侧的描述，本条是 Property 侧的量**，\n        后者早就在闸门内侧。这是本文件第一次量到 hasProperty 宾语侧为零。\n\n    ⚠⚠ **物理上的一处别扭，不掩盖：体积分数是关系量，不是相的内禀属性。**\n      「某相的体积分数」必须相对于一个包含它的整体才有意义（分母是那个整体的体积）。\n      本条把它写成一条一元属性边，等于说**每一份相都自带一个体积分数**，\n      而那个分数相对于什么，公理里没有任何东西说。\n      · 单相块体：分数为 1，说得通。\n      · 一份被抽象考虑、不在任何整体里的相：分数无定义。\n      ⚠ 上游那句定义其实自带分母（\"…divided by the sum of volumes of all\n        constituents…\"），但那是**英文里的**分母，公理里没有。\n        与本文件记过的 \"ordered\"、\"all constituents\"、维度、\"Magnetic\"、\n        \"essentially uniform\" 同一个毛病的第七例。\n      ⚠ 要把分母写进公理，得有一条三元关系（相、整体、分数）或者把分数挂在\n        「相在某显微组织中」那个中间对象上。OWL 写三元关系要具化，代价另算，本轮不做。\n      ⚠ **MAMMOS 走的是同一条路**：mammos:MainMagneticPhase ⊑ ∃hasProperty.VolumeFraction\n        （逐字同形），所以这个别扭不是本文件独有的，是这一族本体的通行做法。\n\n    ⚠ 用 ∃ 不用 =1：写 =1 会说「有且只有一个体积分数」，而同一份相在不同的整体里\n      有不同的分数（母合金里 5%、局部区域里 40%），=1 会把这件事挡掉。∃ 不会。\n################################################################"
   CrystallinePhase:
@@ -1036,8 +1046,6 @@ classes:
     definition: A phase with uniform crystalline structure and a defined composition range.
     parents:
     - Phase
-    restrictions:
-    - hasCrystallographicDefect some CrystallographicDefect
     rationale:
     - |-
       ################################################################
@@ -1086,6 +1094,14 @@ classes:
             ⚠ 另一半的待决没有变：mstr:CrystallinePhase 与 commagmo:Phase 仍然是兄弟，
               要让前者 ⊑ 后者是给上游类加父类，得先想清楚本地 Phase 将来会加什么条件
               （v0.1.1 的墓碑里记过同一条）。
+
+          ⚠⚠⚠ **2026-10-26 订正：本节开头「⊑ emmo:Crystal ⊓ commagmo:Phase」与实际不符。**
+            本类在 ttl 里只有一个父类 commagmo:Phase（legacy v1.2.0 就已如此；那条
+            ⊑ emmo:Crystal 的边早先删了，本节没跟着改）。所以「一口气继承两条 ∃」也不成立；
+            何况那两条（emmo:Material 上的 ∃hasChemicalComposition、emmo:Crystal 上的
+            ∃hasProperty.CrystalStructure）已按 material 决议 H9 删除。
+            **决定不恢复 ⊑ emmo:Crystal**：恢复后唯一的效果是让晶态相成为 Material，
+            而 commagmo:Phase 本身不是 —— 平白造出不对称。原文留着，好看出改过什么。
       ################################################################
     - |-
       ################################################################
@@ -1156,6 +1172,16 @@ classes:
             emmo:hasSpatialPart 在 EMMO 里是纯部分论的谓词，不承诺宾语是 Matter
             （实测宾语侧 +0 就是这个意思）。缺陷仍然稳稳待在 emmo:Contrast 那一支，
             8 个祖先一个没变，**没有被这条边拽到物侧来**。
+          ⚠⚠⚠ **2026-10-26 删除本条。** 对 T > 0 的真实宏观物质，「必有点缺陷」站得住
+            （空位是热平衡的）；但 material 决议 H1/H2 让 DFT 指向物质侧的理想无限晶体，
+            给它写一个晶态相就会被逼出一个缺陷，与「理想」正面冲突。
+            有没有缺陷交给 ABox；「真实样品普遍含缺陷」留给释义或 SHACL 提示。
+            决议见 docs/material-cross-ontology.md §6。本节其余的账随之作废。
+          ⚠⚠ **同日更正上面的理由**（§6 K7）：「理想晶体」那条已被 K1 取代 —— 理想化移到
+            模型侧，DFT 指向的是真实的相，而真实相在 T > 0 下确实含平衡空位，本条物理上站得住。
+            **维持删除的理由改为**：这条 ∃ 只推出一个匿名缺陷（哪种、在哪、多少浓度都不说），
+            回答不了任何问题；与 H9 删掉 emmo:Material 上两条低信息公理同理。
+            对被提议、尚未制成的材料，这句话也无从谈起。
       ################################################################
   CrystallineMagneticPhase:
     label: CrystallineMagneticPhase
@@ -1164,7 +1190,6 @@ classes:
     - CrystallinePhase
     restrictions:
     - emmo:hasProperty some MagneticStructure
-    - hasTopologicalDefect some TopologicalDefect
     rationale:
     - |-
       ################################################################
@@ -1331,6 +1356,11 @@ classes:
             「参照边」（缺陷 → 它偏离的那份理想序）本文件仍然没有 ——
             commagmo:deviatesFrom 至今没铸。旧仓库报告 09/10 把这两条边拆开正是为了防止
             它们被合并成一条；本文件现在**只有前一条**，处于「拆开了但只写了一半」的状态。
+          ⚠⚠⚠ **2026-10-26 删除本条。** 「每一份晶态磁性相都必含一个拓扑缺陷」对单畴颗粒、
+            饱和磁化的样品都是假话 —— 均匀磁化的一份相里既没有畴壁也没有斯格明子。
+            有没有缺陷是个体层面的事实，交给 ABox。决议见 docs/material-cross-ontology.md §6。
+            删除后 commagmo:hasTopologicalDefect 在 TBox 里不再有用例；畴壁改由
+            MicrostructureComponent 接进显微组织（见 MagneticDomainWall）。
       ################################################################
     - |-
       ################################################################
@@ -1489,7 +1519,9 @@ classes:
     label: MagneticDomain
     definition: A region of a magnetically ordered body throughout which the magnetisation direction is uniform.
     parents:
-    - CrystallineMagneticPhase
+    - MicrostructureComponent
+    restrictions:
+    - emmo:overlaps some Phase
     rationale: |-
       ################################################################
           commagmo:MagneticDomain —— 磁畴。⊑ commagmo:CrystallineMagneticPhase。
@@ -1591,12 +1623,39 @@ classes:
             <https://w3id.org/emmo/domain/magnetic-structure#MagneticDomain>。
             本地这一个**不窄于也不宽于**它 —— 两者的父类分属两支（Material vs PhysicalObject），
             连 broadMatch 都写不出来。本文件对七对一次 skos 对齐都没写。
+
+          ⚠⚠⚠ **2026-10-26 改挂：⊑ MicrostructureComponent ⊓ ∃emmo:overlaps.Phase，
+            不再 ⊑ CrystallineMagneticPhase。** 决议见 docs/material-cross-ontology.md §6。
+            上面各节的原文留着，凡是说「本类是相 / 在物侧 / 继承了几条 ∃」的句子一律作废。
+            **磁畴不是相**，四条理由：
+            (1) 热力学上畴壁两侧是同一个相（自由能相同、靠对称操作相联系）；
+                照 PhaseOfMatter 释义的字面把 magnetization 方向算进「均匀」，
+                一块铁就有几十个相，相图上没有这回事。
+            (2) 上面那条替换判据：畴壁扫过、原子全换，畴还是那个畴 —— 同一性不靠物质承载。
+            (3) 继承来的「每个畴必含拓扑缺陷 / 晶体学缺陷」与「畴内均匀」相悖
+                （这两条 ∃ 本轮也一并从父类上删掉了）。
+            (4) TopologicalDefect ⊓ MagneticDomain 可满足，畴壁 = 畴挡不住。
+            **为什么是 MicrostructureComponent**：畴结构决定矫顽力与磁滞，正是
+              「对显微组织整体性质有贡献的组分」；磁学本来就把畴图叫 magnetic microstructure。
+              祖先变成 Role ⊓ Constituent，**没有 Matter**，与替换判据相容 ——
+              与 commagmo:Grain 是同一条理由（晶粒长大时原子换了、晶粒还是那个晶粒）。
+              经 Microstructure ⊑ ∃hasComponent.MicrostructureComponent 接进部分关系图。
+            **为什么是 overlaps 而不是 isPartOfPhase，填充为什么是 Phase 而不是
+              CrystallineMagneticPhase**：交换耦合纳米复合磁体里一个畴跨软硬两相
+              （isPartOfPhase 说假话）；非晶软磁（Metglas 一类）有畴而无晶态相
+              （CrystallineMagneticPhase 说假话）。与 Grain 那条逐字同形。
+            ⚠ 旧模块的容器 magstr:MagneticDomainStructure **不铸**：它的角色由
+              commagmo:Microstructure 承担，畴与畴壁都是它的 hasComponent 组分。
+            ⚠ 「磁化方向一致」仍只在释义里，没有公理承载（本文件同一个毛病的又一例）。
+            ⚠ 上面磁泡那条故意的双父类（TopologicalDefect ⊓ MagneticDomain）改挂后仍可满足：
+              Role 与 Contrast 之间没有互斥。
+            ⚠ **未经 HermiT 实测**（本机无 Java 运行时）。上面所有祖先数、ABox 类型数都已过期。
       ################################################################
   TopologicalDefect:
     label: TopologicalDefect
     definition: A defect in an ordered medium that is topologically protected, classified by the homotopy group of the order-parameter space.
     comment:
-    - 'SCOPE. Within this ontology the ordered medium of interest is a magnetically ordered one: the order parameter is the magnetisation direction field, its target manifold is the unit sphere, and the intended instances are the topological defects of magnetic order — skyrmions and antiskyrmions, magnetic bubbles, vortex and skyrmion lines, Bloch points and emergent monopoles, domain walls of Bloch, Neel and cross-tie type, and hopfions. Lattice defects belong to the sibling class CrystallographicDefect instead.'
+    - 'SCOPE. Within this ontology the ordered medium of interest is a magnetically ordered one: the order parameter is the magnetisation direction field, its target manifold is the unit sphere, and the intended instances are the topological defects of magnetic order — skyrmions and antiskyrmions, magnetic bubbles, vortex and skyrmion lines, Bloch points and emergent monopoles, domain walls that separate topologically distinct states (such as 180° walls under uniaxial anisotropy), and hopfions. MagneticDomainWall itself is not a subclass: a 360° wall joins a state to itself and is topologically trivial. Lattice defects belong to the sibling class CrystallographicDefect instead.'
     - 'SCOPE IS EDITORIAL, NOT LOGICAL. The definition above is the general one and covers ordered media of any kind — liquid crystals, superfluids, superconductors — and no axiom on this class restricts it to magnetic systems. Nothing prevents a non-magnetic instance, and nothing here carries the topological criterion itself: neither an order-parameter field, nor a target manifold, nor a winding number is represented. Making the magnetic scope logical would require that machinery first.'
     - TOPOLOGICAL AND DIMENSIONAL ARE ORTHOGONAL CRITERIA OVER ONE POPULATION, NOT TWO TREES. This class is a sibling of CrystallographicDefect, not a fourth member of the PointDefect / LineDefect / PlaneDefect triad, which cuts by the dimension of the defect locus. A dislocation is both a LineDefect and a TopologicalDefect and should carry both parents; a vacancy is a PointDefect and is not topological; a skyrmion in a thin film is topological and its host lattice is perfect.
     parents:
@@ -1695,9 +1754,10 @@ classes:
       ################################################################
   MagneticDomainWall:
     label: MagneticDomainWall
-    definition: A two-dimensional topological defect separating two magnetic domains, across which the direction of the magnetisation rotates.
+    definition: A two-dimensional region separating magnetic domains, across which the direction of the magnetisation rotates.
     parents:
-    - TopologicalDefect
+    - Defect
+    - MicrostructureComponent
     rationale: |-
       ################################################################
           commagmo:MagneticDomainWall —— 磁畴壁。⊑ commagmo:TopologicalDefect。
@@ -1757,6 +1817,22 @@ classes:
             `.baseline-ancestors.json` 多一个 key，**其余 66 个类的祖先集一字不变**
             （逐类比对过，见本轮提交信息）。这是「先逐项解释再 --freeze」，
             不是拿 --freeze 掩盖变化。
+
+          ⚠⚠⚠ **2026-10-26 改挂：⊑ commagmo:Defect ⊓ MicrostructureComponent，
+            不再 ⊑ TopologicalDefect；释义去掉 "topological"、"two"。**
+            决议见 docs/material-cross-ontology.md §6。上面「⊑ TopologicalDefect」的各节原文留着。
+            · **不是每个畴壁都拓扑**：单轴各向异性下的 180° 壁连接 ±z 两个基态，π₀ = ℤ₂，
+              是拓扑缺陷；**360° 壁**两侧是同一基态，拓扑平凡，可以连续解开、自行湮灭。
+              Bloch / Néel / cross-tie 说的是壁内磁化怎么转，与拓扑无关。
+              某个 180° 壁个体仍可在 ABox 里另标 TopologicalDefect。
+            · **宿主缺口补上了**：⊑ MicrostructureComponent 后经
+              Microstructure ⊑ ∃hasComponent.MicrostructureComponent 接进部分关系图，
+              与 GrainBoundary ⊑ MicrostructureComponent ⊓ PlaneDefect 对称（一个个体、两张面孔）。
+            · 释义里 "two magnetic domains" 改成 "magnetic domains"：360° 壁两侧可以是同一个畴，
+              闭合畴里一面壁可以邻接好几个畴。分隔边（旧模块 =2 separatesMagneticDomain）
+              本版不铸，将来写也用 ≥1 不用 =2。
+            · 「畴壁是 2D」仍然说不出来（维度三档还绑在 CrystallographicDefect 下），记为待办。
+            ⚠ 未经 HermiT 实测（本机无 Java 运行时）。上面的祖先数已过期。
       ################################################################
   SpatialContrast:
     label: SpatialContrast
@@ -2180,12 +2256,19 @@ classes:
             单相晶粒与多相晶粒。将来若要说得出「晶粒主要属于哪个相」，得先决定
             单相晶粒与多相晶粒分不分类：分类之后，单相晶粒那一支才谈得上再收紧成
             ∃isPartOfPhase（那时它不再说假话）。
+
+          ⚠ 2026-10-26 补记：Grain 只挂 Role 一支（祖先里没有 Matter）是有意的，不是缺口。
+            晶粒长大时晶界迁移、原子并入别的晶粒，晶粒的同一性不靠物质承载 ——
+            与 commagmo:MagneticDomain 改挂到 MicrostructureComponent 是同一条理由。
+            结构层级靠以 Microstructure 为根的部分关系图成立，父类按视角分开挂
+            （docs/material-cross-ontology.md §6）。
       ################################################################
   GrainBoundary:
     label: GrainBoundary
     definition: A boundary between at least two grains.
     parents:
     - MicrostructureComponent
+    - PlaneDefect
   Pore:
     label: Pore
     definition: A small opening in a solid substance.
@@ -2390,6 +2473,42 @@ properties:
             所以 **ABox 里一份晶态相与它的缺陷必须是两个不同的个体**，不能自指，
             也不能反过来说缺陷有那份相作为部分。（与 Microstructure/Phase 那一处同款。）
       ################################################################
+  hasNominalComposition:
+    kind: object
+    label: hasNominalComposition
+    definition: Relates a substance to its nominal chemical composition, such as its chemical formula, which together with its crystal structure identifies the kind of a phase.
+    parents:
+    - emmo:hasChemicalComposition
+    range: emmo:TotalComposition
+    rationale: |-
+      ################################################################
+          commagmo:hasNominalComposition —— 名义成分（化学式）。2026-10-26 铸。
+          ⊑ emmo:hasChemicalComposition，rdfs:range emmo:TotalComposition，**不写 rdfs:domain**
+          （父谓词已带 domain emmo:Substance；本仓库一贯不在本地谓词上加 domain）。
+          决议见 docs/material-cross-ontology.md §6 靶子 2（L2–L4）。
+
+          **它是「相的种类」的键之一**：相的种类 = 名义成分 + 晶体结构，两者都由**共享的具名
+          符号个体**表达 —— 两个相种类相同，当且仅当它们的 hasNominalComposition 宾语是同一个
+          个体，且 emmo:hasProperty 指向同一个 CrystalStructure 个体。只看成分不够：
+          L1₀ 与 A1 的 FePt 成分相同，一个硬磁一个软磁；MnBi 的 LTP / HTP 同理。
+          ⚠ 「种类」本身不铸实体（H3′ 原意保留），只靠两个键的个体同一性来判。
+          ⚠ **种类键只放在相这一层**（L4）。磁体整体也可以有名义成分（例如烧结磁体约
+            Nd₁₄Fe₇₉B₇），但那不是种类键；材料层（工艺 + 组织）的种类留待将来升级，
+            否则烧结与热变形的同成分磁体又会被归成一组。
+
+          **为什么另铸子谓词，不直接用父谓词**：K1 之后 DFT 指向真实的相，一份相可以同时有
+            名义成分（Nd₂Fe₁₄B，种类键）与实测成分（偏离化学计量，这份物质自己的数据）。
+            两者都挂 hasChemicalComposition 就分不出哪个是键。实测成分照旧用父谓词。
+          **为什么 range 取 TotalComposition**：键是整条化学式；上游 note 推荐的
+            「一个组分挂一条 SingleComponentComposition」是另一种用法。
+            ⚠ TotalComposition 与 PartialComposition 在上游的公理逐字相同（见
+              emmo:ChemicalComposition 那一节），"all constituents" 只在释义里 ——
+              所以这个 range 只表意图，推理器分不出整式与部分式。
+          ⚠ **共享靠约定，不靠公理**：宾语必须是具名 IRI 而非空白节点，交给 SHACL（待办）。
+            EMMO 惯用写法是每份物质一组空白节点，照那样写种类比较只能逐项比数值，很脆。
+          ⚠ 未经 HermiT 实测（本机无 Java 运行时）。range 推断的代价（宾语被推成
+            TotalComposition ⊓ ChemicalComposition）与父谓词同一侧，预期零新增，未量。
+      ################################################################
 upstream:
   emmo:Material:
     label: Material
@@ -2489,6 +2608,16 @@ upstream:
 
           后代 3，就是上面那三档；再往下全空。具体组成要么本地铸类，要么直接写个体
           （上游示例走的是后者）。
+      ################################################################
+  emmo:TotalComposition:
+    label: TotalComposition
+    rationale: |-
+      ################################################################
+          emmo:TotalComposition —— 纯引用节点，本文件不重述上游公理。
+          disciplines/chemistry.ttl —— "A language construct that represents fraction or amount
+          of all constituents of a substance." ⊑ emmo:ChemicalComposition（符号侧）。
+          用作 commagmo:hasNominalComposition 的 range。
+          ⚠ 它与 PartialComposition 的公理逐字相同，"all" 没有公理承载（见 emmo:ChemicalComposition）。
       ################################################################
   emmo:hasChemicalComposition:
     label: hasChemicalComposition
