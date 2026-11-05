@@ -249,8 +249,8 @@ M6 的说明：
 | G3 | 多尺度怎么分 | 两条正交轴：尺度挂在单个模型上，耦合方式挂在多模型模拟上。这一版只认真做顺序（层级）耦合，并发耦合只保留 EMMO 类名 |
 | G4 | 尺度按什么定义 | 按模型里的实体（RoMM / EMMO），长度和时间数值只作注解 |
 | G5 | 材料在各尺度怎么展现 | **两层并存**：物质侧是材料和它的结构层级（相、晶粒、缺陷、磁畴，即 PSPP 的 S）；符号侧是各尺度模型的表示（超胞、原子构型、网格、场）。**Material 在物质侧，是各尺度模型共同的指称对象**。（§6 K5 补充）物质侧只放实际存在的或被提议制造的物质；无限大、周期性、0 K、无缺陷等理想化都是模型假设，属于符号侧，由边界条件、原子构型、晶体结构和温度设置记录 |
-| G6 | 跨尺度参数怎么传 | 铸 `ScaleBridging ⊑ emmo:DataProcessing`，换算公式归这一步；直接照搬的情况算恒等桥接 |
-| G7 | 整条链要不要容器 | 铸 `MultiscaleSimulation ⊑ emmo:Simulation`；与 LinkedModelsSimulation 的关系只写注释 |
+| G6 | 跨尺度参数怎么传 | 铸 `ScaleBridging ⊑ emmo:DataProcessing`，换算公式归这一步；直接照搬的情况算恒等桥接。（§6 O1 补）输入是 `emmo:ObjectiveProperty`，按来源取 SimulatedProperty、MeasuredProperty 或 ConventionalProperty |
+| G7 | 整条链要不要容器 | 铸 `MultiscaleSimulation ⊑ emmo:Simulation`；与 LinkedModelsSimulation 的关系只写注释。（§6 O2 补）同时 ⊑ `emmo:Workflow`，部分关系用 `emmo:hasTask`，不挂 SerialWorkflow |
 
 ### Material
 
@@ -262,10 +262,10 @@ M6 的说明：
 | H4 | 本地 Material 根类 | 不铸，直接用 `emmo:Material` |
 | H5 | 捷径边 `MaterialByStructure ⊑ Material` | 删除 |
 | H6 | `CrystallineMaterial ⊑ ∃hasPhase.CrystallinePhase` | 删除 |
-| H7 | 磁性材料 | 铸 `MagneticMaterial ⊑ emmo:Material`，不挂任何分面；释义写"能出现自发长程磁有序"；本版不写公理。`CrystallineMagneticMaterial` 同时 ⊑ MagneticMaterial 和 emmo:CrystallineMaterial |
+| H7 | 磁性材料 | 铸 `MagneticMaterial ⊑ emmo:Material`，不挂任何分面；本版不写公理。（§6 N1–N2 改写）释义为「电子磁矩能在零外场、低于某个有序温度时自发形成长程排列」，不限压力；铁磁、亚铁磁、反铁磁、螺旋序算，顺磁、抗磁、自旋玻璃不算。原文是「能出现自发长程磁有序」。`CrystallineMagneticMaterial` 同时 ⊑ MagneticMaterial 和 emmo:CrystallineMaterial，（§6 N7）释义改为「磁有序落在晶态相上」 |
 | H8 | 试样和工件 | 现在不建；接实验数据时复用 chameo:Sample 和 SampleExtraction |
-| H9 | 上游 Material 上的两条公理 | 两条都删，`simulation.yaml` 里的副本一起删。"材料必须写成分"交给 SHACL |
-| H10 | 理想晶体和磁体主相的关系 | （§6 L1 改写）**链内各步经部分关系落在同一块材料上**：MultiscaleSimulation 的子模拟指向这块材料的显微组织或它的部分（如主相）；外来、被复用的结果不是子模拟，只经 ScaleBridging 的数据流进来。原文是「不直接连，靠共享成分和桥接链关联」，其前提已被 K1 推翻 |
+| H9 | 上游 Material 上的两条公理 | 两条都删，`simulation.yaml` 里的副本一起删。（§6 M2 重排理由）首要理由是不收紧上游类；其次，`∃hasChemicalComposition` 说的是「每份物质都已被写过成分」，是数据义务，归 SHACL，落实为「被模拟的相必须写名义成分和晶体结构」（M7）；推成 Referent 的副作用排第三。原文是「"材料必须写成分"交给 SHACL」 |
+| H10 | 理想晶体和磁体主相的关系 | （§6 L1 改写）**链内各步经部分关系落在同一块材料上**：MultiscaleSimulation 的子模拟指向这块材料的显微组织或它的部分（如主相）；外来、被复用的结果不是子模拟，只经 ScaleBridging 的数据流进来（按来源取 ObjectiveProperty 的子类，§6 O1）。原文是「不直接连，靠共享成分和桥接链关联」，其前提已被 K1 推翻 |
 
 ### 收尾
 
@@ -273,23 +273,27 @@ M6 的说明：
 |---|---|---|
 | I1 | 微磁模型的尺度 | **维持 emmo:MesoscopicModel**。此前按"G4 微磁应为连续"批准的 ContinuumModel 作废：`simulation.yaml` 的 MicromagneticModel 节点记有 RoMM（§3.4 列在 Mesoscopic 章，正文称 "the mesoscopic formalism"）和 OSMO（M.5 在介观的 disjointUnionOf 里）三条证据。README 补一句：微磁用连续场形式，但按 RoMM/OSMO 归为介观 |
 | I2 | 模型侧和物质侧要不要单独连边 | 不加；模拟个体就是连接点（hasMaterialsModel / hasSimulatedMaterial / hasDiscretisation） |
-| I3 | SHACL | 本轮只记为待办 |
+| I3 | SHACL | （§6 M3 改写）**已写**：`ontology/shapes/commagmo-shapes.ttl` 三个 shape，用 `tests/shacl/` 的正反例接进 `build.py --check`。原文是「本轮只记为待办」 |
 
 ### 待办
 
-- SHACL：被模拟的材料必须写 hasChemicalComposition（H9 / H3′）。
+- ~~SHACL：被模拟的材料必须写 hasChemicalComposition（H9 / H3′）。~~ 已兑现并收窄为「被模拟的相必须写具名名义成分，晶态相还须有具名晶体结构」（§6 M7）。
 - 并发耦合（G3）、真实工艺端（G2）、种类实体的升级条件（H3′）。
 - ScaleBridging 的换算方法要不要写成公理（候选 `isRepresentedBy some emmo:Equation`）。
-- MultiscaleSimulation 要不要同时 ⊑ emmo:SerialWorkflow。
+- ~~MultiscaleSimulation 要不要同时 ⊑ emmo:SerialWorkflow。~~ 不挂：它与 ParallelWorkflow 互斥，挂上就排除了 DAG 形的链；改为 ⊑ emmo:Workflow（§6 O2）。
 - MagneticMaterial 的公理化，前提是先有表示磁有序倾向的类。
 - 新加的类没有用 HermiT 测过：本机没有 Java 运行时。
 - 点、线、面三档缺陷从 CrystallographicDefect 下解绑，改成直接 ⊑ Defect（§6 J8）。
 - 畴壁分隔畴的边：将来要写就用 ≥1，不用 =2（§6 J11）。
-- SHACL：`hasSimulatedMaterial` 的宾语必须显式声明为 emmo:Material，且不能是 Data，防止误填超胞等表示（§6 K4）。
+- ~~SHACL：`hasSimulatedMaterial` 的宾语必须显式声明为 emmo:Material，且不能是 Data，防止误填超胞等表示（§6 K4）。~~ 已兑现，措辞改为「显式类型属于 Material 或 Phase」（§6 M4）。
 - 材料是已存在还是被提议：将来接实验数据（H8，chameo:Sample）时再考虑（§6 K3）。
-- SHACL：`hasNominalComposition` 的宾语和用作种类键的 CrystalStructure 必须是具名 IRI，不能是空白节点（§6 L3）。
-- SHACL：MultiscaleSimulation 子模拟的被模拟材料，须是整链材料本身或它的部分（§6 L1）。
+- ~~SHACL：`hasNominalComposition` 的宾语和用作种类键的 CrystalStructure 必须是具名 IRI，不能是空白节点（§6 L3）。~~ 已兑现，只查被模拟的相（§6 M7）。
+- ~~SHACL：MultiscaleSimulation 子模拟的被模拟材料，须是整链材料本身或它的部分（§6 L1）。~~ 已兑现，整链材料记在 MultiscaleSimulation 自己的 hasSimulatedMaterial 上（§6 M8）。
+- 需要时铸 `MagneticPhase ⊑ Phase`（倾向读法），再让 CrystallineMagneticPhase ⊑ MagneticPhase ⊓ CrystallinePhase；本版非晶磁体的相层只用 commagmo:Phase（§6 N6）。
+- 磁性相不在 MagneticMaterial 之下：查「被模拟的磁性物质」要用 `MagneticMaterial ⊔ CrystallineMagneticPhase`（§6 N8）。
+- SHACL 的闭包只认具名 subClassOf：用 equivalentClass 交集定义的类（如 DFTSimulation）不会被识别为 MaterialSimulation；需要时再考虑在检查器里补交集的具名合取项（§6 M6）。
 - 相的种类不铸实体，「种类相同」只能靠两个键的个体同一性判；需要时再考虑升级（§6 L2）。
+- 「跨尺度」目前既无公理也无 SHACL；有了多尺度微磁等实例数据后，再评估怎么检查才不误报（§6 O4）。
 
 ## 6 · 挑刺（2026-10-26）
 
@@ -307,7 +311,7 @@ Phase ⊑ PhaseOfMatter（Substance），Grain 等 ⊑ emmo:Component（Role ⊓
 |---|---|---|
 | J1 | 结构层级在 TBox 里靠什么成立 | **以 Microstructure 为根的部分关系图**（hasPhase、hasComponent 等），父类按 EMMO 视角分开挂，不要求共同祖先。没接进这张图的结构特征算缺口。这一条是对 G5 的补充 |
 | J2 | 磁畴是不是相 | **不是。** 畴壁两侧是同一个热力学相；畴壁扫过原子全换、畴还是那个畴；继承来的「必含缺陷」与「畴内均匀」相悖；TopologicalDefect ⊓ MagneticDomain 挡不住 |
-| J3 | 相上的两条「必有缺陷」公理 | **都删。** ∃hasTopologicalDefect 对单畴、饱和样品是假话。∃hasCrystallographicDefect 原先的理由是与理想晶体冲突，已被 K1 取代（理想化移到模型侧后，真实相在 T > 0 下确实含平衡空位）；**维持删除的理由改为**：这条 ∃ 只推出一个匿名缺陷，回答不了任何问题，与 H9 同理（§6 K7）。有没有缺陷交给 ABox |
+| J3 | 相上的两条「必有缺陷」公理 | **都删。** ∃hasTopologicalDefect 对单畴、饱和样品是假话。∃hasCrystallographicDefect 原先的理由是与理想晶体冲突，已被 K1 取代（理想化移到模型侧后，真实相在 T > 0 下确实含平衡空位）；**维持删除的理由改为**：这条 ∃ 只推出一个匿名缺陷，回答不了任何问题，与 H9 同理（§6 K7）。**（§6 M1 再更正）**「与 H9 同理」撤回，理由改为「这是物理事实，不是相的构成性条件」。有没有缺陷交给 ABox |
 | J4 | CrystallinePhase 要不要恢复 ⊑ emmo:Crystal | **不恢复**（legacy v1.2.0 起就没有这条边），只订正 rationale 里过时的说法 |
 | J5 | 磁畴挂到哪里 | `MagneticDomain ⊑ MicrostructureComponent ⊓ ∃overlaps.Phase`。用 overlaps 而不用 isPartOfPhase，是因为纳米复合磁体里一个畴可以跨相；填充用 Phase 而不用 CrystallineMagneticPhase，是因为非晶软磁也有畴 |
 | J6 | 晶粒没有 Matter 祖先算不算缺口 | **不算。** 晶粒长大时原子会换掉，同一性不靠物质承载，和磁畴是同一条理由 |
@@ -334,10 +338,10 @@ CrystallinePhase 和 CrystallineMagneticPhase 上已经没有缺陷公理。
 | K1 | DFT 模拟的对象是什么 | **真实的那份材料或相**（例如某块烧结磁体的 Nd₂Fe₁₄B 主相）。无限大、周期性、0 K、无缺陷都是模型假设，放在符号侧（PeriodicBoundaryCondition、AtomicConfiguration、CrystalStructure、温度设置）。不采用 CMSO 的 ComputationalSample |
 | K2 | 确实还不存在的材料 | 仍然是一个 emmo:Material 个体。H1 收窄为「可以是尚未制成的、被提议的材料」 |
 | K3 | 要不要记录「已存在 / 被提议」 | **不记录。** ModelValidation 的参考值可以来自文献或另一种方法，用不上这个区分。记为待办，等接入实验数据时再考虑 |
-| K4 | 防止把超胞等表示填进 hasSimulatedMaterial | 交给 SHACL：宾语必须显式声明为 emmo:Material，且不能是 Data。TBox 不加互斥（核对过，EMMO 里 Material 和 Data 的各级祖先之间都没有互斥公理；本机也跑不了 HermiT） |
+| K4 | 防止把超胞等表示填进 hasSimulatedMaterial | 交给 SHACL：宾语必须显式声明为 emmo:Material，且不能是 Data（**§6 M4 改写**为「显式类型属于 Material 或 Phase，且不是 Data」，不开推理）。TBox 不加互斥（核对过，EMMO 里 Material 和 Data 的各级祖先之间都没有互斥公理；本机也跑不了 HermiT） |
 | K5 | G5 和 H2 的措辞 | G5 补一句「理想化属于符号侧」；H2 改为「DFT 通常指向某个相，微磁指向显微组织」；H10 标为前提失效，留给靶子 2 |
 | K6 | DFT 指向一个相时，hasSimulatedMaterial 的 range | **接受推断**：相个体会被推成 emmo:Material。EMMO 说 Material 可以是连续体物质，相和 Material 之间也没有互斥。不放宽 range，不另铸 hasSimulatedPhase |
-| K7 | J3 的依据被 K1 削弱，要不要恢复 CrystallinePhase ⊑ ∃hasCrystallographicDefect | **不恢复**，J3 的理由已更正（见上） |
+| K7 | J3 的依据被 K1 削弱，要不要恢复 CrystallinePhase ⊑ ∃hasCrystallographicDefect | **不恢复**，J3 的理由已更正（见上；§6 M1 又改为构成性判据） |
 
 落实：只改了 rationale，公理没有变化。`simulation.yaml` 改的是 hasSimulatedMaterial，`material.yaml` 改的是 CrystallinePhase 删除缺陷公理那一段。
 
@@ -357,6 +361,70 @@ MnBi 有低温相和高温相；同名义成分的 Nd-Fe-B 有烧结和热变形
 
 落实：`material.yaml` 新增谓词 hasNominalComposition 和上游引用节点 emmo:TotalComposition，Phase 的 rationale 补了相的种类说明；
 `simulation.yaml` 在 MultiscaleSimulation 的 rationale 里补了 L1 的规则；README 里 material 模块的对象属性数从 4 改为 5。新增的谓词**没有经过 HermiT 实测**。
+
+### 靶子 3：Material 在 TBox 里一条公理都没有（H9、H4、H7）与「全推给 SHACL」
+
+起因：H9 删掉 emmo:Material 上的两条公理，J3、K7 又借「与 H9 同理」删掉相上的缺陷公理；前几个靶子还陆续把 4 条约束推给了尚未存在的 SHACL。
+核对过：H9 原本有三条理由（不收紧上游类、推成 Referent、开放世界下 ∃ 不检查数据），J3、K7 只借了第三条；
+而仓库里仍留着同形的本地 ∃（`Microstructure ⊑ ≥1 hasPhase.Phase`、`MaterialSimulation ⊑ ∃hasSimulatedMaterial`、`MagneticDomain ⊑ ∃overlaps.Phase` 等），
+所以「∃ 只推出匿名个体」不可能是真正的判据。另外 commagmo:Phase 的祖先里没有 emmo:Material，DFTSimulation 是用交集等价定义的、不是 MaterialSimulation 的具名子类，
+MultiscaleSimulation 也没有地方记「整链材料」。
+
+| # | 问题 | 决议 |
+|---|---|---|
+| M1 | ∃ 公理删留的判据 | **构成性**：∃ 写的是这个类离开它就不成立的东西（没有相的显微组织、没有被模拟材料的模拟）就留；只是物理上成立的事实（真实相含平衡空位）就删。J3 的理由据此改写，撤回「与 H9 同理」，K7 随之更正 |
+| M2 | emmo:Material 要不要恢复公理 | **继续为空**，H4 维持。H9 理由重排：① 不收紧上游类；② 新增：ChemicalComposition 在符号侧，`∃hasChemicalComposition` 是数据义务而不是物质的性质，归 SHACL；`∃hasProperty.Property` 是空话；③ Referent 副作用 |
+| M3 | SHACL 现在写还是留待办 | **现在写**最小 shapes，配正反例接进 `build.py --check`，新增依赖 pyshacl。只写 shapes 不配数据等于没验证 |
+| M4 | K4 与 K6 的冲突 | K4 要求宾语「显式声明为 emmo:Material」，但 Phase 不在 Material 之下：不开推理会误报，开 RDFS 推理又被 range 推成 Material、检查恒真。改为**不开推理，宾语的显式类型须属于 emmo:Material 或 commagmo:Phase，且不属于 emmo:Data**（`SimulatedMaterialTypeShape`） |
+| M5 | 文件放哪 | 手写 `ontology/shapes/commagmo-shapes.ttl`，不走 YAML 生成；测试数据 `tests/shacl/valid.ttl` 与 `invalid-<Shape名>-<情形>.ttl` |
+| M6 | 怎么接进 check、用哪张本体图 | `build.py --check` 在 ttl 解析之后跑 `tools/commagmo_build/shacl.py`：ont 图是仓库的 ttl 加上 `upstream-cache.json` 里上游类的具名直接父类，`inference='none'`。正例必须通过；每个反例必须失败，且只违反文件名里那一个 shape。局限：只认具名 subClassOf |
+| M7 | 「必须写成分」约束到哪 | **只约束被模拟的相**：须有具名的 `hasNominalComposition`；晶态相另须经 emmo:hasProperty 挂具名的 CrystalStructure（非晶相没有晶体结构，不要求）。显微组织不要求。一并兑现 L3（`SimulatedPhaseKindShape`） |
+| M8 | L1 的「整链材料」记在哪 | MultiscaleSimulation 自己用 hasSimulatedMaterial 指向整块材料（一般是 Microstructure），TBox 新增 `MultiscaleSimulation ⊑ ∃hasSimulatedMaterial.emmo:Material`（按 M1 是构成性的）。SPARQL 检查每个带 hasSimulatedMaterial 的子模拟，其宾语是整链材料或经 hasPhase / hasComponent / hasSpatialPart 一步或多步可达（`MultiscaleChainShape`）。不按 MaterialSimulation 筛子模拟，因为交集定义的 DFTSimulation 等在闭包里不是它的子类 |
+| M9 | Phase 上的体积分数公理 | **删**：`Phase ⊑ ∃hasProperty.VolumeFraction` 按 M1 不是构成性的，体积分数是相对整体的关系量，它自己的 rationale 已承认。Phase 因此不再自带 Referent 身份；被 hasSimulatedMaterial 指到时仍经 hasReferent 推成 Referent（K6） |
+
+落实：`material.yaml` 删了 Phase 的体积分数公理，改了 emmo:Material、Phase、CrystallinePhase、hasNominalComposition 的 rationale；
+`simulation.yaml` 给 MultiscaleSimulation 加了整链材料公理，改了它和 hasSimulatedMaterial 的 rationale。
+新增 `ontology/shapes/commagmo-shapes.ttl`、`tests/shacl/`（1 正例、5 反例）、`tools/commagmo_build/shacl.py`，
+`build.py --check` 接入 SHACL，`environment.yml` 和 `requirements.txt` 加 pyshacl，README 补了说明。
+`build.py --check` 通过；逐个测试文件核对过，每个反例只违反预期的那个 shape；把正例改坏后 check 返回 1。
+改动过的类**没有经过 HermiT 实测**。
+
+### 靶子 4：MagneticMaterial 的释义（H7）
+
+起因：MagneticMaterial 的释义「能出现自发长程磁有序」没有条件；CrystallineMagneticPhase 的释义「magnetically ordered」是状态读法，与 MagneticMaterial 的倾向读法混用。
+核对过：MagneticMaterial 没有公理，`simulation.yaml` 里没有任何地方用它；emmo:CrystallineMaterial 只是 MaterialByStructure 下的分面，没有释义也没有公理；
+CrystallineMagneticPhase 上还挂着 `∃hasProperty.MagneticStructure`，而同形的 `emmo:Crystal ⊑ ∃hasProperty.CrystalStructure` 早已删除。
+
+| # | 问题 | 决议 |
+|---|---|---|
+| N1 | 「能出现」以什么为条件 | **电子**磁矩、**零外场**、**低于某个有序温度**，不限压力。释义：「A material whose electronic magnetic moments can order spontaneously, in zero applied field, into a long-range arrangement below some ordering temperature.」反例：不限电子磁矩，铜也算（核自旋约 58 nK 反铁磁有序）；不限零外场，变磁体也算 |
+| N2 | 哪些序算数 | 铁磁、亚铁磁、反铁磁、螺旋与非公度序**算**；顺磁、抗磁、自旋玻璃**不算**（自旋玻璃只冻结，无长程序）。超顺磁纳米颗粒按颗粒的材料算 |
+| N3 | 软磁、硬磁 | **不铸类**。矫顽力阈值是约定，同一种材料可因工艺落在不同档，软硬是样品的性质；按 ABox 里的 Hc 值查（G2） |
+| N4 | CrystallineMagneticPhase 的读法 | **统一为倾向读法**，措辞同 N1，删去「due to unpaired electrons」（是机制不是判据，巡游磁体也对不上）。状态读法下 α-Fe 过 770 °C 仍是 α 相却要退出本类，且 EMMO 是 4D 本体，类归属不随时间变 |
+| N5 | CrystallineMagneticPhase ⊑ ∃hasProperty.MagneticStructure | **删**。MagneticStructure 在符号侧，这条是数据义务（M2）；与已删的 Crystal ⊑ ∃hasProperty.CrystalStructure 不一致；非公度序和未解出的磁结构写不成具名个体。不另加 SHACL |
+| N6 | 非晶软磁 | 属于 MagneticMaterial（无晶格，但磁矩长程铁磁有序），断言为 `MagneticMaterial ⊓ emmo:AmorphousMaterial`，相层用 commagmo:Phase。**不铸** MagneticPhase，记为待办 |
+| N7 | CrystallineMagneticMaterial 与它的 ∃hasPhase.CrystallineMagneticPhase | 释义改为「A magnetic material whose magnetic order resides in a crystalline phase」，这条 ∃ 因此是构成性的（M1），保留；⊑ emmo:CrystallineMaterial 保留。非磁性晶态基体加非晶磁性颗粒的材料不归本类。烧结 NdFeB、纳米晶 Finemet 在内 |
+| N8 | 磁性相要不要 ⊑ MagneticMaterial | **不加边**（K6、M4 定了 Phase 不挂在 Material 下）。查「被模拟的磁性物质」用 `MagneticMaterial ⊔ CrystallineMagneticPhase`，写进 rationale |
+
+落实：`material.yaml` 改了 MagneticMaterial、CrystallineMagneticPhase、CrystallineMagneticMaterial 三个释义，删了 CrystallineMagneticPhase 的磁结构公理，
+补了三个类的 rationale（CrystallineMagneticMaterial 原先没有 rationale）。`build.py --check` 通过。改动过的类**没有经过 HermiT 实测**。
+
+### 靶子 6：MultiscaleSimulation 的写法（G7、G6）
+
+起因：`hasTemporalTile` 的副作用没查过；「跨尺度」写不出来；L1 规定外来文献值作为 SimulatedProperty 进 ScaleBridging，而 `SimulatedProperty ⊑ ∃isOutputOf.MaterialSimulation`；要不要 ⊑ SerialWorkflow 一直挂在待办里。
+核对过（emmo-inferred-1.0.4.ttl）：`hasTemporalTile` 的 range 是 TemporalTile，它 ⊑ `hasSpatioTemporalTile`，后者的 domain 是 SpatioTemporalTessellation；两者都不与 Simulation 的祖先互斥。
+`SerialWorkflow` 与 `ParallelWorkflow` 互斥。`hasTask` 的 domain 是 Workflow，range 是 Task（⊑ Procedure ⊓ Role），不分串行或并行。
+四个本地模型类都用具名 subClassOf 挂在 EMMO 的四个尺度档下（ElectronicModel、AtomisticModel、MesoscopicModel、ContinuumModel）。
+
+| # | 问题 | 决议 |
+|---|---|---|
+| O1 | 文献值、实验值算不算 SimulatedProperty | ScaleBridging 的输入**放宽**为 `∃hasInput.emmo:ObjectiveProperty`，与 ModelValidation 的 comparesReference 同一 range；按来源取 SimulatedProperty、MeasuredProperty 或 ConventionalProperty。文献里的**计算值**仍是 SimulatedProperty，它的 ∃isOutputOf 为真（那次模拟真实存在，只是没记），不动。**实验值**（如测得的 Ms(T) 经标度换算成 A(T)）原先只能冒充 SimulatedProperty，会推出一次并不存在的模拟。不取 emmo:Property：太宽，会放进 coded property |
+| O2 | 部分关系与 SerialWorkflow | 改用 `emmo:hasTask`（`min 2 MaterialSimulation`、`some ScaleBridging`），父类加 `emmo:Workflow`，**不挂** SerialWorkflow。反例：主相和晶界相各一次 DFT，彼此独立，再一起汇入微磁，这是 DAG，不是时间上的先后切片；hasTemporalTile 会断言一个不存在的全序。释义去掉「one after another」。MultiscaleChainShape 和正反例的谓词随之换成 hasTask |
+| O3 | 按 M1 构成性判据审 ∃ | MultiscaleSimulation 的三条（≥2 次材料模拟、∃桥接、∃整链材料）与 ScaleBridging 的输入输出都保留：信息跨模拟传递是多尺度区别于「同一块材料上两次无关模拟」之处。MaterialSimulation 的 **∃hasConvergenceCriterion 不是构成性的**（LLG 按物理时间推进、固定步数的蒙特卡洛、显式时间推进的相场都没有收敛判据），**挪到 DFTSimulation**（SCF 必定有）。∃hasBoundaryCondition 保留 |
+| O4 | 「跨尺度」用 SHACL 兑现 | **不写**。按尺度档判可行，但会误报**多尺度微磁**（晶粒尺度粗粒化到磁体尺度，两边都在 MesoscopicModel 档）；只写成 emmo:MaterialsModel 的模型（如 ML 势）没有档。「scale」读作尺度或分辨率，记在 rationale，另记待办 |
+
+落实：`simulation.yaml` 改了 ScaleBridging（输入与释义）、MultiscaleSimulation（父类、谓词、释义）、MaterialSimulation（删收敛判据的 ∃）、DFTSimulation（加收敛判据的 ∃），并补了 rationale；
+`commagmo-shapes.ttl` 的 MultiscaleChainShape 与三个测试文件改走 hasTask。`build.py --check` 通过。改动过的类**没有经过 HermiT 实测**。
 
 ## 附 · 核对记录
 

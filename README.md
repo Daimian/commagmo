@@ -45,8 +45,10 @@ print(len(g), "triples")
 ontology/
   src/              YAML source (the only source of truth) + upstream-cache.json
   *.ttl, maps/      generated from src/ — do not hand-edit
+  shapes/           hand-written SHACL shapes (data obligations the OWL axioms do not state)
 tools/commagmo_build/   the generator (YAML → ttl and concept maps)
 build.py            entry point
+tests/shacl/        valid / invalid example data that every shape is checked against
 docs/
   review-criteria.md    criteria for judging a class or relation, used when reviewing the YAML
 ```
@@ -57,10 +59,17 @@ The ontology is authored in YAML and compiled to Turtle; edit `ontology/src/*.ya
 `.ttl` files.
 
 ```bash
-conda env create -f environment.yml          # once: python, pyyaml, rdflib, graphviz
+conda env create -f environment.yml          # once: python, pyyaml, rdflib, pyshacl, graphviz
 conda run -n commagmo-bin python build.py          # regenerate ontology/*.ttl and ontology/maps/*
-conda run -n commagmo-bin python build.py --check  # verify the committed files match the YAML and parse as Turtle
+conda run -n commagmo-bin python build.py --check  # verify the committed files match the YAML and parse as Turtle,
+                                                    # and that the SHACL shapes accept tests/shacl/valid.ttl and reject each invalid-*.ttl
 ```
+
+SHACL is validated without RDFS inference (`inference='none'`): the range of
+`hasSimulatedMaterial` would otherwise type every object as `emmo:Material` and make the type
+check vacuous. Superclasses are taken from the generated `.ttl` plus the named superclasses in
+`upstream-cache.json`. Name invalid examples `invalid-<ShapeName>-<case>.ttl`; each must violate
+exactly that shape.
 
 Without conda: `pip install -r requirements.txt` and put graphviz's `dot` on PATH, or pass
 `--no-render` to skip the png maps.
