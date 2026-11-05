@@ -8,3 +8,5 @@ REPO_ROOT = Path(__file__).resolve().parents[2]  # tools/commagmo_build/paths.py
 ONTOLOGY_DIR = REPO_ROOT / "ontology"            # 生成的 ttl 与 maps/
 ONTOLOGY_SRC_DIR = ONTOLOGY_DIR / "src"          # YAML 源与上游缓存
 UPSTREAM_CACHE = ONTOLOGY_SRC_DIR / "upstream-cache.json"
+SHAPES_DIR = ONTOLOGY_DIR / "shapes"                # 手写的 SHACL shapes
+SHACL_TESTS_DIR = REPO_ROOT / "tests" / "shacl"   # shapes 的正反例

@@ -1,0 +1,20 @@
+# 反例：DFT 子模拟算的是另一块磁体的主相，不是本链材料的部分（L1）。
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix emmo: <https://w3id.org/emmo#> .
+@prefix commagmo: <https://w3id.org/emmo/domain/commagmo#> .
+@prefix ex: <https://example.org/commagmo-test#> .
+
+ex:magnet a commagmo:Microstructure ; commagmo:hasPhase ex:mainPhase .
+ex:otherMagnet a commagmo:Microstructure ; commagmo:hasPhase ex:otherPhase .
+ex:mainPhase a commagmo:CrystallinePhase ;
+    commagmo:hasNominalComposition ex:Nd2Fe14B ;
+    emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204 ex:Nd2Fe14B-P42mnm .
+ex:otherPhase a commagmo:CrystallinePhase ;
+    commagmo:hasNominalComposition ex:Nd2Fe14B ;
+    emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204 ex:Nd2Fe14B-P42mnm .
+ex:Nd2Fe14B-P42mnm a commagmo:CrystalStructure .
+ex:dft a commagmo:DFTSimulation ; commagmo:hasSimulatedMaterial ex:otherPhase .
+ex:mm a commagmo:MicromagneticSimulation ; commagmo:hasSimulatedMaterial ex:magnet .
+ex:chain a commagmo:MultiscaleSimulation ;
+    commagmo:hasSimulatedMaterial ex:magnet ;
+    emmo:EMMO_70da982d_1810_4b01_9630_a28e216ecd9a ex:dft , ex:mm .

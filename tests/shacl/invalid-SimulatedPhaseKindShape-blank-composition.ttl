@@ -1,0 +1,9 @@
+# 反例：被模拟的相，名义成分写成空白节点（L3：键必须是共享的具名个体）。
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix emmo: <https://w3id.org/emmo#> .
+@prefix commagmo: <https://w3id.org/emmo/domain/commagmo#> .
+@prefix ex: <https://example.org/commagmo-test#> .
+
+ex:glassPhase a commagmo:Phase ;
+    commagmo:hasNominalComposition [ a emmo:EMMO_0eabfde6_c6c5_4b1f_bf10_e4e0e06e9b2e ] .
+ex:sim a commagmo:MaterialSimulation ; commagmo:hasSimulatedMaterial ex:glassPhase .

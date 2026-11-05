@@ -1,0 +1,36 @@
+# 正例：一条 DFT → 微磁的链，外加一个非晶相和一份用上游子类（emmo:Crystal）标注的材料。
+# 必须通过全部 shapes。
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix emmo: <https://w3id.org/emmo#> .
+@prefix commagmo: <https://w3id.org/emmo/domain/commagmo#> .
+@prefix ex: <https://example.org/commagmo-test#> .
+
+ex:magnet a commagmo:Microstructure ;
+    commagmo:hasPhase ex:mainPhase , ex:glassPhase .
+
+ex:mainPhase a commagmo:CrystallinePhase ;
+    commagmo:hasNominalComposition ex:Nd2Fe14B ;
+    emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204 ex:Nd2Fe14B-P42mnm .
+ex:Nd2Fe14B a emmo:EMMO_0eabfde6_c6c5_4b1f_bf10_e4e0e06e9b2e .        # TotalComposition
+ex:Nd2Fe14B-P42mnm a commagmo:CrystalStructure .
+
+# 非晶相：只要名义成分，不要晶体结构
+ex:glassPhase a commagmo:Phase ;
+    commagmo:hasNominalComposition ex:Fe78Si9B13 .
+
+ex:dft a commagmo:DFTSimulation ;
+    commagmo:hasSimulatedMaterial ex:mainPhase .
+ex:mdGlass a commagmo:MaterialSimulation ;
+    commagmo:hasSimulatedMaterial ex:glassPhase .
+ex:mm a commagmo:MicromagneticSimulation ;
+    commagmo:hasSimulatedMaterial ex:magnet .
+ex:bridge a commagmo:ScaleBridging .
+
+ex:chain a commagmo:MultiscaleSimulation ;
+    commagmo:hasSimulatedMaterial ex:magnet ;
+    emmo:EMMO_70da982d_1810_4b01_9630_a28e216ecd9a ex:dft , ex:bridge , ex:mm , ex:mdGlass .
+
+# 上游子类标注的材料：经 upstream-cache 的 subClassOf 闭包走到 emmo:Material
+ex:ironCrystal a emmo:EMMO_0bb3b434_73aa_428f_b4e8_2a2468648e19 .   # Crystal
+ex:dftIron a commagmo:DFTSimulation ;
+    commagmo:hasSimulatedMaterial ex:ironCrystal .

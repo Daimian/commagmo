@@ -153,7 +153,7 @@ digraph commagmo {
     emmo_EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba [label="emmo:Property"];
     emmo_EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b [label="emmo:Simulation"];
     emmo_EMMO_8b66ada5_510c_44bd_a8d8_3c64d301a5e9 [label="emmo:Simulation\nSoftware"];
-    emmo_EMMO_a8eb87b5_4d10_4137_a75c_e04ee59ca095 [label="emmo:Volume\nFraction"];
+    emmo_EMMO_64963ed6_39c9_4258_85e0_6466c4b5420c [label="emmo:Workflow"];
     emmo_EMMO_f7ed665b_c2e1_42bc_889b_6b42ed3a36f0 [label="emmo:\nMathematical\nModel"];
 
     /* ---- class-level restrictions ---- */
@@ -170,11 +170,11 @@ digraph commagmo {
     x_CrystalStructure -> x_Spacegroup [label="emmo:hasSpatial\nTile =1"];
     x_CrystalStructure -> x_Site [label="emmo:hasSpatial\nTile ∃"];
     x_CrystallineMagneticMaterial -> x_CrystallineMagneticPhase [label="hasPhase ∃\n⊑ emmo:hasSpatialPart"];
-    x_CrystallineMagneticPhase -> x_MagneticStructure [label="emmo:hasProperty ∃"];
     x_DFTSimulation -> x_KPointMesh [label="has\nDiscretisation ∃\n⊑ hasSimulationSetting"];
     x_DFTSimulation -> x_BasisSet [label="has\nDiscretisation ∃\n⊑ hasSimulationSetting"];
     x_DFTSimulation -> x_SolverForDFT [label="hasSolver ∃\n⊑ emmo:hasModel"];
     x_DFTSimulation -> x_InitialChargeDensity [label="hasInitial\nCondition ∃\n⊑ hasSimulationSetting"];
+    x_DFTSimulation -> x_ConvergenceCriterion [label="hasConvergence\nCriterion ∃\n⊑ hasSimulationSetting"];
     x_DensityFunctionalTheory -> x_ExchangeCorrelationFunctional [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
     x_DensityFunctionalTheory -> x_CoreElectronTreatment [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
     x_DensityFunctionalTheory -> x_ModelParameter [label="hasModel\nParameter ∃\n⊑ emmo:hasSpatialPart"];
@@ -184,7 +184,6 @@ digraph commagmo {
     x_MaterialSimulation -> emmo_EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 [label="hasMaterials\nModel ∃\n⊑ emmo:hasModel"];
     x_MaterialSimulation -> x_MaterialSimulationSoftware [label="emmo:has\nParticipant ∃"];
     x_MaterialSimulation -> x_BoundaryCondition [label="hasBoundary\nCondition ∃\n⊑ hasSimulationSetting"];
-    x_MaterialSimulation -> x_ConvergenceCriterion [label="hasConvergence\nCriterion ∃\n⊑ hasSimulationSetting"];
     x_MicromagneticModel -> x_MicromagneticEnergyTerms [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
     x_MicromagneticModel -> x_ModelParameter [label="hasModel\nParameter ∃\n⊑ emmo:hasSpatialPart"];
     x_MicromagneticSimulation -> x_FiniteDifferenceGrid [label="has\nDiscretisation ∃\n⊑ hasSimulationSetting"];
@@ -194,9 +193,9 @@ digraph commagmo {
     x_Microstructure -> x_MicrostructureComponent [label="emmo:has\nComponent ∃"];
     x_ModelValidation -> x_SimulatedProperty [label="compares\nSimulated ∃"];
     x_ModelValidation -> emmo_EMMO_dd4a7f3e_ef56_466c_ac1a_d2716b5f87ec [label="compares\nReference ∃"];
-    x_MultiscaleSimulation -> x_MaterialSimulation [label="emmo:hasTemporal\nTile ≥2"];
-    x_MultiscaleSimulation -> x_ScaleBridging [label="emmo:hasTemporal\nTile ∃"];
-    x_Phase -> emmo_EMMO_a8eb87b5_4d10_4137_a75c_e04ee59ca095 [label="emmo:hasProperty ∃"];
+    x_MultiscaleSimulation -> x_MaterialSimulation [label="emmo:hasTask ≥2"];
+    x_MultiscaleSimulation -> x_ScaleBridging [label="emmo:hasTask ∃"];
+    x_MultiscaleSimulation -> emmo_EMMO_4207e895_8b83_4318_996a_72cfb32acd94 [label="hasSimulated\nMaterial ∃\n⊑ emmo:hasSimulatedObject"];
     x_PhaseFieldModel -> x_FreeEnergyFunctional [label="hasEquationForm ∃\n⊑ emmo:hasSpatialPart"];
     x_PhaseFieldModel -> x_ModelParameter [label="hasModel\nParameter ∃\n⊑ emmo:hasSpatialPart"];
     x_PhaseFieldSimulation -> x_FiniteElementMesh [label="has\nDiscretisation ∃\n⊑ hasSimulationSetting"];
@@ -206,7 +205,7 @@ digraph commagmo {
     x_PostProcessing -> x_SimulatedProperty [label="emmo:hasOutput ∃"];
     x_PostProcessing -> x_PostProcessingMethod [label="emmo:is\nRepresentedBy ∃"];
     x_Precipitate -> x_Phase [label="isPartOfPhase ∃\n⊑ emmo:isPartOf"];
-    x_ScaleBridging -> x_SimulatedProperty [label="emmo:hasInput ∃"];
+    x_ScaleBridging -> emmo_EMMO_dd4a7f3e_ef56_466c_ac1a_d2716b5f87ec [label="emmo:hasInput ∃"];
     x_ScaleBridging -> emmo_EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba [label="emmo:hasOutput ∃"];
     x_SimulatedProperty -> x_MaterialSimulation [label="emmo:isOutputOf ∃"];
 
@@ -282,6 +281,7 @@ digraph commagmo {
     emmo_EMMO_d1d436e7_72fc_49cd_863b_7bfb4ba5276a -> x_ModelParameter [weight=8];
     emmo_EMMO_472a0ca2_58bf_4618_b561_6fe68bd9fd49 -> x_ModelValidation [weight=8];
     emmo_EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b -> x_MultiscaleSimulation [weight=8];
+    emmo_EMMO_64963ed6_39c9_4258_85e0_6466c4b5420c -> x_MultiscaleSimulation [weight=8];
     x_BoundaryCondition -> x_NeumannBoundaryCondition [weight=8];
     x_SimulationSetting -> x_NumericalPrecision [weight=8];
     x_BoundaryCondition -> x_OpenBoundaryCondition [weight=8];

@@ -1,0 +1,10 @@
+# 反例：被模拟的晶态相有名义成分，但晶体结构是空白节点（等于没有具名结构）。
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix emmo: <https://w3id.org/emmo#> .
+@prefix commagmo: <https://w3id.org/emmo/domain/commagmo#> .
+@prefix ex: <https://example.org/commagmo-test#> .
+
+ex:mainPhase a commagmo:CrystallinePhase ;
+    commagmo:hasNominalComposition ex:Nd2Fe14B ;
+    emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204 [ a commagmo:CrystalStructure ] .
+ex:dft a commagmo:DFTSimulation ; commagmo:hasSimulatedMaterial ex:mainPhase .

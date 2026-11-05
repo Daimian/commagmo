@@ -1004,8 +1004,6 @@ classes:
     definition: A region of matter throughout which all physical properties are essentially uniform.
     parents:
     - emmo:PhaseOfMatter
-    restrictions:
-    - emmo:hasProperty some emmo:VolumeFraction
     rationale:
     - |-
       ################################################################
@@ -1038,9 +1036,19 @@ classes:
             种类本身不铸实体。种类键只放在相这一层，不放在材料（磁体）那一层。
             见 hasNominalComposition 与 docs/material-cross-ontology.md §6 靶子 2。
             上面那条「物理上最该带组成的恰恰是相」的待决，由此有了约定层面的答案，
-            但**仍然没有公理**：本类不写 ∃hasNominalComposition（理由同 H9）。
+            但**仍然没有公理**：本类不写 ∃hasNominalComposition —— 「写了成分」是数据义务，
+            不是相的构成性条件（§6 M1、M2）。被模拟的相必须写名义成分与晶体结构，由
+            ontology/shapes/commagmo-shapes.ttl 的 SimulatedPhaseKindShape 检查（§6 M7）。
+
+          ⚰ **2026-11-05 删除：⊑ ∃emmo:hasProperty.emmo:VolumeFraction**（§6 M9）。
+            按 M1 的构成性判据过不了：体积分数是相对于某个整体的关系量，脱离整体的相
+            分数无定义 —— 下面那段长账自己就承认了。体积分数改在 ABox 里按需写。
+            ⚠ 连带：本类自己不再因这条边被推成 Referent；上面「当前实测：类级祖先 20、
+              个体 22 个类型」那句随之过时。相被 hasSimulatedMaterial 指到时，仍经
+              emmo:hasSimulatedObject ⊑ emmo:hasReferent 被推成 Referent（K6 已接受）。
+            ⚠ 未经 HermiT 实测（本机无 Java 运行时），新的祖先数没有量。
       ################################################################
-    - "################################################################\n    commagmo:Phase ⊑ ∃emmo:hasProperty.emmo:VolumeFraction\n    —— 公理写在上面 commagmo:Phase 那个节点里，账记在这里。\n\n    HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl；\n    不可满足类 **0**）：\n\n    ⚠⚠ **主语侧不免费，而且这一条正好推翻了本文件先前记在 commagmo:Phase 上的\n      一句话。** 那一节原先写着「实测：本类个体 18 个类型，里面**没有 Referent /\n      Semiotics 那一组**（对照 commagmo:Microstructure 个体 23 个，含那一组）」——\n      本条一写，那句话就不成立了。\n      emmo:hasProperty 的 rdfs:domain 是 **emmo:Referent**，而 commagmo:Phase\n      经 emmo:PhaseOfMatter ⊑ ContinuumSubstance ⊑ Substance 一路上来是纯物侧，\n      Referent 不在其中。\n      实测：commagmo:Phase 的类级祖先 **16 → 20**，个体 **18 → 22**，多出\n      **Referent、SemioticEntity、Semiotics、Perspective** 四个。\n      ⚠ **与本文件 emmo:Material ⊑ ∃hasChemicalComposition 那一节记的 +4 是同一组\n        四个类、同一个机制**（rdfs:domain 在开放世界下推断类型而不是检查类型）。\n        那是本仓库记了一路的「Referent 闸门」，这是它在本文件里的第三次开启\n        （前两次：emmo:Material 那条、hasProperty 用在 emmo:Crystal 上那条 —— \n        后者当时是零成本，因为闸门已被前者提前付掉）。\n      ⚠ 不导致不一致：845 条互斥无序对里没有一条碰 Referent / Semiotics /\n        SemioticEntity / Sign / Conventional / Perspective；Perspective 本来就不是\n        排他分区。所以只是多背四个身份。\n      ⚠ **连带效果**：commagmo:Phase 的后代（CrystallinePhase、CrystallineMagneticPhase、\n        MagneticDomain）**一个都不受影响** —— 它们经 emmo:Crystal ⊑ … ⊑ emmo:Material\n        早就在闸门内侧了，实测祖先数 28 / 29 / 30 加本条前后一个不变。\n        真正变的只有 commagmo:Phase 自己，以及将来直接挂在它下面的非晶态相。\n      ⚠ **一个白捡的后果，记下来**：本文件 commagmo:Phase 那一节留着一条待决 ——\n        「物理上最该带组成的恰恰是相（相图的横轴就是成分），而当前的公理布局里\n        它偏偏没有」。那条待决当年记着两条路，其中 emmo:hasProperty 那条要付\n        Referent 闸门。**本条把那笔钱付掉了**，所以将来补组成边时，\n        无论走 hasChemicalComposition 还是 hasProperty，主语侧都已经是零成本。\n\n    宾语侧 —— **零成本，与本文件另外两条 hasProperty 边形成鲜明对照。**\n      一个 emmo:VolumeFraction 个体单独摆着 **29** 个类型，填进本谓词的宾语位后\n      **还是 29 个，一个都不多**。\n      理由：本谓词的 range 链要 Property（hasProperty）、Conventional（hasConvention）、\n      Sign（isRepresentedBy），而 emmo:VolumeFraction 的 27 个祖先里**三个全都已在**\n      （它本来就是一个物理量，量在 EMMO 里天然落在记号侧）。\n      ⚠ 对照：同一条谓词填 commagmo:CrystalStructure 宾语侧 **+9**、填\n        commagmo:MagneticStructure 也 **+9**。差别不在谓词，在填充类落在哪一侧 ——\n        **那两个是 Language ⊑ Data 侧的描述，本条是 Property 侧的量**，\n        后者早就在闸门内侧。这是本文件第一次量到 hasProperty 宾语侧为零。\n\n    ⚠⚠ **物理上的一处别扭，不掩盖：体积分数是关系量，不是相的内禀属性。**\n      「某相的体积分数」必须相对于一个包含它的整体才有意义（分母是那个整体的体积）。\n      本条把它写成一条一元属性边，等于说**每一份相都自带一个体积分数**，\n      而那个分数相对于什么，公理里没有任何东西说。\n      · 单相块体：分数为 1，说得通。\n      · 一份被抽象考虑、不在任何整体里的相：分数无定义。\n      ⚠ 上游那句定义其实自带分母（\"…divided by the sum of volumes of all\n        constituents…\"），但那是**英文里的**分母，公理里没有。\n        与本文件记过的 \"ordered\"、\"all constituents\"、维度、\"Magnetic\"、\n        \"essentially uniform\" 同一个毛病的第七例。\n      ⚠ 要把分母写进公理，得有一条三元关系（相、整体、分数）或者把分数挂在\n        「相在某显微组织中」那个中间对象上。OWL 写三元关系要具化，代价另算，本轮不做。\n      ⚠ **MAMMOS 走的是同一条路**：mammos:MainMagneticPhase ⊑ ∃hasProperty.VolumeFraction\n        （逐字同形），所以这个别扭不是本文件独有的，是这一族本体的通行做法。\n\n    ⚠ 用 ∃ 不用 =1：写 =1 会说「有且只有一个体积分数」，而同一份相在不同的整体里\n      有不同的分数（母合金里 5%、局部区域里 40%），=1 会把这件事挡掉。∃ 不会。\n################################################################"
+    - "################################################################\n    ⚰ **2026-11-05 本条已删除（docs/material-cross-ontology.md §6 M9），以下全段作废，只留作历史账。**\n    commagmo:Phase ⊑ ∃emmo:hasProperty.emmo:VolumeFraction\n    —— 公理写在上面 commagmo:Phase 那个节点里，账记在这里。\n\n    HermiT 实测（ontology/*.ttl ＋ reference/emmo/emmo-inferred-1.0.4.ttl；\n    不可满足类 **0**）：\n\n    ⚠⚠ **主语侧不免费，而且这一条正好推翻了本文件先前记在 commagmo:Phase 上的\n      一句话。** 那一节原先写着「实测：本类个体 18 个类型，里面**没有 Referent /\n      Semiotics 那一组**（对照 commagmo:Microstructure 个体 23 个，含那一组）」——\n      本条一写，那句话就不成立了。\n      emmo:hasProperty 的 rdfs:domain 是 **emmo:Referent**，而 commagmo:Phase\n      经 emmo:PhaseOfMatter ⊑ ContinuumSubstance ⊑ Substance 一路上来是纯物侧，\n      Referent 不在其中。\n      实测：commagmo:Phase 的类级祖先 **16 → 20**，个体 **18 → 22**，多出\n      **Referent、SemioticEntity、Semiotics、Perspective** 四个。\n      ⚠ **与本文件 emmo:Material ⊑ ∃hasChemicalComposition 那一节记的 +4 是同一组\n        四个类、同一个机制**（rdfs:domain 在开放世界下推断类型而不是检查类型）。\n        那是本仓库记了一路的「Referent 闸门」，这是它在本文件里的第三次开启\n        （前两次：emmo:Material 那条、hasProperty 用在 emmo:Crystal 上那条 —— \n        后者当时是零成本，因为闸门已被前者提前付掉）。\n      ⚠ 不导致不一致：845 条互斥无序对里没有一条碰 Referent / Semiotics /\n        SemioticEntity / Sign / Conventional / Perspective；Perspective 本来就不是\n        排他分区。所以只是多背四个身份。\n      ⚠ **连带效果**：commagmo:Phase 的后代（CrystallinePhase、CrystallineMagneticPhase、\n        MagneticDomain）**一个都不受影响** —— 它们经 emmo:Crystal ⊑ … ⊑ emmo:Material\n        早就在闸门内侧了，实测祖先数 28 / 29 / 30 加本条前后一个不变。\n        真正变的只有 commagmo:Phase 自己，以及将来直接挂在它下面的非晶态相。\n      ⚠ **一个白捡的后果，记下来**：本文件 commagmo:Phase 那一节留着一条待决 ——\n        「物理上最该带组成的恰恰是相（相图的横轴就是成分），而当前的公理布局里\n        它偏偏没有」。那条待决当年记着两条路，其中 emmo:hasProperty 那条要付\n        Referent 闸门。**本条把那笔钱付掉了**，所以将来补组成边时，\n        无论走 hasChemicalComposition 还是 hasProperty，主语侧都已经是零成本。\n\n    宾语侧 —— **零成本，与本文件另外两条 hasProperty 边形成鲜明对照。**\n      一个 emmo:VolumeFraction 个体单独摆着 **29** 个类型，填进本谓词的宾语位后\n      **还是 29 个，一个都不多**。\n      理由：本谓词的 range 链要 Property（hasProperty）、Conventional（hasConvention）、\n      Sign（isRepresentedBy），而 emmo:VolumeFraction 的 27 个祖先里**三个全都已在**\n      （它本来就是一个物理量，量在 EMMO 里天然落在记号侧）。\n      ⚠ 对照：同一条谓词填 commagmo:CrystalStructure 宾语侧 **+9**、填\n        commagmo:MagneticStructure 也 **+9**。差别不在谓词，在填充类落在哪一侧 ——\n        **那两个是 Language ⊑ Data 侧的描述，本条是 Property 侧的量**，\n        后者早就在闸门内侧。这是本文件第一次量到 hasProperty 宾语侧为零。\n\n    ⚠⚠ **物理上的一处别扭，不掩盖：体积分数是关系量，不是相的内禀属性。**\n      「某相的体积分数」必须相对于一个包含它的整体才有意义（分母是那个整体的体积）。\n      本条把它写成一条一元属性边，等于说**每一份相都自带一个体积分数**，\n      而那个分数相对于什么，公理里没有任何东西说。\n      · 单相块体：分数为 1，说得通。\n      · 一份被抽象考虑、不在任何整体里的相：分数无定义。\n      ⚠ 上游那句定义其实自带分母（\"…divided by the sum of volumes of all\n        constituents…\"），但那是**英文里的**分母，公理里没有。\n        与本文件记过的 \"ordered\"、\"all constituents\"、维度、\"Magnetic\"、\n        \"essentially uniform\" 同一个毛病的第七例。\n      ⚠ 要把分母写进公理，得有一条三元关系（相、整体、分数）或者把分数挂在\n        「相在某显微组织中」那个中间对象上。OWL 写三元关系要具化，代价另算，本轮不做。\n      ⚠ **MAMMOS 走的是同一条路**：mammos:MainMagneticPhase ⊑ ∃hasProperty.VolumeFraction\n        （逐字同形），所以这个别扭不是本文件独有的，是这一族本体的通行做法。\n\n    ⚠ 用 ∃ 不用 =1：写 =1 会说「有且只有一个体积分数」，而同一份相在不同的整体里\n      有不同的分数（母合金里 5%、局部区域里 40%），=1 会把这件事挡掉。∃ 不会。\n################################################################"
   CrystallinePhase:
     label: CrystallinePhase
     definition: A phase with uniform crystalline structure and a defined composition range.
@@ -1180,20 +1188,32 @@ classes:
           ⚠⚠ **同日更正上面的理由**（§6 K7）：「理想晶体」那条已被 K1 取代 —— 理想化移到
             模型侧，DFT 指向的是真实的相，而真实相在 T > 0 下确实含平衡空位，本条物理上站得住。
             **维持删除的理由改为**：这条 ∃ 只推出一个匿名缺陷（哪种、在哪、多少浓度都不说），
-            回答不了任何问题；与 H9 删掉 emmo:Material 上两条低信息公理同理。
+            回答不了任何问题；与 H9 删掉 emmo:Material 上两条低信息公理同理（此句已撤回，见下）。
             对被提议、尚未制成的材料，这句话也无从谈起。
+          ⚠⚠ **2026-11-05 再更正**（§6 M1）：「与 H9 同理」撤回。H9 的首要理由是不收紧上游类，
+            本条写在本地类上，借不过来；「推不出有用的东西」单拿出来也不能当判据 —— 本仓库
+            留着的 Microstructure ⊑ ≥1 hasPhase.Phase、MaterialSimulation ⊑ ∃hasSimulatedMaterial
+            同样只推出匿名个体。**统一判据是构成性**：∃ 写的是这个类离开它就不成立的东西才留，
+            写的只是物理上成立的事实就删。真实相含平衡空位属于后者，所以本条维持删除。
       ################################################################
   CrystallineMagneticPhase:
     label: CrystallineMagneticPhase
-    definition: A crystalline phase that is magnetically ordered, having atomic magnetic moments due to unpaired electrons.
+    definition: A crystalline phase whose electronic magnetic moments can order spontaneously, in zero applied field, into a long-range arrangement below some ordering temperature.
     parents:
     - CrystallinePhase
-    restrictions:
-    - emmo:hasProperty some MagneticStructure
     rationale:
     - |-
       ################################################################
           磁学那一支起头：CrystallineMagneticPhase 与 CrystallineMagneticMaterial。
+
+          ⚠⚠ **2026-11-05 改释义：状态读法 → 倾向读法**（docs/material-cross-ontology.md §6 N4）。
+            原释义「A crystalline phase that is magnetically ordered, having atomic magnetic moments
+            due to unpaired electrons」是状态读法：α-Fe 过 770 °C 仍是 bcc 的 α 相，却要退出本类；
+            而 EMMO 是 4D 本体，个体的类归属不随时间变。现改为与 MagneticMaterial 同一措辞
+            （电子磁矩、零外场、长程、低于某个有序温度）。「unpaired electrons」是机制不是判据，
+            巡游磁体也对不上，删去。下文凡说「magnetically ordered」处，按新释义读。
+            ⚠ 本类不 ⊑ MagneticMaterial（§6 N8）：K6、M4 定了 Phase 不挂在 Material 下。
+              要查「被模拟的磁性物质」，用 MagneticMaterial ⊔ CrystallineMagneticPhase。
           **本文件第一次碰磁学**，之前 material.ttl 里一个磁字都没有。
 
           ⚠⚠ **上游 EMMO 1.0.4 没有任何磁性材料类。** 全库 prefLabel 扫过带 Magnet 的词条
@@ -1364,6 +1384,12 @@ classes:
       ################################################################
     - |-
       ################################################################
+          ⚰ **2026-11-05 本条已删除（docs/material-cross-ontology.md §6 N5），以下全段作废，只留作历史账。**
+            理由：① MagneticStructure 在符号侧（⊑ CrystalStructure ⊑ Language），本条说的是
+            「每份磁性相都已被写过一份磁结构」—— 数据义务，不是相的构成性条件（§6 M1、M2）；
+            ② emmo:Crystal ⊑ ∃hasProperty.CrystalStructure 早已删除，下面「收紧继承来的那条」
+            的前提已不存在；③ 非公度序或尚未解出的磁结构写不成具名 MagneticStructure 个体。
+            磁结构改在 ABox 按需写。
           commagmo:CrystallineMagneticPhase ⊑ ∃emmo:hasProperty.commagmo:MagneticStructure
           —— 公理写在上面 CrystallineMagneticPhase 那个节点里，账记在这里。
 
@@ -1411,7 +1437,7 @@ classes:
       ################################################################
   MagneticMaterial:
     label: MagneticMaterial
-    definition: A material that can exhibit spontaneous long-range magnetic order.
+    definition: A material whose electronic magnetic moments can order spontaneously, in zero applied field, into a long-range arrangement below some ordering temperature.
     parents:
     - emmo:Material
     rationale: |-
@@ -1427,15 +1453,43 @@ classes:
           ⚠ **本版只有释义，没有公理。** 「能出现磁有序」要写成公理，得先有一个表示
             磁有序倾向的类（disposition 或 Property），本仓库还没有。推理器因此不会把
             任何东西自动归进本类，全靠断言。
+
+          ⚠⚠ **2026-11-05 释义收紧**（docs/material-cross-ontology.md §6 N1–N3、N6、N8）。
+            原释义「A material that can exhibit spontaneous long-range magnetic order」没有条件。
+            · **电子磁矩**：否则铜也算 —— 铜的核自旋在约 58 nK 反铁磁有序。
+            · **零外场**：「自发」的本义；只在外场下才有序的变磁体不算。
+            · **低于某个有序温度**；**不限压力**：加压才有序的材料，模拟里照样当磁性材料算。
+            · **算**：铁磁、亚铁磁、反铁磁、螺旋与非公度序（都是长程序）。
+              **不算**：顺磁、抗磁、自旋玻璃（冻结而无长程序）。超顺磁纳米颗粒按颗粒的材料算
+              （超顺磁是尺寸效应，材料本身是铁磁的）。
+            · **软磁 / 硬磁不铸类**：矫顽力阈值（约 1 kA/m、10 kA/m）是约定，同一种材料可因工艺
+              落在不同档 —— 软硬是样品的性质，不是材料的种类。按 ABox 里的 Hc 值查（G2）。
+            · **非晶磁体**（如 Fe₇₈Si₉B₁₃ 带材）属于本类：没有晶格，但磁矩长程铁磁有序。
+              断言为 MagneticMaterial ⊓ emmo:AmorphousMaterial；相这一层用 commagmo:Phase，
+              不另铸磁性非晶相（待办：需要时铸 MagneticPhase ⊑ Phase）。
+            · **磁性相不在本类之下**：按释义字面，Nd₂Fe₁₄B 主相也「能有序」，但 K6、M4 定了
+              Phase 不挂在 Material 下。查「被模拟的磁性物质」用 MagneticMaterial ⊔ CrystallineMagneticPhase。
       ################################################################
   CrystallineMagneticMaterial:
     label: CrystallineMagneticMaterial
-    definition: A magnetic material with a crystalline structure.
+    definition: A magnetic material whose magnetic order resides in a crystalline phase.
     parents:
     - MagneticMaterial
     - emmo:CrystallineMaterial
     restrictions:
     - hasPhase some CrystallineMagneticPhase
+    rationale: |-
+      ################################################################
+          commagmo:CrystallineMagneticMaterial —— 2026-11-05 改释义（docs/material-cross-ontology.md §6 N7）。
+          原释义是「A magnetic material with a crystalline structure」。照那个读法，
+          ∃hasPhase.CrystallineMagneticPhase 不是构成性的（§6 M1）：非磁性晶态基体里弥散着非晶磁性
+          颗粒的材料，既是晶态又是磁性，却没有晶态磁性相。新释义把「磁有序落在晶态相上」写进定义，
+          这条 ∃ 就是构成性的，保留；上面那种材料不归本类，只是 MagneticMaterial ⊓ emmo:CrystallineMaterial。
+          烧结 NdFeB、纳米晶 Finemet（晶态 Fe-Si 晶粒在非晶基体中）都在本类之内。
+          ⚠ 本类的价值就在这条 ∃：它把材料层的「磁性」接到相层，而 DFT 正是算在那个相上。
+          ⚠ ⊑ emmo:CrystallineMaterial 保留：上游这个分面没有释义也没有公理，不冲突。
+          ⚠ 未经 HermiT 实测（本机无 Java 运行时）。
+      ################################################################
   MagneticStructure:
     label: MagneticStructure
     definition: A crystallographic language construct that describes the ideal, periodic arrangement of magnetic moments on the crystallographic sites of a magnetically ordered phase.
@@ -2504,7 +2558,9 @@ properties:
             ⚠ TotalComposition 与 PartialComposition 在上游的公理逐字相同（见
               emmo:ChemicalComposition 那一节），"all constituents" 只在释义里 ——
               所以这个 range 只表意图，推理器分不出整式与部分式。
-          ⚠ **共享靠约定，不靠公理**：宾语必须是具名 IRI 而非空白节点，交给 SHACL（待办）。
+          ⚠ **共享靠约定，不靠公理**：宾语必须是具名 IRI 而非空白节点。2026-11-05 起由
+            ontology/shapes/commagmo-shapes.ttl 的 SimulatedPhaseKindShape 检查（§6 M7），
+            只查被模拟的相，同时要求经 emmo:hasProperty 挂一个具名的 CrystalStructure。
             EMMO 惯用写法是每份物质一组空白节点，照那样写种类比较只能逐项比数值，很脆。
           ⚠ 未经 HermiT 实测（本机无 Java 运行时）。range 推断的代价（宾语被推成
             TotalComposition ⊓ ChemicalComposition）与父谓词同一侧，预期零新增，未量。
@@ -2562,6 +2618,15 @@ upstream:
               「被模拟的材料必须写成分」改由 SHACL 管（待办）。
             · 删掉公理不影响在个体上使用这两个谓词；被模拟的材料仍经
               emmo:hasSimulatedObject ⊑ emmo:hasReferent 被推成 Referent。
+          ⚠ **2026-11-05 理由重排**（docs/material-cross-ontology.md §6 M2）：
+            ① 首要：不收紧上游类 —— 下游 import 本模块后拿到的 emmo:Material 不该比上游紧。
+            ② 第二（新增）：emmo:ChemicalComposition 在符号侧，是写下来的描述。
+               ∃hasChemicalComposition 说的是「每一份物质都已被人写过一份成分」—— 这是数据义务，
+               不是物质的性质，归 SHACL。落实为「被模拟的相必须写名义成分与晶体结构」（§6 M7，
+               ontology/shapes/commagmo-shapes.ttl）。∃hasProperty.Property 则是空话。
+            ③ 第三：两条都会把整个上游类推成 Referent。
+            上面「∃ 在开放世界下不检查数据」不单独构成删除理由（本仓库留着的本地 ∃ 也不检查数据），
+            删留的统一判据见 §6 M1（构成性）。
           旧账（HermiT 实测、义务探针、两文件同步补齐的经过）见 commit eb157cb 及之前的版本。
       ################################################################
   emmo:ChemicalComposition:

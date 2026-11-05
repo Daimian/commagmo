@@ -112,7 +112,6 @@ commagmo:Microstructure a owl:Class ;
 commagmo:Phase a owl:Class ;
     rdfs:label "Phase"@en ;
     rdfs:subClassOf emmo:EMMO_668fbd5b_6f1b_405c_9c6b_d6067bd0595a ;
-    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204 ; owl:someValuesFrom emmo:EMMO_a8eb87b5_4d10_4137_a75c_e04ee59ca095 ] ;
     skos:definition "A region of matter throughout which all physical properties are essentially uniform."@en .
 
 commagmo:CrystallinePhase a owl:Class ;
@@ -123,20 +122,19 @@ commagmo:CrystallinePhase a owl:Class ;
 commagmo:CrystallineMagneticPhase a owl:Class ;
     rdfs:label "CrystallineMagneticPhase"@en ;
     rdfs:subClassOf commagmo:CrystallinePhase ;
-    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204 ; owl:someValuesFrom commagmo:MagneticStructure ] ;
-    skos:definition "A crystalline phase that is magnetically ordered, having atomic magnetic moments due to unpaired electrons."@en .
+    skos:definition "A crystalline phase whose electronic magnetic moments can order spontaneously, in zero applied field, into a long-range arrangement below some ordering temperature."@en .
 
 commagmo:MagneticMaterial a owl:Class ;
     rdfs:label "MagneticMaterial"@en ;
     rdfs:subClassOf emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 ;
-    skos:definition "A material that can exhibit spontaneous long-range magnetic order."@en .
+    skos:definition "A material whose electronic magnetic moments can order spontaneously, in zero applied field, into a long-range arrangement below some ordering temperature."@en .
 
 commagmo:CrystallineMagneticMaterial a owl:Class ;
     rdfs:label "CrystallineMagneticMaterial"@en ;
     rdfs:subClassOf commagmo:MagneticMaterial ;
     rdfs:subClassOf emmo:EMMO_f1025834_0cd2_42a1_bfeb_13bec41c8655 ;
     rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasPhase ; owl:someValuesFrom commagmo:CrystallineMagneticPhase ] ;
-    skos:definition "A magnetic material with a crystalline structure."@en .
+    skos:definition "A magnetic material whose magnetic order resides in a crystalline phase."@en .
 
 commagmo:MagneticStructure a owl:Class ;
     rdfs:label "MagneticStructure"@en ;

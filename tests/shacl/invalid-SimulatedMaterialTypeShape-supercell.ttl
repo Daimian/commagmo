@@ -1,0 +1,11 @@
+# 反例：把超胞（原子构型，Data 一侧）填进 hasSimulatedMaterial。
+# 一个只标了 AtomicConfiguration；另一个同时被误标为 emmo:Material（sh:not Data 那一半）。
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix emmo: <https://w3id.org/emmo#> .
+@prefix commagmo: <https://w3id.org/emmo/domain/commagmo#> .
+@prefix ex: <https://example.org/commagmo-test#> .
+
+ex:supercell a commagmo:AtomicConfiguration .
+ex:supercell2 a commagmo:AtomicConfiguration , emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 .
+ex:dft1 a commagmo:DFTSimulation ; commagmo:hasSimulatedMaterial ex:supercell .
+ex:dft2 a commagmo:DFTSimulation ; commagmo:hasSimulatedMaterial ex:supercell2 .

@@ -91,7 +91,6 @@ classes:
     - hasMaterialsModel some emmo:MaterialsModel
     - emmo:hasParticipant some MaterialSimulationSoftware
     - hasBoundaryCondition some BoundaryCondition
-    - hasConvergenceCriterion some ConvergenceCriterion
     annotations:
       mayHaveInputProperty:
       - emmo:Property
@@ -165,8 +164,20 @@ classes:
       ################################################################
     - |-
       ################################################################
-          收敛判据挂全部四支（走 MaterialSimulation 一条即可）；
-          随机种子只挂两支。
+          收敛判据只挂 DFT 一支（DFTSimulation 上那条 ∃）；随机种子只挂两支。
+      ################################################################
+    - |-
+      ################################################################
+          ⚠⚠ **2026-11-05：∃hasConvergenceCriterion 从本类挪到 DFTSimulation**
+            （docs/material-cross-ontology.md §6 O3，按 M1 的构成性判据）。
+            原先写在本类上，等于说「每次材料模拟必有收敛判据」。反例：
+              · LLG 动力学按物理时间推进，跑到 10 ns 就停，没有收敛这回事；
+              · 固定步数的蒙特卡洛（原子自旋）同样按步数停；
+              · 相场若用显式时间推进，也不一定有收敛判据（隐式 Newton 迭代才有）。
+            只有 DFT 的 SCF 必定按收敛判据停，所以只在 DFTSimulation 上写。
+            其余三支有判据时照常写 hasConvergenceCriterion，只是不再是类级义务。
+          ⚠ 边界条件那条 ∃ 保留：有限体系总要处理边界，周期性与开放边界都是边界条件。
+          ⚠ 未经 HermiT 实测。
       ################################################################
   DensityFunctionalTheory:
     label: DensityFunctionalTheory
@@ -451,8 +462,16 @@ classes:
     - hasDiscretisation some BasisSet
     - hasSolver some SolverForDFT
     - hasInitialCondition some InitialChargeDensity
+    - hasConvergenceCriterion some ConvergenceCriterion
     equivalent: MaterialSimulation and (hasMaterialsModel some DensityFunctionalTheory)
     rationale:
+    - |-
+      ################################################################
+          ∃hasConvergenceCriterion.ConvergenceCriterion —— 2026-11-05 从 MaterialSimulation
+          挪来（docs/material-cross-ontology.md §6 O3）。SCF 循环必定按收敛判据停
+          （能量差、电荷密度残差、力），这条是构成性的；其余三支没有这个保证。
+          ⚠ 未经 HermiT 实测。
+      ################################################################
     - |-
       ################################################################
           四个 XxxSimulation —— 八档跑法的挂点。2026-08-26 起版。
@@ -1201,11 +1220,11 @@ classes:
     - SimulationSetting
   ScaleBridging:
     label: ScaleBridging
-    definition: A data processing that turns a property calculated by a simulation at one scale into a property given as input to a simulation at another scale, for example converting exchange constants into an exchange stiffness.
+    definition: A data processing that turns a property from one scale, whether simulated, measured or conventional, into a property given as input to a simulation at another scale, for example converting exchange constants into an exchange stiffness.
     parents:
     - emmo:DataProcessing
     restrictions:
-    - emmo:hasInput some SimulatedProperty
+    - emmo:hasInput some emmo:ObjectiveProperty
     - emmo:hasOutput some emmo:Property
     rationale: |-
       ################################################################
@@ -1228,15 +1247,31 @@ classes:
             emmo:isRepresentedBy some emmo:Equation，但恒等桥接没有方程，写 ∃ 会多出义务。
             待有实例数据时再定。
           ⚠ 未经 HermiT 实测。
+
+          ⚠⚠ **2026-11-05：输入从 SimulatedProperty 放宽到 emmo:ObjectiveProperty**
+            （docs/material-cross-ontology.md §6 O1）。上面链式写法里的 p1 按来源取子类：
+              模拟算出的 → commagmo:SimulatedProperty（⊑ emmo:ModelledProperty）
+              实测的     → emmo:MeasuredProperty
+              约定的     → emmo:ConventionalProperty（例如厂家手册上的值）
+            原写法的毛病：SimulatedProperty ⊑ ∃isOutputOf.MaterialSimulation。测得的 Ms(T)
+            经标度换算成 A(T) 再喂给微磁，这个实验值只能冒充 SimulatedProperty，
+            推理器随之推出一次并不存在的模拟。
+            文献里的**计算值**仍是 SimulatedProperty：论文里那次模拟真实存在，只是没记，
+            那条 ∃ 为真。SimulatedProperty 上的 ∃ 不动。
+            range 取 ObjectiveProperty 与 ModelValidation 的 comparesReference 同一口径；
+            不取 emmo:Property，那会放进「red」这类 coded property。
+          ⚠ 未经 HermiT 实测。
       ################################################################
   MultiscaleSimulation:
     label: MultiscaleSimulation
-    definition: A simulation made of two or more material simulations that are solved one after another, in which the output of one is passed to the next through scale bridging.
+    definition: A simulation, organised as a workflow, made of two or more material simulations, in which the output of one feeds another through scale bridging.
     parents:
     - emmo:Simulation
+    - emmo:Workflow
     restrictions:
-    - emmo:hasTemporalTile min 2 MaterialSimulation
-    - emmo:hasTemporalTile some ScaleBridging
+    - emmo:hasTask min 2 MaterialSimulation
+    - emmo:hasTask some ScaleBridging
+    - hasSimulatedMaterial some emmo:Material
     rationale: |-
       ################################################################
           多尺度模拟 —— 整条链的容器，2026-10-23 起版（docs/material-cross-ontology.md §5，G3、G7）。
@@ -1249,14 +1284,27 @@ classes:
             （机器学习势、代理模型也算材料模拟）。挂过去等于说「链里只能有物理基模型」。
             与 emmo:MultiSimulation 那一节同一个理由，只在这里注明，不写 ⊑。
 
-          ⚠ 部分用 emmo:hasTemporalTile：EMMO 的 SerialWorkflow 就是「tasks are tiles of
-            a sequence」。各次模拟与各个桥接步骤都是这条时间序列上的一块。
-            后果：填进宾语位的个体被 rdfs:range 推成 emmo:TemporalTile。
-            本类**没有**挂 emmo:SerialWorkflow，那是另一个待决。
+          ⚠⚠ **部分用 emmo:hasTask，父类加 emmo:Workflow，不挂 emmo:SerialWorkflow**
+            （2026-11-05，docs/material-cross-ontology.md §6 O2；原写法用 emmo:hasTemporalTile）。
+            · hasTemporalTile 的两头副作用（查 emmo-inferred-1.0.4.ttl）：range 把子模拟推成
+              emmo:TemporalTile；它 ⊑ hasSpatioTemporalTile，后者 domain 是
+              SpatioTemporalTessellation，把本类推成时空镶嵌。两者都不与 Simulation 的祖先互斥，
+              但语义上说的是「在时间上一段接一段切开」，要求全序。
+            · 真实的链常是 DAG：主相 Nd₂Fe₁₄B 一次 DFT、晶界相一次 DFT，彼此独立，
+              再一起汇入微磁。两次 DFT 不是时间切片的先后。EMMO 把这叫 ParallelWorkflow，
+              它与 SerialWorkflow **互斥**，所以挂 SerialWorkflow 等于排除 DAG。
+            · emmo:hasTask 的 domain 是 emmo:Workflow，range 是 emmo:Task（⊑ Procedure ⊓ Role），
+              只说「是这个工作流里的任务」，不承诺串行或并行。⊑ emmo:Workflow 显式写出
+              （domain 本来也会推出）；Workflow ⊑ ∃hasRole.Task 由那两条 ∃hasTask 兑现。
 
           ⚠ **「至少跨两个尺度」写不进公理**，只写了「至少两次材料模拟」。
             跨尺度要说的是两次模拟所解的模型属于不同的尺度档，这要比较两个填充者，
             OWL 的类表达式说不出来。三次同尺度模拟串起来，推理器同样认它是本类。
+          ⚠ **SHACL 也不补**（2026-11-05，§6 O4）。技术上可行：四个本地模型类都用具名
+            subClassOf 挂在 EMMO 的四个尺度档下，可以经 hasMaterialsModel 的宾语类型判
+            「至少两个不同的档」。但**多尺度微磁**会被误报：晶粒尺度微磁粗粒化到磁体尺度微磁，
+            两边都是 MicromagneticModel ⊑ MesoscopicModel，却确实是多尺度。只写成
+            emmo:MaterialsModel 的模型（如 ML 势）也没有档。本类的「scale」读作尺度或分辨率。
           ⚠ 未经 HermiT 实测。
 
           ⚠⚠ **2026-10-26 补记：哪些模拟算子模拟**（docs/material-cross-ontology.md §6 L1）。
@@ -1264,9 +1312,21 @@ classes:
             hasSimulatedMaterial 指向这块材料的显微组织本身，或它的部分（例如经 hasPhase
             到达的主相）—— 「这条链模拟的是同一块材料」靠这条部分关系路径回答，不靠比成分。
             **外来的、被复用的结果**（例如文献里一组 Nd₂Fe₁₄B 的 K₁，被上百次微磁模拟复用）
-            不是子模拟，只作为 SimulatedProperty 进 ScaleBridging 的 hasInput。
+            不是子模拟，只作为 ScaleBridging 的 hasInput 进来（按来源取 ObjectiveProperty 的子类，
+            文献计算值是 SimulatedProperty，实测值是 MeasuredProperty；§6 O1）。
             ⚠ 这条规则只是约定，公理里没有：OWL 说不出「子模拟的宾语是整链宾语的部分」
               （要比较两个填充者，与上面「跨尺度」同一个限制）。将来可交给 SHACL。
+          ⚠⚠ **2026-11-05 补记**（§6 M8）：整链材料记在本类自己的 hasSimulatedMaterial 上
+            （一般指向那块材料的 Microstructure），新增公理 ⊑ ∃hasSimulatedMaterial.emmo:Material ——
+            按 M1 的构成性判据，链模拟的总得是某块材料。hasSimulatedMaterial 没有本地 domain，
+            父谓词的 domain 是 emmo:Simulation，本类本来就在其下，主语侧不多推任何东西。
+            L1 的约定由 ontology/shapes/commagmo-shapes.ttl 的 MultiscaleChainShape 检查（SPARQL）：
+            每个带 hasSimulatedMaterial 的子模拟（经 emmo:hasTask 连接，§6 O2；
+            ScaleBridging 没有这条边），其宾语要么就是
+            整链材料，要么能从它经
+            hasPhase / emmo:hasComponent / emmo:hasSpatialPart 的一步或多步走到。
+            ⚠ SHACL 不开推理，只认这三个谓词的显式三元组；用别的部分谓词写的路径会被误报。
+            ⚠ 未经 HermiT 实测。
       ################################################################
   ModelValidation:
     label: ModelValidation
@@ -1447,6 +1507,12 @@ properties:
             · 上面那条「把编码物与 Material 隔开」**不走 owl:disjointWith**，交给 SHACL：
               宾语须显式声明为 emmo:Material 且不是 Data（K4）。理由：互斥只拦得住已经
               标了类型的个体，而且本机无 HermiT，加了也验不了。
+            · **2026-11-05 兑现并改写 K4**（§6 M4）：ontology/shapes/commagmo-shapes.ttl 的
+              SimulatedMaterialTypeShape —— 宾语的**显式**类型须是 emmo:Material 或 commagmo:Phase
+              的（子）类，且不是 emmo:Data。原措辞「显式声明为 emmo:Material」与 K6 冲突：
+              Phase 不在 Material 之下，不开推理会误报；开 RDFS 推理又会被本谓词的 range
+              推成 Material，检查永远通过。所以 SHACL **不开推理**，父类闭包只取本仓库的 ttl
+              与 upstream-cache.json 里的具名 subClassOf。
       ################################################################
   hasMaterialsModel:
     kind: object

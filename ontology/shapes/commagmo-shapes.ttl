@@ -1,0 +1,99 @@
+# ComMagMO SHACL shapes —— 手写，不由 YAML 生成。
+# 决议：docs/material-cross-ontology.md §6 靶子 3（M3–M8）。
+#
+# 验证口径（tools/commagmo_build/shacl.py）：
+#   · inference = none。不开 RDFS 推理：hasSimulatedMaterial 的 rdfs:range 是 emmo:Material，
+#     一开推理，宾语全被推成 Material，SimulatedMaterialTypeShape 就永远通过（M4）。
+#   · ont 图 = ontology/*.ttl ＋ upstream-cache.json 里上游类的具名直接父类（rdfs:subClassOf）。
+#     sh:class 沿这些边找父类。
+#   · 局限：只认具名 subClassOf。用 owl:equivalentClass 的交集定义的类（如 DFTSimulation
+#     ≡ MaterialSimulation ⊓ …）在闭包里不是 MaterialSimulation 的子类，shapes 因此不按
+#     MaterialSimulation 筛选个体。
+#   · 测试数据在 tests/shacl/：valid.ttl 必须通过；invalid-<Shape名>-<情形>.ttl 必须失败，
+#     且只违反文件名里的那一个 shape。
+
+@prefix sh:       <http://www.w3.org/ns/shacl#> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix emmo:     <https://w3id.org/emmo#> .
+@prefix commagmo: <https://w3id.org/emmo/domain/commagmo#> .
+@prefix cmsh:     <https://w3id.org/emmo/domain/commagmo/shapes#> .
+
+# emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94  Material
+# emmo:EMMO_3e7add3d_e6ed_489a_a796_8e31fef9b490  Data
+# emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204  hasProperty
+# emmo:EMMO_3c7f239f_e833_4a2b_98a1_c88831770c1b  hasComponent
+# emmo:EMMO_dc57d998_23db_4d8e_b2cd_f346b195b846  hasSpatialPart
+# emmo:EMMO_70da982d_1810_4b01_9630_a28e216ecd9a  hasTask
+
+cmsh:
+    a owl:Ontology ;
+    sh:declare
+        [ sh:prefix "emmo" ;     sh:namespace "https://w3id.org/emmo#"^^<http://www.w3.org/2001/XMLSchema#anyURI> ] ,
+        [ sh:prefix "commagmo" ; sh:namespace "https://w3id.org/emmo/domain/commagmo#"^^<http://www.w3.org/2001/XMLSchema#anyURI> ] .
+
+# ---------------------------------------------------------------------------
+# M4（改写 K4）：被模拟的东西必须是物质，不能是表示（超胞、原子构型……）。
+# 显式类型须落在 emmo:Material 或 commagmo:Phase 之下（Phase 不在 Material 之下，K6），
+# 且不落在 emmo:Data 之下。
+cmsh:SimulatedMaterialTypeShape
+    a sh:NodeShape ;
+    sh:targetObjectsOf commagmo:hasSimulatedMaterial ;
+    sh:or (
+        [ sh:class emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 ]
+        [ sh:class commagmo:Phase ]
+    ) ;
+    sh:not [ sh:class emmo:EMMO_3e7add3d_e6ed_489a_a796_8e31fef9b490 ] ;
+    sh:message "hasSimulatedMaterial 的宾语须显式类型为 emmo:Material 或 commagmo:Phase（的子类），且不是 emmo:Data（§6 M4）" .
+
+# ---------------------------------------------------------------------------
+# M7（含 L3）：被模拟的相必须带种类键，而且键是共享的具名个体。
+#   · 任何相：至少一个具名（IRI）的 hasNominalComposition 宾语；
+#   · 晶态相：另外至少一个经 emmo:hasProperty 挂的、具名的 CrystalStructure。
+#     非晶相没有晶体结构，不要求。
+# 不是相的被模拟对象（如 Microstructure）不受本 shape 约束。
+cmsh:SimulatedPhaseKindShape
+    a sh:NodeShape ;
+    sh:targetObjectsOf commagmo:hasSimulatedMaterial ;
+    sh:or (
+        [ sh:not [ sh:class commagmo:Phase ] ]
+        [ sh:property [
+              sh:path commagmo:hasNominalComposition ;
+              sh:qualifiedValueShape [ sh:nodeKind sh:IRI ] ;
+              sh:qualifiedMinCount 1 ] ]
+    ) , (
+        [ sh:not [ sh:class commagmo:CrystallinePhase ] ]
+        [ sh:property [
+              sh:path emmo:EMMO_e1097637_70d2_4895_973f_2396f04fa204 ;
+              sh:qualifiedValueShape [ sh:class commagmo:CrystalStructure ; sh:nodeKind sh:IRI ] ;
+              sh:qualifiedMinCount 1 ] ]
+    ) ;
+    sh:message "被模拟的相须有具名的 hasNominalComposition；晶态相还须经 emmo:hasProperty 挂一个具名的 CrystalStructure（§6 M7）" .
+
+# ---------------------------------------------------------------------------
+# M8（兑现 L1）：多尺度链必须记整链材料；每个带 hasSimulatedMaterial 的子模拟，
+# 其宾语是整链材料本身，或能从它经 hasPhase / hasComponent / hasSpatialPart 一步或多步走到。
+cmsh:MultiscaleChainShape
+    a sh:NodeShape ;
+    sh:targetClass commagmo:MultiscaleSimulation ;
+    sh:property [
+        sh:path commagmo:hasSimulatedMaterial ;
+        sh:minCount 1 ;
+        sh:message "MultiscaleSimulation 须用 hasSimulatedMaterial 记整链材料（§6 M8）" ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:prefixes cmsh: ;
+        sh:message "子模拟 {?tile} 的被模拟对象 {?value} 不是整链材料，也不是它的部分（§6 M8 / L1）" ;
+        sh:select """
+            SELECT $this ?tile ?value WHERE {
+                $this emmo:EMMO_70da982d_1810_4b01_9630_a28e216ecd9a ?tile .   # hasTask（§6 O2）
+                ?tile commagmo:hasSimulatedMaterial ?value .
+                FILTER NOT EXISTS {
+                    $this commagmo:hasSimulatedMaterial ?whole .
+                    ?whole (commagmo:hasPhase
+                            |emmo:EMMO_3c7f239f_e833_4a2b_98a1_c88831770c1b
+                            |emmo:EMMO_dc57d998_23db_4d8e_b2cd_f346b195b846)* ?value .
+                }
+            }
+        """ ] .

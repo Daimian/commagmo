@@ -22,7 +22,6 @@ commagmo:MaterialSimulation a owl:Class ;
     rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasMaterialsModel ; owl:someValuesFrom emmo:EMMO_90f18cf0_1225_4c64_b5f8_f65cd7f992c5 ] ;
     rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_ae2d1a96_bfa1_409a_a7d2_03d69e8a125a ; owl:someValuesFrom commagmo:MaterialSimulationSoftware ] ;
     rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasBoundaryCondition ; owl:someValuesFrom commagmo:BoundaryCondition ] ;
-    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasConvergenceCriterion ; owl:someValuesFrom commagmo:ConvergenceCriterion ] ;
     skos:definition "A simulation that takes a material as its simulated object, solves a materials model, and is run by simulation software."@en ;
     commagmo:mayHaveInputProperty emmo:EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba ;
     commagmo:mayHaveOutputCalculatedProperty commagmo:SimulatedProperty ;
@@ -64,6 +63,7 @@ commagmo:DFTSimulation a owl:Class ;
     rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasDiscretisation ; owl:someValuesFrom commagmo:BasisSet ] ;
     rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasSolver ; owl:someValuesFrom commagmo:SolverForDFT ] ;
     rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasInitialCondition ; owl:someValuesFrom commagmo:InitialChargeDensity ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasConvergenceCriterion ; owl:someValuesFrom commagmo:ConvergenceCriterion ] ;
     owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( commagmo:MaterialSimulation [ a owl:Restriction ; owl:onProperty commagmo:hasMaterialsModel ; owl:someValuesFrom commagmo:DensityFunctionalTheory ] ) ] ;
     skos:definition "A material simulation that solves a density functional theory model."@en .
 
@@ -289,16 +289,18 @@ commagmo:PostProcessingMethod a owl:Class ;
 commagmo:ScaleBridging a owl:Class ;
     rdfs:label "ScaleBridging"@en ;
     rdfs:subClassOf emmo:EMMO_1c7f2dfe_0db4_4bf6_a0f6_853054a34ead ;
-    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_36e69413_8c59_4799_946c_10b05d266e22 ; owl:someValuesFrom commagmo:SimulatedProperty ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_36e69413_8c59_4799_946c_10b05d266e22 ; owl:someValuesFrom emmo:EMMO_dd4a7f3e_ef56_466c_ac1a_d2716b5f87ec ] ;
     rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_c4bace1d_4db0_4cd3_87e9_18122bae2840 ; owl:someValuesFrom emmo:EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba ] ;
-    skos:definition "A data processing that turns a property calculated by a simulation at one scale into a property given as input to a simulation at another scale, for example converting exchange constants into an exchange stiffness."@en .
+    skos:definition "A data processing that turns a property from one scale, whether simulated, measured or conventional, into a property given as input to a simulation at another scale, for example converting exchange constants into an exchange stiffness."@en .
 
 commagmo:MultiscaleSimulation a owl:Class ;
     rdfs:label "MultiscaleSimulation"@en ;
     rdfs:subClassOf emmo:EMMO_9335cf09_431f_4613_9dab_ce4ceaca965b ;
-    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_65a2c5b8_e4d8_4a51_b2f8_e55effc0547d ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass commagmo:MaterialSimulation ] ;
-    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_65a2c5b8_e4d8_4a51_b2f8_e55effc0547d ; owl:someValuesFrom commagmo:ScaleBridging ] ;
-    skos:definition "A simulation made of two or more material simulations that are solved one after another, in which the output of one is passed to the next through scale bridging."@en .
+    rdfs:subClassOf emmo:EMMO_64963ed6_39c9_4258_85e0_6466c4b5420c ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_70da982d_1810_4b01_9630_a28e216ecd9a ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass commagmo:MaterialSimulation ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty emmo:EMMO_70da982d_1810_4b01_9630_a28e216ecd9a ; owl:someValuesFrom commagmo:ScaleBridging ] ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty commagmo:hasSimulatedMaterial ; owl:someValuesFrom emmo:EMMO_4207e895_8b83_4318_996a_72cfb32acd94 ] ;
+    skos:definition "A simulation, organised as a workflow, made of two or more material simulations, in which the output of one feeds another through scale bridging."@en .
 
 commagmo:ModelValidation a owl:Class ;
     rdfs:label "ModelValidation"@en ;

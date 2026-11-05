@@ -1,0 +1,10 @@
+# 反例：多尺度链没有记整链材料。
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix emmo: <https://w3id.org/emmo#> .
+@prefix commagmo: <https://w3id.org/emmo/domain/commagmo#> .
+@prefix ex: <https://example.org/commagmo-test#> .
+
+ex:magnet a commagmo:Microstructure .
+ex:mm a commagmo:MicromagneticSimulation ; commagmo:hasSimulatedMaterial ex:magnet .
+ex:chain a commagmo:MultiscaleSimulation ;
+    emmo:EMMO_70da982d_1810_4b01_9630_a28e216ecd9a ex:mm .
